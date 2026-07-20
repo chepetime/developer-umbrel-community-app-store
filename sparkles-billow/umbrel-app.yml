@@ -4,7 +4,7 @@ name: Billow
 tagline: Personal invoices without the spreadsheet drift
 icon: https://svgur.com/i/mvA.svg
 category: Development
-version: "0.1.0"
+version: "0.1.1"
 port: 4000
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
@@ -21,8 +21,7 @@ gallery:
   - https://i.imgur.com/yyVG0Jb.jpeg
   - https://i.imgur.com/yyVG0Jb.jpeg
 releaseNotes: >-
-  Initial Billow baseline with Next.js, Prisma, Postgres, shadcn/ui, API, and
-  server component examples.
+  Fix Prisma seed configuration for container startup.
 dependencies: []
 path: ""
 defaultUsername: ""
