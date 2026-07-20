@@ -9,6 +9,65 @@ repository when installing. It reads `sparkles-billow/umbrel-app.yml` and
 `sparkles-billow/docker-compose.yml`, then pulls the Docker images referenced in
 Compose.
 
+## Official Umbrel App Patterns Checked
+
+Reference repo:
+
+```text
+https://github.com/getumbrel/umbrel-apps
+```
+
+Important findings from the official repo:
+
+- Each top-level directory is an app package consumed by umbrelOS.
+- App packages use `docker-compose.yml` plus `umbrel-app.yml`.
+- The `app_proxy` service sets `APP_HOST` and `APP_PORT`; the actual web app
+  service does not need to expose the proxied port directly.
+- Official packages usually pin application images by digest:
+
+  ```yaml
+  image: owner/image:version@sha256:<multi-arch-digest>
+  ```
+
+- Apps with databases persist data under `${APP_DATA_DIR}`, not a plain Docker
+  named volume.
+- Example official Postgres pattern from Docmost:
+
+  ```yaml
+  db:
+    image: postgres:<version>@sha256:<digest>
+    user: "1000:1000"
+    volumes:
+      - ${APP_DATA_DIR}/data/db_data:/var/lib/postgresql/data
+  ```
+
+- Example official finance/database pattern from Firefly III:
+
+  ```yaml
+  db:
+    image: mariadb:<version>@sha256:<digest>
+    user: "1000:1000"
+    volumes:
+      - ${APP_DATA_DIR}/data/mysql:/var/lib/mysql
+  ```
+
+Current Billow follows the important local-store pieces:
+
+- top-level package directory: `sparkles-billow`
+- proxied web service through `app_proxy`
+- database data persisted under `${APP_DATA_DIR}/postgres`
+- app image pulled from GHCR rather than built by Umbrel
+
+Still to improve before treating this like a polished distributable app:
+
+- Replace placeholder gallery screenshots.
+- Replace placeholder icon.
+- Consider adding `user: "1000:1000"` to services if runtime file ownership
+  requires it on Umbrel.
+- Pin the Billow image and Postgres image by digest after publishing and testing.
+- Consider moving app source into a separate app repo later, leaving this repo as
+  only the Umbrel store package.
+
 ## Current App Shape
 
 Billow lives at `sparkles-billow`.
@@ -169,6 +228,21 @@ gh run list --workflow publish-billow.yml --limit 3
 gh run view <run-id> --log-failed
 ```
 
+The first successful image publish was run `29771639783`. It built both
+`linux/amd64` and `linux/arm64` and eventually completed successfully after
+about 9 minutes, but the arm64 build appeared stuck at the Next.js build line for
+several minutes:
+
+```text
+▲ Next.js 16.2.10 (webpack)
+Creating an optimized production build ...
+```
+
+That slowness was QEMU emulation for arm64 on GitHub's amd64 runner. For faster
+iteration, commit `43ff921` changed the workflow to publish only `linux/amd64`.
+If the target Umbrel device is ARM-based, restore `linux/arm64` or use a native
+ARM runner.
+
 ## GitHub Actions Build Note
 
 The workflow currently builds only `linux/amd64` so installs move quickly on the
@@ -244,6 +318,21 @@ The failure is usually one of:
 - The image tag in `docker-compose.yml` does not match the published tag.
 - The app container starts but exits because migrations or seed cannot connect
   to Postgres.
+
+In this session, Umbrel successfully showed the Billow listing from the alt
+store after pushing the store repo. The install button failed before publishing
+the GHCR image because the original Compose image was only:
+
+```yaml
+image: sparkles-billow:latest
+```
+
+Umbrel does not build that local image from the store repo. The fix was to add a
+GHCR publish workflow and change Compose to:
+
+```yaml
+image: ghcr.io/chepetime/billow:v0.1.0
+```
 
 ## Release/Update Flow
 
