@@ -13,6 +13,16 @@ export async function listAppMetadata() {
   }
 }
 
+export async function isAppMetadataDatabaseAvailable() {
+  try {
+    await getPrisma().appMetadata.count();
+    return true;
+  } catch (error) {
+    console.error("Failed to check app metadata database", error);
+    return false;
+  }
+}
+
 export async function getAppMetadata(appId = "sparkles-billow") {
   try {
     return await getPrisma().appMetadata.findUnique({

@@ -14,8 +14,8 @@ const billowMetadata = {
   appId: "sparkles-billow",
   name: "Billow",
   tagline: "Personal invoices without the spreadsheet drift.",
-  version: "0.1.5",
-  dockerImage: "ghcr.io/chepetime/billow:v0.1.5",
+  version: "0.1.6",
+  dockerImage: "ghcr.io/chepetime/billow:v0.1.6",
   repositoryUrl: "https://github.com/getumbrel/umbrel-community-app-store",
   supportUrl: "https://github.com/getumbrel/umbrel-community-app-store/issues",
 };

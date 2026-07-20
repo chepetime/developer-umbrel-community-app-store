@@ -86,7 +86,7 @@ Important files:
 The Compose file currently pulls:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.5
+image: ghcr.io/chepetime/billow:v0.1.6
 ```
 
 The app ID is:
@@ -185,7 +185,7 @@ processing.
 Build locally from the repository root:
 
 ```bash
-docker build -t ghcr.io/chepetime/billow:v0.1.5 sparkles-billow
+docker build -t ghcr.io/chepetime/billow:v0.1.6 sparkles-billow
 ```
 
 Multi-arch build and push:
@@ -193,7 +193,7 @@ Multi-arch build and push:
 ```bash
 docker buildx build \
   --platform linux/amd64 \
-  -t ghcr.io/chepetime/billow:v0.1.5 \
+  -t ghcr.io/chepetime/billow:v0.1.6 \
   -t ghcr.io/chepetime/billow:latest \
   --push \
   sparkles-billow
@@ -213,7 +213,7 @@ Workflow:
 It publishes:
 
 ```text
-ghcr.io/chepetime/billow:v0.1.5
+ghcr.io/chepetime/billow:v0.1.6
 ghcr.io/chepetime/billow:latest
 ```
 
@@ -333,7 +333,7 @@ files in Umbrel-managed app data.
 Current path:
 
 1. Push this store repository to GitHub.
-2. GitHub Actions builds and pushes `ghcr.io/chepetime/billow:v0.1.5`.
+2. GitHub Actions builds and pushes `ghcr.io/chepetime/billow:v0.1.6`.
 3. Confirm the GHCR package is public.
 4. In Umbrel, add this repository as a Community App Store if it is not already
    added.
@@ -352,6 +352,15 @@ The failure is usually one of:
 - The server container is `Up`, but `sparkles-billow_app_proxy_1` remains
   `Created`. In that case Umbrel still considers install failed because proxy
   readiness did not complete.
+- A port conflict prevents `app_proxy` from starting. Check with:
+
+  ```bash
+  sudo docker inspect sparkles-billow_app_proxy_1 --format '{{json .State}}'
+  ```
+
+  If the state error says `Bind for 0.0.0.0:<port> failed: port is already
+  allocated`, change `port` in `sparkles-billow/umbrel-app.yml`, bump the app
+  version, publish a new image tag, refresh the store, and install again.
 
 In this session, Umbrel successfully showed the Billow listing from the alt
 store after pushing the store repo. The install button failed before publishing
@@ -365,7 +374,15 @@ Umbrel does not build that local image from the store repo. The fix was to add a
 GHCR publish workflow and change Compose to:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.5
+image: ghcr.io/chepetime/billow:v0.1.6
+```
+
+Later install attempts failed at the proxy step because Billow reused the
+template host port `4000`, which was already allocated on the Umbrel host. The
+app now uses:
+
+```yaml
+port: 46247
 ```
 
 ## Release/Update Flow
