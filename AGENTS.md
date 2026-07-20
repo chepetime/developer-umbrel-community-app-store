@@ -86,7 +86,7 @@ Important files:
 The Compose file currently pulls:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.4
+image: ghcr.io/chepetime/billow:v0.1.5
 ```
 
 The app ID is:
@@ -185,7 +185,7 @@ processing.
 Build locally from the repository root:
 
 ```bash
-docker build -t ghcr.io/chepetime/billow:v0.1.4 sparkles-billow
+docker build -t ghcr.io/chepetime/billow:v0.1.5 sparkles-billow
 ```
 
 Multi-arch build and push:
@@ -193,7 +193,7 @@ Multi-arch build and push:
 ```bash
 docker buildx build \
   --platform linux/amd64 \
-  -t ghcr.io/chepetime/billow:v0.1.4 \
+  -t ghcr.io/chepetime/billow:v0.1.5 \
   -t ghcr.io/chepetime/billow:latest \
   --push \
   sparkles-billow
@@ -213,7 +213,7 @@ Workflow:
 It publishes:
 
 ```text
-ghcr.io/chepetime/billow:v0.1.4
+ghcr.io/chepetime/billow:v0.1.5
 ghcr.io/chepetime/billow:latest
 ```
 
@@ -333,7 +333,7 @@ files in Umbrel-managed app data.
 Current path:
 
 1. Push this store repository to GitHub.
-2. GitHub Actions builds and pushes `ghcr.io/chepetime/billow:v0.1.4`.
+2. GitHub Actions builds and pushes `ghcr.io/chepetime/billow:v0.1.5`.
 3. Confirm the GHCR package is public.
 4. In Umbrel, add this repository as a Community App Store if it is not already
    added.
@@ -349,6 +349,9 @@ The failure is usually one of:
 - The image tag in `docker-compose.yml` does not match the published tag.
 - The app container starts but exits because migrations cannot connect to
   Postgres.
+- The server container is `Up`, but `sparkles-billow_app_proxy_1` remains
+  `Created`. In that case Umbrel still considers install failed because proxy
+  readiness did not complete.
 
 In this session, Umbrel successfully showed the Billow listing from the alt
 store after pushing the store repo. The install button failed before publishing
@@ -362,7 +365,7 @@ Umbrel does not build that local image from the store repo. The fix was to add a
 GHCR publish workflow and change Compose to:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.4
+image: ghcr.io/chepetime/billow:v0.1.5
 ```
 
 ## Release/Update Flow

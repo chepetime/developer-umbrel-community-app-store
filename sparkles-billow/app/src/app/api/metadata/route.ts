@@ -7,5 +7,8 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const metadata = await listAppMetadata();
 
-  return NextResponse.json({ metadata });
+  return NextResponse.json({
+    metadata,
+    databaseAvailable: metadata.length > 0,
+  });
 }
