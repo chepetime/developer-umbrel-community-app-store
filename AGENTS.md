@@ -133,7 +133,7 @@ Multi-arch build and push:
 
 ```bash
 docker buildx build \
-  --platform linux/amd64,linux/arm64 \
+  --platform linux/amd64 \
   -t ghcr.io/chepetime/billow:v0.1.0 \
   -t ghcr.io/chepetime/billow:latest \
   --push \
@@ -169,19 +169,20 @@ gh run list --workflow publish-billow.yml --limit 3
 gh run view <run-id> --log-failed
 ```
 
-## Slow GitHub Actions Build Note
+## GitHub Actions Build Note
 
-The workflow builds both `linux/amd64` and `linux/arm64`. GitHub-hosted amd64
-runners build the arm64 image under QEMU emulation, so the arm64 `next build`
-step can appear stuck for several minutes at:
+The workflow currently builds only `linux/amd64` so installs move quickly on the
+current Umbrel target. If `linux/arm64` is added back later, GitHub-hosted amd64
+runners will build the arm64 image under QEMU emulation, so the arm64
+`next build` step can appear stuck for several minutes at:
 
 ```text
 ▲ Next.js 16.2.10 (webpack)
 Creating an optimized production build ...
 ```
 
-This can be normal. Wait for the workflow result before changing code. If it
-eventually fails, inspect logs with:
+That can be normal for multi-arch builds. Wait for the workflow result before
+changing code. If it eventually fails, inspect logs with:
 
 ```bash
 gh run view <run-id> --log-failed
