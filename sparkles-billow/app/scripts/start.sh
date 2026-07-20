@@ -15,6 +15,4 @@ until ./node_modules/.bin/prisma migrate deploy; do
   sleep 2
 done
 
-./node_modules/.bin/prisma db seed
-
 exec npm run start

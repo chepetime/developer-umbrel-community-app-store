@@ -4,7 +4,7 @@ name: Billow
 tagline: Personal invoices without the spreadsheet drift
 icon: https://svgur.com/i/mvA.svg
 category: Development
-version: "0.1.3"
+version: "0.1.4"
 port: 4000
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
@@ -21,7 +21,7 @@ gallery:
   - https://i.imgur.com/yyVG0Jb.jpeg
   - https://i.imgur.com/yyVG0Jb.jpeg
 releaseNotes: >-
-  Replace TypeScript seed runner with a plain Node seed script.
+  Remove seed execution from container startup.
 dependencies: []
 path: ""
 defaultUsername: ""

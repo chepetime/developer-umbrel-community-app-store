@@ -23,12 +23,16 @@ Container startup runs:
 
 ```bash
 prisma migrate deploy
-prisma db seed
 npm run start
 ```
 
-The seed uses `upsert`, so restarting or updating the app image refreshes the
-baseline metadata without duplicating rows.
+Seeding is kept as an explicit dev/bootstrap command:
+
+```bash
+npm run db:seed
+```
+
+The seed uses `upsert`, so it can be run more than once without duplicating rows.
 
 ## Persistent data
 

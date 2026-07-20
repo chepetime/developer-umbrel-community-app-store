@@ -86,7 +86,7 @@ Important files:
 The Compose file currently pulls:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.3
+image: ghcr.io/chepetime/billow:v0.1.4
 ```
 
 The app ID is:
@@ -185,7 +185,7 @@ processing.
 Build locally from the repository root:
 
 ```bash
-docker build -t ghcr.io/chepetime/billow:v0.1.3 sparkles-billow
+docker build -t ghcr.io/chepetime/billow:v0.1.4 sparkles-billow
 ```
 
 Multi-arch build and push:
@@ -193,7 +193,7 @@ Multi-arch build and push:
 ```bash
 docker buildx build \
   --platform linux/amd64 \
-  -t ghcr.io/chepetime/billow:v0.1.3 \
+  -t ghcr.io/chepetime/billow:v0.1.4 \
   -t ghcr.io/chepetime/billow:latest \
   --push \
   sparkles-billow
@@ -213,7 +213,7 @@ Workflow:
 It publishes:
 
 ```text
-ghcr.io/chepetime/billow:v0.1.3
+ghcr.io/chepetime/billow:v0.1.4
 ghcr.io/chepetime/billow:latest
 ```
 
@@ -229,8 +229,8 @@ gh run view <run-id> --log-failed
 ```
 
 Prisma 7 reads the seed command from `prisma.config.ts`, not from the old
-`package.json` `prisma.seed` field. Use a plain Node seed script for the
-production container:
+`package.json` `prisma.seed` field. Seed is now a dev/bootstrap command only;
+production container startup should not run it.
 
 ```ts
 migrations: {
@@ -243,7 +243,8 @@ Using only `tsx prisma/seed.ts` failed on Umbrel with `spawn tsx ENOENT` because
 Prisma did not resolve `node_modules/.bin` for the spawned seed process. Using
 `./node_modules/.bin/tsx prisma/seed.ts` avoided that path issue, but `tsx` also
 uses IPC that can fail under restrictive local sandboxes. The current
-`prisma/seed.mjs` uses `pg` directly, which is simpler for startup seeding.
+`prisma/seed.mjs` uses `pg` directly, which is simpler when an explicit
+`npm run db:seed` is needed.
 
 The first successful image publish was run `29771639783`. It built both
 `linux/amd64` and `linux/arm64` and eventually completed successfully after
@@ -295,11 +296,12 @@ Startup sequence:
 
 ```bash
 prisma migrate deploy
-prisma db seed
 npm run start
 ```
 
-The script retries migrations while Postgres is starting.
+The script retries migrations while Postgres is starting. It intentionally does
+not seed in production; the home page has fallbacks when the metadata table is
+empty.
 
 ## Umbrel Persistence
 
@@ -319,7 +321,7 @@ files in Umbrel-managed app data.
 Current path:
 
 1. Push this store repository to GitHub.
-2. GitHub Actions builds and pushes `ghcr.io/chepetime/billow:v0.1.3`.
+2. GitHub Actions builds and pushes `ghcr.io/chepetime/billow:v0.1.4`.
 3. Confirm the GHCR package is public.
 4. In Umbrel, add this repository as a Community App Store if it is not already
    added.
@@ -333,8 +335,8 @@ The failure is usually one of:
   failed.
 - The GHCR image exists but is private.
 - The image tag in `docker-compose.yml` does not match the published tag.
-- The app container starts but exits because migrations or seed cannot connect
-  to Postgres.
+- The app container starts but exits because migrations cannot connect to
+  Postgres.
 
 In this session, Umbrel successfully showed the Billow listing from the alt
 store after pushing the store repo. The install button failed before publishing
@@ -348,7 +350,7 @@ Umbrel does not build that local image from the store repo. The fix was to add a
 GHCR publish workflow and change Compose to:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.3
+image: ghcr.io/chepetime/billow:v0.1.4
 ```
 
 ## Release/Update Flow
