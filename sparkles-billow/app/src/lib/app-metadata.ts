@@ -1,15 +1,15 @@
 import "server-only";
 
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 export function listAppMetadata() {
-  return prisma.appMetadata.findMany({
+  return getPrisma().appMetadata.findMany({
     orderBy: { appId: "asc" },
   });
 }
 
 export function getAppMetadata(appId = "sparkles-billow") {
-  return prisma.appMetadata.findUnique({
+  return getPrisma().appMetadata.findUnique({
     where: { appId },
   });
 }
