@@ -21,6 +21,19 @@ The Billow app source now lives in:
 /Users/jlugo/Projects/personal/billow
 ```
 
+Remote:
+
+```text
+https://github.com/chepetime/billow
+```
+
+The split is complete:
+
+- Billow app repo initial commit: `3c9fc0d Initial Billow app`.
+- Store cleanup commit: `fc89fe7 Move Billow source to app repo`.
+- Billow publish workflow rerun `29778177872` completed successfully after the
+  GHCR package was granted write access for `chepetime/billow`.
+
 ## Billow Store Contract
 
 Keep the app ID stable for existing installs:
@@ -54,7 +67,8 @@ on the Umbrel host, leaving `sparkles-billow_app_proxy_1` in `Created`.
 ## Updating Billow
 
 1. Make app changes in `/Users/jlugo/Projects/personal/billow`.
-2. Publish a new image tag from the Billow repo.
+2. Publish a new image tag from the Billow repo's
+   `.github/workflows/publish.yml`.
 3. Update `sparkles-billow/docker-compose.yml` to the new image tag.
 4. Bump `version` and `releaseNotes` in `sparkles-billow/umbrel-app.yml`.
 5. Commit and push this store repo.
@@ -79,6 +93,7 @@ Common Billow install failures seen so far:
 
 - GHCR image tag does not exist yet.
 - GHCR package is private.
+- GHCR package exists but the publishing repo lacks package write access.
 - `docker-compose.yml` image tag does not match the published tag.
 - App container exits while waiting for Postgres or applying migrations.
 - `app_proxy` cannot bind the configured host port.
