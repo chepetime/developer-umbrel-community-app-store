@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      # The format here is: <app-id>_<docker-service-name>_1
+      APP_HOST: sparkles-billow_server_1
+      APP_PORT: 3000
+
+  server:
+    # Replace this with your published image when distributing the app.
+    image: sparkles-billow:latest
+    init: true
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://billow:billow-password@db:5432/billow?schema=public
+    restart: on-failure
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: billow
+      POSTGRES_USER: billow
+      POSTGRES_PASSWORD: billow-password
+    volumes:
+      - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+    restart: on-failure

@@ -1,0 +1,29 @@
+manifestVersion: 1
+id: sparkles-billow
+name: Billow
+tagline: Personal invoices without the spreadsheet drift
+icon: https://svgur.com/i/mvA.svg
+category: Development
+version: "0.1.0"
+port: 4000
+description: >-
+  A personal invoices app baseline built with Next.js App Router, React Server
+  Components, shadcn/ui, Prisma, and a persistent Postgres database.
+
+developer: Umbrel
+website: https://umbrel.com
+submitter: Umbrel
+submission: https://github.com/getumbrel/umbrel-community-app-store
+repo: https://github.com/getumbrel/umbrel-community-app-store
+support: https://github.com/getumbrel/umbrel-community-app-store/issues
+gallery:
+  - https://i.imgur.com/yyVG0Jb.jpeg
+  - https://i.imgur.com/yyVG0Jb.jpeg
+  - https://i.imgur.com/yyVG0Jb.jpeg
+releaseNotes: >-
+  Initial Billow baseline with Next.js, Prisma, Postgres, shadcn/ui, API, and
+  server component examples.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
