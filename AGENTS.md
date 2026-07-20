@@ -80,13 +80,13 @@ Important files:
 - `sparkles-billow/app`: Next.js app source.
 - `sparkles-billow/app/prisma/schema.prisma`: Prisma schema.
 - `sparkles-billow/app/prisma/migrations`: SQL migrations.
-- `sparkles-billow/app/prisma/seed.ts`: Seed data for app metadata.
+- `sparkles-billow/app/prisma/seed.mjs`: Seed data for app metadata.
 - `.github/workflows/publish-billow.yml`: Builds and pushes the app image to GHCR.
 
 The Compose file currently pulls:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.0
+image: ghcr.io/chepetime/billow:v0.1.3
 ```
 
 The app ID is:
@@ -185,7 +185,7 @@ processing.
 Build locally from the repository root:
 
 ```bash
-docker build -t ghcr.io/chepetime/billow:v0.1.0 sparkles-billow
+docker build -t ghcr.io/chepetime/billow:v0.1.3 sparkles-billow
 ```
 
 Multi-arch build and push:
@@ -193,7 +193,7 @@ Multi-arch build and push:
 ```bash
 docker buildx build \
   --platform linux/amd64 \
-  -t ghcr.io/chepetime/billow:v0.1.0 \
+  -t ghcr.io/chepetime/billow:v0.1.3 \
   -t ghcr.io/chepetime/billow:latest \
   --push \
   sparkles-billow
@@ -213,7 +213,7 @@ Workflow:
 It publishes:
 
 ```text
-ghcr.io/chepetime/billow:v0.1.0
+ghcr.io/chepetime/billow:v0.1.3
 ghcr.io/chepetime/billow:latest
 ```
 
@@ -227,6 +227,23 @@ Useful checks:
 gh run list --workflow publish-billow.yml --limit 3
 gh run view <run-id> --log-failed
 ```
+
+Prisma 7 reads the seed command from `prisma.config.ts`, not from the old
+`package.json` `prisma.seed` field. Use a plain Node seed script for the
+production container:
+
+```ts
+migrations: {
+  path: "prisma/migrations",
+  seed: "node prisma/seed.mjs",
+}
+```
+
+Using only `tsx prisma/seed.ts` failed on Umbrel with `spawn tsx ENOENT` because
+Prisma did not resolve `node_modules/.bin` for the spawned seed process. Using
+`./node_modules/.bin/tsx prisma/seed.ts` avoided that path issue, but `tsx` also
+uses IPC that can fail under restrictive local sandboxes. The current
+`prisma/seed.mjs` uses `pg` directly, which is simpler for startup seeding.
 
 The first successful image publish was run `29771639783`. It built both
 `linux/amd64` and `linux/arm64` and eventually completed successfully after
@@ -302,7 +319,7 @@ files in Umbrel-managed app data.
 Current path:
 
 1. Push this store repository to GitHub.
-2. GitHub Actions builds and pushes `ghcr.io/chepetime/billow:v0.1.0`.
+2. GitHub Actions builds and pushes `ghcr.io/chepetime/billow:v0.1.3`.
 3. Confirm the GHCR package is public.
 4. In Umbrel, add this repository as a Community App Store if it is not already
    added.
@@ -331,7 +348,7 @@ Umbrel does not build that local image from the store repo. The fix was to add a
 GHCR publish workflow and change Compose to:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.0
+image: ghcr.io/chepetime/billow:v0.1.3
 ```
 
 ## Release/Update Flow
