@@ -280,6 +280,18 @@ changing code. If it eventually fails, inspect logs with:
 gh run view <run-id> --log-failed
 ```
 
+Because the workflow is currently amd64-only, it intentionally does not run
+`docker/setup-qemu-action`. If arm64 is added back, re-add QEMU setup before
+Buildx.
+
+Use Node 24-compatible action majors to avoid GitHub's Node 20 deprecation
+warning:
+
+- `actions/checkout@v6`
+- `docker/setup-buildx-action@v4`
+- `docker/login-action@v4`
+- `docker/build-push-action@v7`
+
 The previous image build failure was caused by `DATABASE_URL` being required at
 module import time during `next build`. That was fixed by lazy-initializing
 Prisma in `sparkles-billow/app/src/lib/prisma.ts`.
