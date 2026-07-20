@@ -10,12 +10,12 @@ description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
   Components, shadcn/ui, Prisma, and a persistent Postgres database.
 
-developer: Umbrel
-website: https://umbrel.com
-submitter: Umbrel
+developer: ChepeTime
+website: https://github.com/chepetime/billow
+submitter: ChepeTime
 submission: https://github.com/getumbrel/umbrel-community-app-store
-repo: https://github.com/getumbrel/umbrel-community-app-store
-support: https://github.com/getumbrel/umbrel-community-app-store/issues
+repo: https://github.com/chepetime/billow
+support: https://github.com/chepetime/billow/issues
 gallery:
   - https://i.imgur.com/yyVG0Jb.jpeg
   - https://i.imgur.com/yyVG0Jb.jpeg

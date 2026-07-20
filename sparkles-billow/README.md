@@ -1,41 +1,23 @@
-# Billow
+# Billow Umbrel Package
 
-Billow is a baseline personal invoices app for Umbrel. It uses Next.js App
-Router, React Server Components, shadcn/ui, Prisma, and Postgres.
+This directory is the Umbrel store package for Billow.
 
-## Local app commands
+The app source lives in:
 
-Run these from `sparkles-billow/app`:
-
-```bash
-npm run db:generate
-npm run lint
-npm run build
+```text
+/Users/jlugo/Projects/personal/billow
 ```
 
-`npm run build` runs `prisma generate` before `next build --webpack`.
+Umbrel installs Billow by reading:
 
-## Database
+- `umbrel-app.yml`
+- `docker-compose.yml`
 
-The Prisma model is `AppMetadata` in `app/prisma/schema.prisma`.
+It then pulls the published image:
 
-Container startup runs:
-
-```bash
-prisma migrate deploy
-npm run start
+```text
+ghcr.io/chepetime/billow:v0.1.6
 ```
 
-Seeding is kept as an explicit dev/bootstrap command:
-
-```bash
-npm run db:seed
-```
-
-The seed uses `upsert`, so it can be run more than once without duplicating rows.
-
-## Persistent data
-
-Postgres stores data under `${APP_DATA_DIR}/postgres` as declared in
-`docker-compose.yml`. Updating `server.image` and recreating the app container
-does not remove that app data directory.
+Keep `id: sparkles-billow` and the Postgres volume path unchanged so existing
+Umbrel installs keep their app data across image updates.
