@@ -8,8 +8,7 @@ services:
       APP_PORT: 3000
 
   server:
-    # Replace this with your published image when distributing the app.
-    image: sparkles-billow:latest
+    image: ghcr.io/chepetime/billow:v0.1.0
     init: true
     depends_on:
       - db
