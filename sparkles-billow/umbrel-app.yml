@@ -4,7 +4,7 @@ name: Billow
 tagline: Personal invoices without the spreadsheet drift
 icon: https://svgur.com/i/mvA.svg
 category: Development
-version: "0.1.8"
+version: "0.1.9"
 port: 46247
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
