@@ -45,7 +45,7 @@ id: sparkles-billow
 The store package currently points at:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.10
+image: ghcr.io/chepetime/billow:v0.1.11
 ```
 
 Keep the Postgres data path stable so image updates do not wipe user data:
