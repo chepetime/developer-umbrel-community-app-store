@@ -4,7 +4,7 @@ name: Billow
 tagline: Personal invoices without the spreadsheet drift
 icon: https://svgur.com/i/mvA.svg
 category: Development
-version: "0.1.9"
+version: "0.1.10"
 port: 46247
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
@@ -21,7 +21,8 @@ gallery:
   - https://i.imgur.com/yyVG0Jb.jpeg
   - https://i.imgur.com/yyVG0Jb.jpeg
 releaseNotes: >-
-  Move Billow off the template port so Umbrel can start the app proxy.
+  Add sign-in/registration and the invoice dashboard. Requires the
+  BetterAuth environment variables now provided by this compose file.
 dependencies: []
 path: ""
 defaultUsername: ""
