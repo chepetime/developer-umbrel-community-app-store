@@ -8,16 +8,17 @@ services:
       APP_PORT: 3000
 
   server:
-    image: ghcr.io/chepetime/billow:v0.1.10
+    image: ghcr.io/chepetime/billow:v0.1.11
     init: true
     depends_on:
       - db
     environment:
       DATABASE_URL: postgresql://billow:billow-password@db:5432/billow?schema=public
-      # BetterAuth: without these the app throws at startup (500 on every page).
-      # APP_SEED is Umbrel's per-install deterministic secret (>=32 chars).
+      # BetterAuth session secret. APP_SEED is Umbrel's per-install
+      # deterministic secret (>=32 chars); without it the app throws at
+      # startup. The base URL is inferred from the request, so no domain is
+      # pinned here (works via umbrel.local / Tailscale / Cloudflare / IP).
       BETTER_AUTH_SECRET: ${APP_SEED}
-      BETTER_AUTH_URL: http://umbrel.local:46247
     restart: on-failure
 
   db:
