@@ -45,7 +45,7 @@ id: sparkles-billow
 The store package currently points at:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.12
+image: ghcr.io/chepetime/billow:v0.1.15
 ```
 
 Keep the Postgres data path stable so image updates do not wipe user data:
@@ -69,10 +69,15 @@ on the Umbrel host, leaving `sparkles-billow_app_proxy_1` in `Created`.
 1. Make app changes in `/Users/jlugo/Projects/personal/billow`.
 2. Publish a new image tag from the Billow repo's
    `.github/workflows/publish.yml`.
-3. Update `sparkles-billow/docker-compose.yml` to the new image tag.
-4. Bump `version` and `releaseNotes` in `sparkles-billow/umbrel-app.yml`.
-5. Commit and push this store repo.
-6. Refresh the alt store in Umbrel.
+3. Run `scripts/bump-billow.sh` to bump the version everywhere, commit, and
+   push. It takes `patch` (default), `minor`, `major`, or an explicit `X.Y.Z`,
+   plus optional `-n "release notes"`, `--no-push`, and `--dry-run`.
+4. Refresh the alt store in Umbrel.
+
+The script keeps the version in sync across `umbrel-app.yml`,
+`docker-compose.yml`, `sparkles-billow/README.md`, and this file, and commits
+as `Billow Release X.Y.Z`. Publish the matching image tag first — the script
+does not check GHCR.
 
 Do not add the Billow Next.js source, `node_modules`, `.next`, Prisma generated
 files, or Docker build workflow back into this store repo.
