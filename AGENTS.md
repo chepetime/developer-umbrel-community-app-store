@@ -76,8 +76,12 @@ on the Umbrel host, leaving `sparkles-billow_app_proxy_1` in `Created`.
 
 The script keeps the version in sync across `umbrel-app.yml`,
 `docker-compose.yml`, `sparkles-billow/README.md`, and this file, and commits
-as `Billow Release X.Y.Z`. Publish the matching image tag first — the script
-does not check GHCR.
+as `Billow Release X.Y.Z`.
+
+Before changing anything it queries GHCR and aborts if the target tag is not
+published, since pointing the store at a missing tag is the most common install
+failure. Pass `--skip-image-check` to bump ahead of the build. If GHCR cannot be
+reached the check warns and continues rather than blocking.
 
 Do not add the Billow Next.js source, `node_modules`, `.next`, Prisma generated
 files, or Docker build workflow back into this store repo.

@@ -16,6 +16,11 @@
 #   scripts/bump-billow.sh -n "Fix sign-in bug"  # also rewrite releaseNotes
 #   scripts/bump-billow.sh --no-push             # commit only
 #   scripts/bump-billow.sh --dry-run             # show what would change
+#   scripts/bump-billow.sh --skip-image-check    # bump before the image is built
+#
+# The target image tag must already exist on GHCR before bumping: pointing the
+# store at a missing tag is the most common cause of Umbrel install failures.
+# The script aborts if the tag is absent unless --skip-image-check is passed.
 
 set -euo pipefail
 
@@ -32,8 +37,28 @@ bump="patch"
 notes=""
 push=1
 dry_run=0
+check_image=1
 
 die() { printf 'error: %s\n' "$1" >&2; exit 1; }
+
+# 0 = tag exists, 1 = tag is absent, 2 = could not determine (offline, private
+# package, no curl). Only a definite absence blocks the bump.
+image_exists() {
+  local repo="$1" tag="$2" token code
+  command -v curl >/dev/null 2>&1 || return 2
+  token="$(curl -sS --max-time 15 "https://ghcr.io/token?scope=repository:$repo:pull" 2>/dev/null \
+    | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')"
+  [ -n "$token" ] || return 2
+  code="$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' \
+    -H "Authorization: Bearer $token" \
+    -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json" \
+    "https://ghcr.io/v2/$repo/manifests/$tag" 2>/dev/null)" || return 2
+  case "$code" in
+    200) return 0 ;;
+    404) return 1 ;;
+    *) return 2 ;;
+  esac
+}
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -42,7 +67,8 @@ while [ $# -gt 0 ]; do
     -n|--notes) shift; [ $# -gt 0 ] || die "--notes needs a value"; notes="$1" ;;
     --no-push) push=0 ;;
     --dry-run) dry_run=1 ;;
-    -h|--help) sed -n '3,25p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --skip-image-check) check_image=0 ;;
+    -h|--help) sed -n '3,29p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) die "unknown argument: $1 (try --help)" ;;
   esac
   shift
@@ -69,6 +95,23 @@ case "$bump" in
 esac
 
 printf 'Billow %s -> %s\n' "$current" "$next"
+
+# Confirm the target image is actually published before repointing the store.
+if [ "$check_image" -eq 1 ]; then
+  image_repo="$(sed -n 's|^ *image: *ghcr\.io/\([^:]*\):v.*|\1|p' "$compose" | head -1)"
+  [ -n "$image_repo" ] || die "could not read the GHCR image from $compose"
+  printf 'Checking ghcr.io/%s:v%s ... ' "$image_repo" "$next"
+  set +e
+  image_exists "$image_repo" "v$next"
+  status=$?
+  set -e
+  case "$status" in
+    0) printf 'found\n' ;;
+    1) printf 'MISSING\n'
+       die "ghcr.io/$image_repo:v$next is not published. Run the publish workflow in the Billow repo first, or pass --skip-image-check." ;;
+    *) printf 'unknown (offline or private package), continuing\n' ;;
+  esac
+fi
 
 # Warn about edits already in the working tree; the commit will sweep them in.
 dirty="$(git diff --name-only -- "${files[@]}"; git diff --cached --name-only -- "${files[@]}")"
