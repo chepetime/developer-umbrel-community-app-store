@@ -13,7 +13,7 @@ installation:
 
 ## Current Apps
 
-- `sparkles-billow`: Billow, a personal invoices app.
+- `billow`: Billow, a personal invoices app.
 
 The Billow app source now lives in:
 
@@ -39,7 +39,7 @@ The split is complete:
 Keep the app ID stable for existing installs:
 
 ```yaml
-id: sparkles-billow
+id: billow
 ```
 
 The store package currently points at:
@@ -62,7 +62,7 @@ port: 46247
 ```
 
 Earlier installs failed because the template port `4000` was already allocated
-on the Umbrel host, leaving `sparkles-billow_app_proxy_1` in `Created`.
+on the Umbrel host, leaving `billow_app_proxy_1` in `Created`.
 
 ## Updating Billow
 
@@ -75,7 +75,7 @@ on the Umbrel host, leaving `sparkles-billow_app_proxy_1` in `Created`.
 4. Refresh the alt store in Umbrel.
 
 The script keeps the version in sync across `umbrel-app.yml`,
-`docker-compose.yml`, `sparkles-billow/README.md`, and this file, and commits
+`docker-compose.yml`, `billow/README.md`, and this file, and commits
 as `Billow Release X.Y.Z`.
 
 Before changing anything it queries GHCR and aborts if the target tag is not
@@ -93,9 +93,9 @@ Check the app containers on the Umbrel host:
 
 ```bash
 sudo docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
-sudo docker logs sparkles-billow_server_1 --tail 200
-sudo docker logs sparkles-billow_db_1 --tail 120
-sudo docker inspect sparkles-billow_app_proxy_1 --format '{{json .State}}'
+sudo docker logs billow_server_1 --tail 200
+sudo docker logs billow_db_1 --tail 120
+sudo docker inspect billow_app_proxy_1 --format '{{json .State}}'
 ```
 
 Common Billow install failures seen so far:

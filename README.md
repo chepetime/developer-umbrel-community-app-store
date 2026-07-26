@@ -4,7 +4,7 @@ This repository is a personal Umbrel Community App Store.
 
 ## Apps
 
-- `sparkles-billow`: Billow, a personal invoices app.
+- `billow`: Billow, a personal invoices app.
 
 ## Structure
 
@@ -24,10 +24,10 @@ https://github.com/chepetime/billow
 
 Publish a new Billow image from the Billow repository, then update this store:
 
-1. Change the image tag in `sparkles-billow/docker-compose.yml`.
-2. Bump `version` and `releaseNotes` in `sparkles-billow/umbrel-app.yml`.
+1. Change the image tag in `billow/docker-compose.yml`.
+2. Bump `version` and `releaseNotes` in `billow/umbrel-app.yml`.
 3. Push this store repo.
 4. Refresh the alt store in Umbrel.
 
-Keep `id: sparkles-billow` and the Postgres volume path stable so existing
+Keep `id: billow` and the Postgres volume path stable so existing
 Umbrel installs keep their data.

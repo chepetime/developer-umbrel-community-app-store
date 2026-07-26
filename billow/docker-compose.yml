@@ -4,7 +4,7 @@ services:
   app_proxy:
     environment:
       # The format here is: <app-id>_<docker-service-name>_1
-      APP_HOST: sparkles-billow_server_1
+      APP_HOST: billow_server_1
       APP_PORT: 3000
 
   server:
@@ -18,7 +18,7 @@ services:
       # generic alias like "db" also resolves to other apps' Postgres
       # containers (Docmost ships one too) and intermittently fails with
       # "credentials for `billow` are not valid".
-      DATABASE_URL: postgresql://billow:billow-password@sparkles-billow_db_1:5432/billow?schema=public
+      DATABASE_URL: postgresql://billow:billow-password@billow_db_1:5432/billow?schema=public
       # BetterAuth session secret. APP_SEED is Umbrel's per-install
       # deterministic secret (>=32 chars); without it the app throws at
       # startup. No base URL is pinned: the app trusts the request origin, so
