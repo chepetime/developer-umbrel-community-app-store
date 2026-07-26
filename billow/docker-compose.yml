@@ -18,12 +18,21 @@ services:
       # generic alias like "db" also resolves to other apps' Postgres
       # containers (Docmost ships one too) and intermittently fails with
       # "credentials for `billow` are not valid".
-      DATABASE_URL: postgresql://billow:billow-password@billow_db_1:5432/billow?schema=public
+      DATABASE_URL: postgresql://billow:${APP_SEED}@billow_db_1:5432/billow?schema=public
       # BetterAuth session secret. APP_SEED is Umbrel's per-install
-      # deterministic secret (>=32 chars); without it the app throws at
-      # startup. No base URL is pinned: the app trusts the request origin, so
-      # sign-in works via umbrel.local / Tailscale / Cloudflare / IP.
+      # deterministic secret (64 hex chars, so it is URL-safe and can also be
+      # used in DATABASE_URL above). Without it the app throws at startup.
       BETTER_AUTH_SECRET: ${APP_SEED}
+    volumes:
+      # The container filesystem is replaced on every update, so anything the
+      # app writes must live on a mounted volume to survive.
+      - ${APP_DATA_DIR}/uploads:/data/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     restart: on-failure
 
   db:
@@ -31,7 +40,15 @@ services:
     environment:
       POSTGRES_DB: billow
       POSTGRES_USER: billow
-      POSTGRES_PASSWORD: billow-password
+      # Every Umbrel app shares one Docker network, so a password committed to
+      # a public repository would let any other installed app read this
+      # database. APP_SEED is unique per installation and never published.
+      POSTGRES_PASSWORD: ${APP_SEED}
     volumes:
       - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U billow -d billow"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
     restart: on-failure
