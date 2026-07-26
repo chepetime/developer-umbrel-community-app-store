@@ -1,6 +1,8 @@
 # Repository Notes
 
-This repository is an Umbrel Community App Store named `Billow`.
+This repository is an Umbrel Community App Store named `José Lugo`, displayed
+in the Umbrel UI as "José Lugo App Store". The store `id` stays `billow`:
+changing it would make Umbrel treat this as a different store.
 
 Umbrel reads this repository as a store. It does not build app source from here.
 Each app directory should contain only the Umbrel package files needed for

@@ -1,6 +1,7 @@
-# Billow Umbrel App Store
+# José Lugo Umbrel App Store
 
-This repository is a personal Umbrel Community App Store.
+This repository is a personal Umbrel Community App Store. It shows up in the
+Umbrel UI as "José Lugo App Store".
 
 ## Apps
 
