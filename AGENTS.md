@@ -1,6 +1,6 @@
 # Repository Notes
 
-This repository is an Umbrel Community App Store named `Sparkles`.
+This repository is an Umbrel Community App Store named `Billow`.
 
 Umbrel reads this repository as a store. It does not build app source from here.
 Each app directory should contain only the Umbrel package files needed for

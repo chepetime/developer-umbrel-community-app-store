@@ -1,4 +1,4 @@
-# Sparkles Umbrel App Store
+# Billow Umbrel App Store
 
 This repository is a personal Umbrel Community App Store.
 

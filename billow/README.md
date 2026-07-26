@@ -5,7 +5,7 @@ This directory is the Umbrel store package for Billow.
 The app source lives in:
 
 ```text
-/Users/jlugo/Projects/personal/billow
+/Users/jose/Projects/personal/billow
 ```
 
 Umbrel installs Billow by reading:

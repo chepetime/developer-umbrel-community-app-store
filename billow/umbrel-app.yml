@@ -13,16 +13,17 @@ description: >-
 developer: ChepeTime
 website: https://github.com/chepetime/billow
 submitter: ChepeTime
-submission: https://github.com/getumbrel/umbrel-community-app-store
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
 repo: https://github.com/chepetime/billow
 support: https://github.com/chepetime/billow/issues
 gallery:
-  - https://i.imgur.com/yyVG0Jb.jpeg
-  - https://i.imgur.com/yyVG0Jb.jpeg
-  - https://i.imgur.com/yyVG0Jb.jpeg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/1-home.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Renamed to "billow" and added inline form validation. Note: the app id
-  changed, so this installs fresh rather than updating in place.
+  Adds an internal documentation site, toast notifications for settings
+  changes, and splits diagnostics so the public health endpoint no longer
+  exposes internal details.
 dependencies: []
 path: ""
 defaultUsername: ""
