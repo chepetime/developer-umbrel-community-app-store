@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Billow">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <clipPath id="rounded">
+      <rect width="512" height="512" rx="112" ry="112"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
+
+  <g clip-path="url(#rounded)">
+    <path d="M-20 330 C 80 268, 160 392, 266 330 C 372 268, 452 356, 532 314 L532 532 L-20 532 Z"
+          fill="#ffffff" opacity="0.16"/>
+    <path d="M-20 372 C 88 306, 168 428, 274 368 C 380 308, 456 392, 532 352 L532 532 L-20 532 Z"
+          fill="#ffffff" opacity="0.28"/>
+    <path d="M-20 414 C 96 348, 176 466, 282 408 C 388 350, 460 428, 532 392 L532 532 L-20 532 Z"
+          fill="#ffffff" opacity="0.95"/>
+  </g>
+
+  <g fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M170 118 h118 l54 54 v96" opacity="0.95"/>
+    <path d="M170 118 v150" opacity="0.95"/>
+    <path d="M214 186 h74" opacity="0.75"/>
+    <path d="M214 236 h56" opacity="0.55"/>
+  </g>
+</svg>

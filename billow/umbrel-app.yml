@@ -2,9 +2,9 @@ manifestVersion: 1
 id: billow
 name: Billow
 tagline: Personal invoices without the spreadsheet drift
-icon: https://svgur.com/i/mvA.svg
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.16"
+version: "0.1.17"
 port: 46247
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
@@ -21,8 +21,8 @@ gallery:
   - https://i.imgur.com/yyVG0Jb.jpeg
   - https://i.imgur.com/yyVG0Jb.jpeg
 releaseNotes: >-
-  New landing page, two-factor authentication, usernames, email changes, and
-  personal API keys for integrating other services.
+  Renamed to "billow" and added inline form validation. Note: the app id
+  changed, so this installs fresh rather than updating in place.
 dependencies: []
 path: ""
 defaultUsername: ""
