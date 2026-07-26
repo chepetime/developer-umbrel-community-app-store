@@ -4,7 +4,7 @@ name: Billow
 tagline: Personal invoices without the spreadsheet drift
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.24"
+version: "0.1.25"
 port: 46247
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
@@ -21,8 +21,15 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Fixes the reported version, which lagged one release behind. The public
-  status endpoint stays boolean-only, with full diagnostics behind sign-in.
+  Security and self-hosting release. The database password is now unique per
+  installation instead of a value published in the app store repository, so
+  other apps on the shared network can no longer read it. Adds workspace backup
+  and restore, persistent storage for uploads, and health checks.
+
+
+  This release changes the database password, which Postgres only applies to a
+  fresh data directory. Uninstall and reinstall Billow rather than updating in
+  place, or the app will not be able to connect.
 dependencies: []
 path: ""
 defaultUsername: ""
