@@ -4,7 +4,7 @@ name: Billow
 tagline: Personal invoices without the spreadsheet drift
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.29"
+version: "0.1.30"
 port: 46247
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
@@ -21,16 +21,20 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  The container now runs as uid 1000, matching the user Umbrel creates app data
-  with. Uploads previously needed the container to start as root and fix
-  ownership on every boot; that step is still there and will migrate an
-  existing uploads directory automatically, but it is no longer the only thing
-  making uploads work.
+  The download is less than half the size it was — roughly 140 MB instead of
+  326 MB — so updates apply considerably faster. The image now ships only the
+  server and the files it actually reaches, rather than a full install of every
+  dependency.
 
 
-  Startup is also logged in detail now — the effective user, the uploads
-  directory's ownership before and after, and migration progress — so a
-  permission problem says so instead of surfacing later as a failed upload.
+  Billow also runs on ARM now. Images are published for both 64-bit Intel/AMD
+  and ARM, so it installs on a Raspberry Pi, which previous versions could not
+  do at all.
+
+
+  This release also starts the container as the user Umbrel creates app data
+  with, so it no longer briefly runs as root to correct file ownership on
+  every boot.
 
 
   Updates in place; no reinstall needed.
