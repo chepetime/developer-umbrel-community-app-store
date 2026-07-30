@@ -13,7 +13,7 @@ services:
     # re-pushing v0.1.27 would silently change what is already installed.
     # The digest is the multi-arch index digest, so it stays correct when
     # arm64 is added. Update both halves together on every release.
-    image: ghcr.io/chepetime/billow:v0.1.28@sha256:240772e2366efd441780a526286130f72dadb1b8fa40e533a0a49b0af92a65e5
+    image: ghcr.io/chepetime/billow:v0.1.29@sha256:a631f8885bc1c7bf09eab29f7747356f3240005183ec513f0e96c7ce190fb556
     init: true
     depends_on:
       - db

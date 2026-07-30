@@ -4,7 +4,7 @@ name: Billow
 tagline: Personal invoices without the spreadsheet drift
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.28"
+version: "0.1.29"
 port: 46247
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
@@ -21,20 +21,21 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Email and password reset. An administrator adds a Resend API key and sender
-  address under Settings → Administration, sends a test message to confirm
-  delivery, and a "Forgot your password?" link then appears on the sign-in
-  page. Until that test message actually arrives the link stays hidden, so it
-  is never offered on an installation where it could not work. The API key is
-  stored encrypted and never shown again.
+  The container now runs as uid 1000, matching the user Umbrel creates app data
+  with. Uploads previously needed the container to start as root and fix
+  ownership on every boot; that step is still there and will migrate an
+  existing uploads directory automatically, but it is no longer the only thing
+  making uploads work.
 
 
-  Also in this release: password resets sign out any other active sessions,
-  sign-in and reset requests are rate limited, and the container now runs with
-  a correctly configured group.
+  Startup is also logged in detail now — the effective user, the uploads
+  directory's ownership before and after, and migration progress — so a
+  permission problem says so instead of surfacing later as a failed upload.
 
 
   Updates in place; no reinstall needed.
+
+
 dependencies: []
 path: ""
 defaultUsername: ""
