@@ -4,7 +4,7 @@ name: Billow
 tagline: Personal invoices without the spreadsheet drift
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.32"
+version: "0.1.33"
 port: 46247
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
@@ -21,19 +21,13 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Backups now include your uploaded files, not just your invoices, clients and
-  bank details. Previously a restore reported success and quietly came back
-  without any attachments — the export simply did not carry them.
+  Billow is now available in Spanish. It follows your browser's language by
+  default, and you can pick a language yourself under Settings - Account,
+  which is remembered from then on.
 
 
-  The backup is now a single .tar.gz archive rather than a .json file. It is a
-  standard archive, so you can open it with any unzip tool and read your data
-  without Billow. Restores check every file against the backup's own checksums
-  and tell you about anything they could not restore instead of skipping it
-  silently.
-
-
-  Backups taken with earlier versions still restore normally.
+  Translation is still partial: sign-in, two-factor and the sessions list are
+  translated, while the rest of the app remains in English for now.
 
 
   Updates in place; no reinstall needed.
