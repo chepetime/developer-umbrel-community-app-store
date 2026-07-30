@@ -15,6 +15,17 @@ services:
     # arm64 is added. Update both halves together on every release.
     image: ghcr.io/chepetime/billow:v0.1.29@sha256:a631f8885bc1c7bf09eab29f7747356f3240005183ec513f0e96c7ce190fb556
     init: true
+    # Umbrel creates app data as 1000:1000 and the image's app user is uid 1000
+    # to match, so the container can write its bind-mounted uploads directory
+    # directly. Starting as this user rather than root means the entrypoint's
+    # privileged chown phase never runs — see the uploads/ directory committed
+    # beside this file, which is what guarantees the host path already exists
+    # with the right owner instead of being created root-owned by Docker.
+    #
+    # Deliberately NOT set on the db service: postgres:alpine runs as its own
+    # uid 70 and owns its data directory at mode 700. Forcing a different user
+    # there would stop Postgres from starting at all.
+    user: "1000:1000"
     depends_on:
       - db
     # Postgres needs time to flush and shut down cleanly when Umbrel stops the
