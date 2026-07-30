@@ -8,10 +8,18 @@ services:
       APP_PORT: 3000
 
   server:
-    image: ghcr.io/chepetime/billow:v0.1.27
+    # Pinned by digest as well as tag, which every app in the official
+    # getumbrel/umbrel-apps store does (391 of 391). A tag alone is mutable:
+    # re-pushing v0.1.27 would silently change what is already installed.
+    # The digest is the multi-arch index digest, so it stays correct when
+    # arm64 is added. Update both halves together on every release.
+    image: ghcr.io/chepetime/billow:v0.1.28@sha256:240772e2366efd441780a526286130f72dadb1b8fa40e533a0a49b0af92a65e5
     init: true
     depends_on:
       - db
+    # Postgres needs time to flush and shut down cleanly when Umbrel stops the
+    # app; the default 10s can leave the data directory needing recovery.
+    stop_grace_period: 1m
     environment:
       # Use the fully-qualified container name (<app-id>_<service>_1), not the
       # bare service name: every Umbrel app shares umbrel_main_network, so a
@@ -36,7 +44,8 @@ services:
     restart: on-failure
 
   db:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:57c72fd2a128e416c7fcc499958864df5301e940bca0a56f58fddf30ffc07777
+    stop_grace_period: 1m
     environment:
       POSTGRES_DB: billow
       POSTGRES_USER: billow
