@@ -4,7 +4,7 @@ name: Billow
 tagline: Personal invoices without the spreadsheet drift
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.30"
+version: "0.1.31"
 port: 46247
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
@@ -21,20 +21,21 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  The download is less than half the size it was — roughly 140 MB instead of
-  326 MB — so updates apply considerably faster. The image now ships only the
-  server and the files it actually reaches, rather than a full install of every
-  dependency.
+  Settings → Security now lists every device signed in to your account, with
+  where and when it signed in, and lets you sign any of them out individually
+  or all at once. The device you are using is shown but cannot sign itself
+  out.
 
 
-  Billow also runs on ARM now. Images are published for both 64-bit Intel/AMD
-  and ARM, so it installs on a Raspberry Pi, which previous versions could not
-  do at all.
+  The diagnostics page gained sections describing what is actually running —
+  server entry point, package versions, the effective user the container runs
+  as — and the security posture that is in force, including the response
+  headers and the sign-in rate limits.
 
 
-  This release also starts the container as the user Umbrel creates app data
-  with, so it no longer briefly runs as root to correct file ownership on
-  every boot.
+  Internally the container no longer starts as root at any point. Earlier
+  versions briefly ran privileged to correct file ownership; that step is gone
+  now that the app already runs as the right user.
 
 
   Updates in place; no reinstall needed.
