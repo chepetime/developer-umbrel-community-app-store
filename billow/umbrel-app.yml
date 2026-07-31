@@ -4,7 +4,7 @@ name: Billow
 tagline: Personal invoices without the spreadsheet drift
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.33"
+version: "0.1.34"
 port: 46247
 description: >-
   A personal invoices app baseline built with Next.js App Router, React Server
@@ -21,13 +21,20 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Billow is now available in Spanish. It follows your browser's language by
-  default, and you can pick a language yourself under Settings - Account,
-  which is remembered from then on.
+  Adds an experimental data vault under Settings - Vault lab. It stores a
+  single private note encrypted with a key only you know, so the note is
+  unreadable in a database backup or dump without that key. Lose the key and
+  the note is gone - there is no recovery yet, which is why this is labelled
+  an experiment rather than somewhere to keep anything you need.
 
 
-  Translation is still partial: sign-in, two-factor and the sessions list are
-  translated, while the rest of the app remains in English for now.
+  Important: Billow is served over plain HTTP by default, so your vault key
+  travels across your local network unencrypted every time you save or unlock.
+  The page now warns you when the connection is insecure. Put Billow behind
+  HTTPS before trusting it with anything real.
+
+
+  Nothing else changes, and the vault is entirely opt-in.
 
 
   Updates in place; no reinstall needed.
