@@ -33,19 +33,30 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Billow now describes itself as what it actually is: a base setup for building
-  self-hosted apps, rather than an invoicing app. The landing page, README and
-  documentation now lead with the stack and with what the platform gives you -
-  accounts, two-factor, an API, migrations, backups, an image and a release
-  pipeline.
+  Your bank and tax details are now encrypted in the database with a key only
+  your password opens. A stolen database dump, backup or volume snapshot no
+  longer reveals them. Account numbers, IBAN, SWIFT, CLABE, routing and account
+  holder details, plus tax ID and address, are covered. Existing data is
+  encrypted automatically the next time you sign in.
 
 
-  The invoicing workspace is unchanged and still there. It is now presented as
-  a worked example of the platform, meant to be replaced by whatever you want
-  to build, rather than as the product.
+  Because of that you will be asked to save a recovery key on your next sign
+  in. Keep it somewhere safe and offline. If you ever reset your password, that
+  recovery key is the only way back to your encrypted data - a password reset
+  on its own cannot unlock it, and nobody, including this server, can recover
+  it for you.
 
 
-  No schema changes and no migration. Updates in place; no reinstall needed.
+  Also in this release: a security fix, where the diagnostics page and its API
+  were available to any signed-in account rather than administrators only - the
+  page includes the installation-wide error log. Settings - Security now lists
+  your active sessions again instead of showing an empty list after a day.
+  Rate limiting survives restarts, and now also covers the pages that do heavy
+  key derivation.
+
+
+  This release includes database migrations, which are applied automatically on
+  start. Updates in place; no reinstall needed.
 
 
 dependencies: []
