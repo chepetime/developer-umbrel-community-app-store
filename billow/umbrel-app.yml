@@ -4,7 +4,7 @@ name: Billow
 tagline: A self-hosted app with the boring parts already built
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.36"
+version: "0.1.37"
 port: 46247
 description: >-
   A base setup for self-hosted apps. The parts every such app needs are already
