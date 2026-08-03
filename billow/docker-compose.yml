@@ -14,7 +14,7 @@ services:
     # This is the multi-arch index digest, covering both linux/amd64 and
     # linux/arm64 — a per-platform digest would pin every install to one
     # architecture. Update both halves together on every release.
-    image: ghcr.io/chepetime/billow:v0.1.35@sha256:3879f60a874a05108dd25495b7f631fee0b9f6d0fdd6689a3cfaeef3d77bd6ac
+    image: ghcr.io/chepetime/billow:v0.1.36@sha256:3879f60a874a05108dd25495b7f631fee0b9f6d0fdd6689a3cfaeef3d77bd6ac
     init: true
     # Umbrel creates app data as 1000:1000 and the image's app user is uid 1000
     # to match, so the container can write its bind-mounted uploads directory
