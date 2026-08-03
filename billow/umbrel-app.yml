@@ -1,14 +1,26 @@
 manifestVersion: 1
 id: billow
 name: Billow
-tagline: Personal invoices without the spreadsheet drift
+tagline: A self-hosted app with the boring parts already built
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.34"
+version: "0.1.35"
 port: 46247
 description: >-
-  A personal invoices app baseline built with Next.js App Router, React Server
-  Components, shadcn/ui, Prisma, and a persistent Postgres database.
+  A base setup for self-hosted apps. The parts every such app needs are already
+  built and tested: accounts with email or username sign-in, TOTP two-factor,
+  personal API keys, admin roles, database migrations applied on start, backup
+  and restore, file uploads, health checks and an error log.
+
+
+  Built with Next.js App Router and React Server Components, Prisma on
+  PostgreSQL, better-auth, Tailwind and shadcn/ui, shipped as a single
+  multi-architecture Docker image.
+
+
+  It comes with a small invoicing workspace. That is a worked example of the
+  platform rather than the point - a real domain wired through the same auth,
+  validation, backup and API conventions, there to be replaced by your own.
 
 developer: ChepeTime
 website: https://github.com/chepetime/billow
@@ -21,23 +33,19 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Adds an experimental data vault under Settings - Vault lab. It stores a
-  single private note encrypted with a key only you know, so the note is
-  unreadable in a database backup or dump without that key. Lose the key and
-  the note is gone - there is no recovery yet, which is why this is labelled
-  an experiment rather than somewhere to keep anything you need.
+  Billow now describes itself as what it actually is: a base setup for building
+  self-hosted apps, rather than an invoicing app. The landing page, README and
+  documentation now lead with the stack and with what the platform gives you -
+  accounts, two-factor, an API, migrations, backups, an image and a release
+  pipeline.
 
 
-  Important: Billow is served over plain HTTP by default, so your vault key
-  travels across your local network unencrypted every time you save or unlock.
-  The page now warns you when the connection is insecure. Put Billow behind
-  HTTPS before trusting it with anything real.
+  The invoicing workspace is unchanged and still there. It is now presented as
+  a worked example of the platform, meant to be replaced by whatever you want
+  to build, rather than as the product.
 
 
-  Nothing else changes, and the vault is entirely opt-in.
-
-
-  Updates in place; no reinstall needed.
+  No schema changes and no migration. Updates in place; no reinstall needed.
 
 
 dependencies: []
