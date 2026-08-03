@@ -60,6 +60,23 @@ image_exists() {
   esac
 }
 
+# Prints the multi-architecture index digest for a tag, or nothing if it cannot
+# be resolved. The store pins tag@digest, and a digest is what makes an install
+# reproducible — a tag alone is mutable, so re-pushing it changes what users
+# already have.
+image_digest() {
+  local repo="$1" tag="$2" token
+  command -v curl >/dev/null 2>&1 || return 1
+  token="$(curl -sS --max-time 15 "https://ghcr.io/token?scope=repository:$repo:pull" 2>/dev/null \
+    | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')"
+  [ -n "$token" ] || return 1
+  curl -sS --max-time 15 -o /dev/null -D - \
+    -H "Authorization: Bearer $token" \
+    -H "Accept: application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json" \
+    "https://ghcr.io/v2/$repo/manifests/$tag" 2>/dev/null \
+    | tr -d '\r' | sed -n 's/^[Dd]ocker-[Cc]ontent-[Dd]igest: *//p' | head -1
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     major|minor|patch) bump="$1" ;;
@@ -111,6 +128,13 @@ if [ "$check_image" -eq 1 ]; then
        die "ghcr.io/$image_repo:v$next is not published. Run the publish workflow in the Billow repo first, or pass --skip-image-check." ;;
     *) printf 'unknown (offline or private package), continuing\n' ;;
   esac
+
+  next_digest="$(image_digest "$image_repo" "v$next" || true)"
+  if [ -n "$next_digest" ]; then
+    printf 'Digest %s\n' "$next_digest"
+  else
+    printf 'warning: could not resolve a digest; the pin will carry only a tag\n'
+  fi
 fi
 
 # Warn about edits already in the working tree; the commit will sweep them in.
@@ -130,8 +154,16 @@ if [ "$dry_run" -eq 1 ]; then
 fi
 
 sed -i '' "s/^version: \"$current\"/version: \"$next\"/" "$manifest"
+# Replace tag *and* digest together. Rewriting only the tag left the previous
+# release's digest attached to the new tag, which GHCR refuses to resolve — so
+# every bump produced a pin that could not be pulled.
+if [ -n "${next_digest:-}" ]; then
+  replacement="ghcr.io/chepetime/billow:v$next@$next_digest"
+else
+  replacement="ghcr.io/chepetime/billow:v$next"
+fi
 for f in "$compose" "$app_readme" "$agents"; do
-  sed -i '' "s|ghcr.io/chepetime/billow:v$current|ghcr.io/chepetime/billow:v$next|g" "$f"
+  sed -i '' -E "s|ghcr\.io/chepetime/billow:v[0-9]+\.[0-9]+\.[0-9]+(@sha256:[0-9a-f]{64})?|$replacement|g" "$f"
 done
 
 if [ -n "$notes" ]; then
