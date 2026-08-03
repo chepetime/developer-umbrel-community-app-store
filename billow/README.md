@@ -16,7 +16,7 @@ Umbrel installs Billow by reading:
 It then pulls the published image:
 
 ```text
-ghcr.io/chepetime/billow:v0.1.15
+ghcr.io/chepetime/billow:v0.1.38@sha256:e1d9c9a7286ce56181973ff61c7440d4a5475eccd8347cfb7cbe3fa7a2020007
 ```
 
 Keep `id: billow` and the Postgres volume path unchanged so existing
