@@ -4,7 +4,7 @@ name: Billow
 tagline: A self-hosted app with the boring parts already built
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.44"
+version: "0.1.0"
 port: 46247
 description: >-
   A base setup for self-hosted apps. The parts every such app needs are already
@@ -33,40 +33,24 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  A security release, from two independent reviews of the whole application.
-  Nothing here changes how Billow looks or how you use it.
+  A renumbering, not a rewrite. The code here is exactly what shipped as
+  0.1.44, rebuilt from the same source and restarted at 0.1.0 so the version
+  history begins again from one.
 
-  Bank account details could be stored unencrypted. Adding an account, and
-  restoring a backup, both wrote the account number, IBAN, CLABE, SWIFT and
-  routing number in the clear, even though the same fields were encrypted
-  when saved during setup. Encrypted columns are now encrypted on every path
-  that writes them, and a write that would store one in the clear is now
-  refused outright rather than quietly allowed. Existing rows were already
-  being sealed at your next sign in, and still are.
+  Everything 0.1.44 carried is still here: bank account details encrypted on
+  every path that writes them, password reset links checked against a trusted
+  origin, uploaded files removed along with the account, recorded errors
+  stripped by default, and the rate limiter, installation-ownership and
+  dashboard fixes that shipped beside them.
 
-  Password reset links could be pointed somewhere else. Billow worked out
-  which address to put in the email from the request that asked for it, so a
-  crafted request could send a real reset link to an address the attacker
-  controlled. If you have set a Public URL under Settings, or the
-  BILLOW_TRUSTED_ORIGINS variable, links that do not match are now rejected.
-  Setting a Public URL is worth doing, and it is the fix.
+  Every image published before this one has been removed from the registry,
+  so 0.1.0 is now the only version available to install.
 
-  Deleting your account left your uploaded files on disk. The files are now
-  removed with the account.
-
-  Recorded errors could contain an email address or a file path. Everything
-  attached to an error is now stripped by default rather than only the parts
-  someone remembered to strip.
-
-  Also: the rate limiter now holds when many requests arrive at once rather
-  than only one at a time, ownership of a new installation can no longer be
-  taken twice, the dashboard no longer loads every invoice you have ever
-  written to add up four numbers, and the storage figures on the diagnostics
-  page now count files stored in per-account folders instead of reporting
-  almost nothing.
-
-  Updates in place; no reinstall needed. This release adds a database
-  migration, applied automatically on start.
+  If you already run Billow, it will keep reporting 0.1.44 and will not offer
+  this as an update, because 0.1.0 is not a newer number. Nothing is wrong and
+  nothing is lost — the code is identical and your data is untouched. The
+  version shown only corrects itself if the app is reinstalled, which is not
+  worth doing for a label.
 
 
 dependencies: []
