@@ -47,7 +47,7 @@ id: billow
 The store package currently points at:
 
 ```yaml
-image: ghcr.io/chepetime/billow:v0.1.42@sha256:464fc84ef077e0c7e1f1c81536f383f408a5dafa3a4d696ee5d8f6741d21429c
+image: ghcr.io/chepetime/billow:v0.1.43@sha256:56847f29f16a48736e9c02bcbc6750973409a693780d2455dd98ea45923b66ef
 ```
 
 Keep the Postgres data path stable so image updates do not wipe user data:
