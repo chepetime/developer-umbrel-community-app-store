@@ -33,44 +33,21 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Fixes three problems with the recovery key, all found on a real install.
-  
-  Copying a secret did nothing. Billow is served over plain HTTP on Umbrel,
-  and the browser clipboard API is only available on secure connections -
-  so the Copy button silently failed on the pages that hand you an API key,
-  a two-factor setup key, or your recovery key. It now works regardless,
-  and one click selects the whole value if you would rather copy it by hand.
-  
-  Turning two-factor authentication on or off invalidated your recovery
-  key. The app mistook the new session for a locked-out account, walked you
-  through restoring access, and issued a fresh key - so the one you had
-  just written down stopped working. Your recovery key now survives
-  enabling two-factor, disabling it, and changing your password.
-  
-  Saved items had no address attached, so a password manager could store
-  your key but never offer it back on this site. They are now tied to the
-  address you use to reach Billow.
-  
+  A small release. One fix you may notice, and a lot of work underneath that
+  you will not.
+
+  Form errors are now announced by screen readers. When a field was rejected
+  - a name left blank, a password that did not match - the message appeared
+  on screen but was attached to the wrapper around the field rather than the
+  field itself, so a screen reader never read it out. Every form in Billow
+  was affected.
+
+  Everything else is internal: the linter and formatter were replaced with a
+  much faster one, the TypeScript compiler was upgraded, the release checks
+  were made harder to break by surprise, and dependencies were refreshed.
+  No behaviour changes and no new settings.
+
   Updates in place; no reinstall needed.
-
-
-  Because of that you will be asked to save a recovery key on your next sign
-  in. Keep it somewhere safe and offline. If you ever reset your password, that
-  recovery key is the only way back to your encrypted data - a password reset
-  on its own cannot unlock it, and nobody, including this server, can recover
-  it for you.
-
-
-  Also in this release: a security fix, where the diagnostics page and its API
-  were available to any signed-in account rather than administrators only - the
-  page includes the installation-wide error log. Settings - Security now lists
-  your active sessions again instead of showing an empty list after a day.
-  Rate limiting survives restarts, and now also covers the pages that do heavy
-  key derivation.
-
-
-  This release includes database migrations, which are applied automatically on
-  start. Updates in place; no reinstall needed.
 
 
 dependencies: []
