@@ -4,7 +4,7 @@ name: Billow
 tagline: A self-hosted app with the boring parts already built
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
 category: Development
-version: "0.1.41"
+version: "0.1.42"
 port: 46247
 description: >-
   A base setup for self-hosted apps. The parts every such app needs are already
@@ -33,34 +33,25 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Your bank and tax details are now encrypted in the database with a key
-  only your password opens. A stolen database dump, backup or volume
-  snapshot no longer reveals them. Account numbers, IBAN, SWIFT, CLABE,
-  routing and account-holder details, plus tax ID and address, are covered,
-  and existing data is encrypted automatically the next time you sign in.
+  Fixes three problems with the recovery key, all found on a real install.
   
-  Because of that you will be asked to save a recovery key on your next
-  sign in. Keep it somewhere safe and offline. If you ever reset your
-  password, that recovery key is the only way back to your encrypted data -
-  a password reset on its own cannot unlock it, and nobody, including this
-  server, can recover it for you.
+  Copying a secret did nothing. Billow is served over plain HTTP on Umbrel,
+  and the browser clipboard API is only available on secure connections -
+  so the Copy button silently failed on the pages that hand you an API key,
+  a two-factor setup key, or your recovery key. It now works regardless,
+  and one click selects the whole value if you would rather copy it by hand.
   
-  Also fixed: with two-factor authentication switched on, generating a
-  recovery key failed and asked you to sign in again, which did not help.
-  Two-factor sign-in now hands the key through correctly.
+  Turning two-factor authentication on or off invalidated your recovery
+  key. The app mistook the new session for a locked-out account, walked you
+  through restoring access, and issued a fresh key - so the one you had
+  just written down stopped working. Your recovery key now survives
+  enabling two-factor, disabling it, and changing your password.
   
-  Security and reliability: the diagnostics page and its API were reachable
-  by any signed-in account rather than administrators only, and that page
-  includes the installation-wide error log. Settings - Security lists your
-  active sessions again instead of showing an empty list after a day. Rate
-  limiting now survives restarts and covers the pages doing heavy key
-  derivation. A patched image library pin was silently dropped by a package
-  manager upgrade and has been restored.
+  Saved items had no address attached, so a password manager could store
+  your key but never offer it back on this site. They are now tied to the
+  address you use to reach Billow.
   
-  Under the hood: Node 26, Next.js 16.3, and refreshed dependencies.
-  
-  This release includes database migrations, applied automatically on
-  start. Updates in place; no reinstall needed.
+  Updates in place; no reinstall needed.
 
 
   Because of that you will be asked to save a recovery key on your next sign
