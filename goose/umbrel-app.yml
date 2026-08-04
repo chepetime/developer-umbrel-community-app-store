@@ -1,0 +1,47 @@
+manifestVersion: 1
+id: goose
+name: Goose
+tagline: A self-hosted app with the boring parts already built
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/goose/icon.svg
+category: Development
+version: "0.1.0"
+port: 46248
+description: >-
+  A base setup for self-hosted apps. The parts every such app needs are already
+  built and tested: accounts with email or username sign-in, TOTP two-factor,
+  personal API keys, admin roles, database migrations applied on start, backup
+  and restore, file uploads, health checks and an error log.
+
+
+  Built with Next.js App Router and React Server Components, Prisma on
+  PostgreSQL, better-auth, Tailwind and shadcn/ui, shipped as a single
+  multi-architecture Docker image.
+
+
+  It comes with a small invoicing workspace. That is a worked example of the
+  platform rather than the point - a real domain wired through the same auth,
+  validation, backup and API conventions, there to be replaced by your own.
+
+developer: ChepeTime
+website: https://github.com/chepetime/umbrel-goose
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/chepetime/umbrel-goose
+support: https://github.com/chepetime/umbrel-goose/issues
+releaseNotes: >-
+  First release.
+
+  Goose starts from the Billow codebase at its 0.1.44 tree and restarts
+  numbering at 0.1.0, so this build already carries everything Billow had
+  learned: encrypted-at-rest bank details, trusted-origin checks on password
+  reset links, uploads removed with the account, redaction on recorded errors,
+  and migrations applied automatically on start.
+
+  Goose runs on host port 46248 rather than Billow's 46247, so the two can be
+  installed side by side. They do not share data, and there is no migration
+  path between them - a Goose install starts empty.
+
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

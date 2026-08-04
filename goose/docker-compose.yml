@@ -1,0 +1,75 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      # The format here is: <app-id>_<docker-service-name>_1
+      APP_HOST: goose_server_1
+      APP_PORT: 3000
+
+  server:
+    # Pinned by digest as well as tag, which every app in the official
+    # getumbrel/umbrel-apps store does (391 of 391). A tag alone is mutable:
+    # re-pushing v0.1.0 would silently change what is already installed.
+    # This is the multi-arch index digest, covering both linux/amd64 and
+    # linux/arm64 — a per-platform digest would pin every install to one
+    # architecture. Update both halves together on every release.
+    image: ghcr.io/chepetime/goose:v0.1.0@sha256:266b8c54b46cdc52af913464edb14f297e3bb148e104483b8c4928150609bb0b
+    init: true
+    # Umbrel creates app data as 1000:1000 and the image's app user is uid 1000
+    # to match, so the container can write its bind-mounted uploads directory
+    # directly. Starting as this user rather than root means the entrypoint's
+    # privileged chown phase never runs — see the uploads/ directory committed
+    # beside this file, which is what guarantees the host path already exists
+    # with the right owner instead of being created root-owned by Docker.
+    #
+    # Deliberately NOT set on the db service: postgres:alpine runs as its own
+    # uid 70 and owns its data directory at mode 700. Forcing a different user
+    # there would stop Postgres from starting at all.
+    user: "1000:1000"
+    depends_on:
+      - db
+    # Postgres needs time to flush and shut down cleanly when Umbrel stops the
+    # app; the default 10s can leave the data directory needing recovery.
+    stop_grace_period: 1m
+    environment:
+      # Use the fully-qualified container name (<app-id>_<service>_1), not the
+      # bare service name: every Umbrel app shares umbrel_main_network, so a
+      # generic alias like "db" also resolves to other apps' Postgres
+      # containers (Docmost ships one too) and intermittently fails with
+      # "credentials for `goose` are not valid".
+      DATABASE_URL: postgresql://goose:${APP_SEED}@goose_db_1:5432/goose?schema=public
+      # BetterAuth session secret. APP_SEED is Umbrel's per-install
+      # deterministic secret (64 hex chars, so it is URL-safe and can also be
+      # used in DATABASE_URL above). Without it the app throws at startup.
+      BETTER_AUTH_SECRET: ${APP_SEED}
+    volumes:
+      # The container filesystem is replaced on every update, so anything the
+      # app writes must live on a mounted volume to survive.
+      - ${APP_DATA_DIR}/uploads:/data/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: on-failure
+
+  db:
+    image: postgres:16-alpine@sha256:57c72fd2a128e416c7fcc499958864df5301e940bca0a56f58fddf30ffc07777
+    stop_grace_period: 1m
+    environment:
+      POSTGRES_DB: goose
+      POSTGRES_USER: goose
+      # Every Umbrel app shares one Docker network, so a password committed to
+      # a public repository would let any other installed app read this
+      # database. APP_SEED is unique per installation and never published.
+      POSTGRES_PASSWORD: ${APP_SEED}
+    volumes:
+      - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U goose -d goose"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: on-failure

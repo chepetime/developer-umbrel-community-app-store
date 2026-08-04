@@ -15,7 +15,22 @@ installation:
 
 ## Current Apps
 
-- `billow`: Billow, a personal invoices app.
+- `billow`: Billow, a personal invoices app. Host port `46247`.
+- `goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
+  `46248`.
+
+Goose is a full copy of the Billow tree, not a fork sharing history, and the two
+are independent from here on: separate repositories, separate GHCR packages,
+separate ports, separate databases. There is no migration path between them —
+a Goose install starts empty. Source lives in:
+
+```text
+/Users/jose/Projects/personal/umbrel-goose
+https://github.com/chepetime/umbrel-goose
+```
+
+Its image is `ghcr.io/chepetime/goose`. The package name deliberately does not
+match the repository name (`umbrel-goose`); nothing requires it to.
 
 The Billow app source now lives in:
 
@@ -87,6 +102,51 @@ reached the check warns and continues rather than blocking.
 
 Do not add the Billow Next.js source, `node_modules`, `.next`, Prisma generated
 files, or Docker build workflow back into this store repo.
+
+## Goose Store Contract
+
+Same shape as Billow's, with its own values:
+
+```yaml
+id: goose
+port: 46248
+image: ghcr.io/chepetime/goose:v0.1.0@sha256:266b8c54b46cdc52af913464edb14f297e3bb148e104483b8c4928150609bb0b
+```
+
+The Postgres data path is the same and stays unchanged for the same reason:
+
+```yaml
+volumes:
+  - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+```
+
+Do not reuse port `46247`. It belongs to Billow, and both apps may be installed
+on one host — a port already allocated leaves `goose_app_proxy_1` stuck in
+`Created` with no useful error.
+
+## Updating Goose
+
+1. Make app changes in `/Users/jose/Projects/personal/umbrel-goose`.
+2. Publish a new image tag from that repo (`gh workflow run release.yml
+   -f version=X.Y.Z`, or push a `vX.Y.Z` tag).
+3. Update `goose/docker-compose.yml` **and** the pin quoted above with the new
+   tag *and* its multi-arch index digest:
+
+   ```bash
+   docker buildx imagetools inspect ghcr.io/chepetime/goose:vX.Y.Z \
+     --format '{{.Manifest.Digest}}'
+   ```
+
+4. Bump `version` and `releaseNotes` in `goose/umbrel-app.yml`.
+5. Refresh the alt store in Umbrel.
+
+`scripts/bump-billow.sh` is Billow-only — it hardcodes the app directory, the
+image name and the commit subject. Goose is bumped by hand until someone
+generalises it. Do not point it at Goose expecting it to work.
+
+Goose has no `gallery:` entry yet. Billow's screenshots show Billow's name in
+the UI, so they cannot be reused; the field is optional and is left out rather
+than filled with images of a different app.
 
 ## Umbrel Debugging
 

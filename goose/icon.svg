@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Goose">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0e7490"/>
+      <stop offset="1" stop-color="#082f49"/>
+    </linearGradient>
+    <clipPath id="rounded">
+      <rect width="512" height="512" rx="112" ry="112"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
+
+  <g clip-path="url(#rounded)">
+    <!-- Water behind the bird, kept faint so the white body stays readable. -->
+    <path d="M-20 352 C 84 300, 164 404, 268 352 C 372 300, 452 372, 532 336 L532 532 L-20 532 Z"
+          fill="#ffffff" opacity="0.12"/>
+    <path d="M-20 394 C 92 340, 172 444, 276 390 C 380 336, 456 404, 532 372 L532 532 L-20 532 Z"
+          fill="#ffffff" opacity="0.18"/>
+
+    <!-- Goose: tail, body, neck, head. -->
+    <g fill="#ffffff">
+      <path d="M156 316 L98 288 Q 122 330, 150 346 Z"/>
+      <ellipse cx="258" cy="336" rx="118" ry="60"/>
+      <path d="M268 350 C 278 268, 300 218, 316 178 L 358 190 C 344 232, 330 280, 322 352 Z"/>
+      <circle cx="338" cy="156" r="40"/>
+    </g>
+
+    <!-- Beak and eye. -->
+    <path d="M372 142 L 442 154 L 372 176 Z" fill="#f59e0b"/>
+    <circle cx="350" cy="146" r="7" fill="#082f49"/>
+
+    <!-- Foreground wave, crossing the body so the bird reads as floating. -->
+    <path d="M-20 388 C 96 336, 176 448, 282 394 C 388 340, 460 412, 532 380 L532 532 L-20 532 Z"
+          fill="#ffffff" opacity="0.42"/>
+  </g>
+</svg>
