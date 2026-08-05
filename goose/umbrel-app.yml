@@ -28,6 +28,19 @@ submitter: ChepeTime
 submission: https://github.com/chepetime/developer-umbrel-community-app-store
 repo: https://github.com/chepetime/umbrel-goose
 support: https://github.com/chepetime/umbrel-goose/issues
+# Required, not optional: umbreld's manifest schema declares
+# `gallery: z.array(z.string())` with no `.optional()`, unlike every other
+# field that can be left out. Omitting it fails Zod validation and umbreld
+# drops the app from the store silently — no error, the app simply never
+# appears. An empty array also validates, if these are ever removed.
+#
+# These are currently Billow's screenshots, copied rather than linked so
+# replacing them here is a drop-in. They show Billow's name in the UI until
+# Goose's own captures replace them.
+gallery:
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/goose/gallery/1-home.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/goose/gallery/2-account.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/goose/gallery/3-api-keys.jpg
 releaseNotes: >-
   First release.
 

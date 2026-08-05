@@ -144,9 +144,28 @@ on one host — a port already allocated leaves `goose_app_proxy_1` stuck in
 image name and the commit subject. Goose is bumped by hand until someone
 generalises it. Do not point it at Goose expecting it to work.
 
-Goose has no `gallery:` entry yet. Billow's screenshots show Billow's name in
-the UI, so they cannot be reused; the field is optional and is left out rather
-than filled with images of a different app.
+`gallery:` is **required**, and getting this wrong costs an afternoon. umbreld
+validates every manifest with Zod
+(`packages/umbreld/source/modules/apps/schema.ts`) and declares:
+
+```ts
+gallery: z.array(z.string()),   // note: no .optional()
+```
+
+Every other field that can be left out carries `.optional()`; `gallery` does
+not. A manifest without it fails validation and umbreld **drops the app from
+the store with no error at all** — the app simply never appears, which looks
+identical to the store not having refreshed. Goose shipped without it once and
+was invisible until the schema was read.
+
+An empty array (`gallery: []`) validates, so a new app does not need
+screenshots to be listed. Goose currently reuses Billow's screenshots, copied
+into `goose/gallery/` rather than linked to Billow's copies so that dropping
+real captures in place is a straight file swap. They still show Billow's name
+in the UI.
+
+If an app is missing from the store, check the manifest against that schema
+before assuming a caching problem.
 
 ## Umbrel Debugging
 
