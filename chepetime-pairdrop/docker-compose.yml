@@ -1,5 +1,26 @@
 version: "3.7"
 
+# Bridge networking behind app_proxy is deliberate, and it is what makes
+# device discovery work. Do not "fix" this to network_mode: host.
+#
+# PairDrop has no link-layer discovery. The server puts peers in a room keyed
+# by the IP it sees on their WebSocket upgrade — `_joinRoom(peer, 'ip',
+# peer.ip)` in server/ws-server.js, where peer.ip is x-forwarded-for if
+# present and otherwise request.socket.remoteAddress (server/peer.js).
+#
+# Umbrel's app_proxy sets x-forwarded-for in `onProxyReq` (HTTP) but NOT in
+# `onProxyReqWs` (WebSocket upgrades), and it runs http-proxy-middleware with
+# `xfwd: false` (containers/app-proxy/utils/proxy.js). So PairDrop sees the
+# proxy container's address for every client, puts them all in one room, and
+# they discover each other — which is exactly what you want on a home LAN.
+#
+# On host networking each device would arrive with its own 192.168.x.x, land
+# in its own room, and see nobody. That is upstream's intended behaviour: the
+# IP grouping is designed for public instances, where LAN peers share one
+# public IP. A self-hosted instance inverts the assumption.
+#
+# If Umbrel ever starts forwarding client IPs on WebSocket upgrades, discovery
+# here breaks. The "Pair Device" six-digit code keeps working regardless.
 services:
   app_proxy:
     environment:
@@ -17,9 +38,9 @@ services:
       # failing — slower, but it works. Worth having on a LAN with an isolated
       # guest VLAN or client isolation on the access point.
       WS_FALLBACK: "true"
-      # Off because this instance sits behind Umbrel's login already, and the
-      # limiter counts requests from the app proxy rather than from real
-      # clients, so it would throttle everyone at once.
+      # Off for the same reason discovery works: every WebSocket client shares
+      # the proxy's address, so the per-IP limiter would count all devices as
+      # one and throttle everyone together. Umbrel's login is already in front.
       RATE_LIMIT: "false"
     volumes:
       - /etc/localtime:/etc/localtime:ro

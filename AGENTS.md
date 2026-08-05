@@ -323,6 +323,16 @@ recorded in their descriptions so they show in the store listing:
   tunnel in front before it can be used at all, and `APP_URL` must be set to
   that address *before* anyone enrols, since passkeys bind to the origin.
 
+**PairDrop must stay on bridge networking.** It looks like an app that needs
+`network_mode: host` to see LAN devices; it is the reverse. PairDrop groups
+peers into a room keyed by the IP on their WebSocket upgrade
+(`_joinRoom(peer, 'ip', peer.ip)`), and Umbrel's app_proxy sets
+`x-forwarded-for` on HTTP but not on WebSocket upgrades (`onProxyReqWs`, with
+`xfwd: false`). Every client therefore arrives as the proxy's address, shares
+one room, and discovery works. On host networking each device would arrive
+with its own LAN IP, get a room of one, and see nobody. Upstream's grouping
+assumes a public instance where LAN peers share a public IP.
+
 Two version-pin traps found while packaging:
 
 - **Threadfin's `latest` is amd64-only**; its version tags are multi-arch.
