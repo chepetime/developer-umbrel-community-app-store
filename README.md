@@ -6,8 +6,10 @@ Umbrel UI as "José Lugo App Store".
 ## Apps
 
 - `chepetime-billow`: Billow, a personal invoices app. Host port `46247`.
-- `goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
+- `chepetime-goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
   `46248`.
+- `chepetime-fing-agent`: Fing Agent, third-party network monitoring. Host port
+  `44444`. No web UI of its own — it is driven from the Fing mobile app.
 
 Goose and Billow are independent: separate repositories, separate images,
 separate databases. Installing one does not affect the other, and there is no

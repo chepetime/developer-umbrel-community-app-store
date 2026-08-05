@@ -58,6 +58,8 @@ installation:
 - `chepetime-billow`: Billow, a personal invoices app. Host port `46247`.
 - `chepetime-goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
   `46248`.
+- `chepetime-fing-agent`: Fing Agent, third-party network monitoring. Host port
+  `44444`, upstream's own, not one of this store's `462xx` allocations.
 
 Goose is a full copy of the Billow tree, not a fork sharing history, and the two
 are independent from here on: separate repositories, separate GHCR packages,
@@ -206,6 +208,70 @@ in the UI.
 
 If an app is missing from the store, check the manifest against that schema
 before assuming a caching problem.
+
+## Fing Agent Store Contract
+
+Unlike Billow and Goose, this app is not ours: it repackages the third-party
+image `fing/fing-agent`, so there is no source repository here to change and no
+release to publish. Only the pin moves.
+
+```yaml
+id: chepetime-fing-agent
+port: 44444
+image: fing/fing-agent:1.1.1@sha256:19dad245d2a5216e958d6616c973818aa373e394335936a05925d81c2a9e3959
+```
+
+Three things about it differ from every other app here, and each will look like
+a bug to anyone who assumes the Billow shape:
+
+- **No `app_proxy` service.** The agent runs `network_mode: host`, and the
+  proxy can only reach containers on `umbrel_main_network`. Home Assistant, the
+  reference host-network app in `getumbrel/umbrel-apps`, omits it identically.
+  Adding one back points the proxy at a container with no address of its own
+  and makes the app unreachable. The flip side is that port `44444` is served
+  on the host with no Umbrel auth in front of it.
+- **`cap_add: NET_ADMIN` plus host networking are required, not incidental.**
+  Fing discovers devices by probing the LAN at the ARP level. Bridged, it sees
+  only Docker's subnet and reports an empty network.
+- **There is no web UI.** Port `44444` is the UPnP status endpoint and, on paid
+  plans, the local API. `port:` is mandatory in the manifest, so Umbrel's
+  "Open" button links there and shows something that is not a dashboard. The
+  agent is activated and driven entirely from the Fing mobile app, on the same
+  subnet, against a free Fing account.
+
+Port `44444` is upstream's, deliberately outside this store's `462xx` range. It
+does not collide with Billow or Goose.
+
+Keep the state path stable — losing it unpairs the agent from its Fing account
+and restarts discovery from empty:
+
+```yaml
+volumes:
+  - ${APP_DATA_DIR}/fingdata:/app/fingdata
+```
+
+`gallery: []` here is intentional, not an oversight to fill in later. Fing's
+screenshots are their assets, and the app has no interface of ours to capture.
+An empty array validates, so the app still lists.
+
+## Updating Fing Agent
+
+No build step. Check Docker Hub for a newer tag, then update the tag *and* its
+multi-arch index digest in `chepetime-fing-agent/docker-compose.yml` and in the
+pin quoted above:
+
+```bash
+docker buildx imagetools inspect fing/fing-agent:X.Y.Z \
+  --format '{{.Manifest.Digest}}'
+```
+
+Then bump `version` and `releaseNotes` in `chepetime-fing-agent/umbrel-app.yml`
+and refresh the alt store.
+
+Upstream is slow: `1.1.1` and `latest` are the same image and date from
+January 2025. A long gap is normal, not a stalled package. The version tag is
+pinned rather than `latest` so a re-push of `latest` cannot silently change
+what is already installed.
 
 ## Umbrel Debugging
 
