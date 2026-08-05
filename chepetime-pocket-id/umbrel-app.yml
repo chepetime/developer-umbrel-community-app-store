@@ -1,0 +1,59 @@
+manifestVersion: 1
+id: chepetime-pocket-id
+name: Pocket ID
+tagline: Your own OIDC provider, with passkeys instead of passwords
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-pocket-id/icon.svg
+category: networking
+version: "2.12.0"
+port: 46251
+description: >-
+  Pocket ID is a small OpenID Connect provider for one household. You sign in
+  once with a passkey — Face ID, Touch ID, Windows Hello or a hardware key —
+  and every application that speaks OIDC accepts that session. No passwords
+  anywhere.
+
+
+  Applications you already run can use it directly: Gitea, Docmost, Immich,
+  Karakeep and most modern self-hosted software support OIDC. Users, groups
+  and per-application access are managed in one place, with an audit log of
+  every sign-in.
+
+
+  It is deliberately small. There is no LDAP directory, no SAML and no realm
+  configuration to learn, which is what makes it a sensible alternative to
+  Keycloak or Authentik at home.
+
+
+  Read this before installing: passkeys require a secure context. Browsers
+  refuse to register one over plain http on a hostname such as
+  http://umbrel.local, so this app is not usable at its default address. Put
+  it behind https first — Tailscale Serve and Cloudflare Tunnel both work, and
+  you already run both — then set APP_URL to that https address and restart.
+
+
+  Note that APP_URL is part of how passkeys are bound. Changing it later
+  invalidates existing passkeys, so choose the address before you enrol.
+developer: Pocket ID
+website: https://pocket-id.org
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/pocket-id/pocket-id
+support: https://github.com/pocket-id/pocket-id/issues
+gallery: []
+releaseNotes: >-
+  First packaging of Pocket ID 2.12.0 for this store.
+
+  ENCRYPTION_KEY is wired to Umbrel's per-install APP_SEED, so the stored
+  private keys are encrypted with a secret unique to this machine rather than
+  anything committed to a public repository.
+
+  The OIDC discovery and authorize endpoints bypass Umbrel's login, which is
+  what lets other applications complete a sign-in flow against it.
+
+  APP_URL defaults to http://umbrel.local:46251 and must be changed to an
+  https address before passkeys will register.
+
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

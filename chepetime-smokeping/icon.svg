@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="smokeping">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4338ca"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
+  <text x="256" y="256" fill="#ffffff" font-family="Helvetica, Arial, sans-serif"
+        font-size="200" font-weight="700" text-anchor="middle" dominant-baseline="central"
+        letter-spacing="-8">SP</text>
+</svg>

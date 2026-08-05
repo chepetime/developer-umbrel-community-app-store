@@ -1,0 +1,32 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-pocket-id_server_1
+      APP_PORT: 1411
+      # OIDC clients (Gitea, Docmost, Immich…) call these without a browser
+      # session, so they must bypass Umbrel's login or discovery fails.
+      PROXY_AUTH_WHITELIST: "/.well-known/*,/api/oidc/*,/api/well-known/*,/authorize"
+
+  server:
+    # Multi-arch index digest (amd64, arm64).
+    image: ghcr.io/pocket-id/pocket-id:v2.12.0@sha256:4a277d141d6069fd9a7b321a9aca80f4b9812b8fa122ee566d2f15900e3d8448
+    environment:
+      # REQUIRED, and it must match the URL you actually use — passkeys are
+      # bound to this origin. See the README: passkeys will not register over
+      # plain http on a hostname, so this normally has to become an https URL
+      # from Tailscale or a tunnel before the app is usable.
+      APP_URL: http://umbrel.local:46251
+      # REQUIRED. Encrypts stored private keys. APP_SEED is Umbrel's
+      # per-install secret: 64 hex characters, well past the 16-byte minimum,
+      # unique to this machine and never published.
+      ENCRYPTION_KEY: ${APP_SEED}
+      # Umbrel's app proxy is what talks to this container, so client IPs in
+      # the audit log and rate limiter arrive as forwarded headers.
+      TRUST_PROXY: "true"
+    volumes:
+      # SQLite database, uploaded logos and the OIDC signing keys.
+      - ${APP_DATA_DIR}/data:/app/data
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure

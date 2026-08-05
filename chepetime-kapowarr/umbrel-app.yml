@@ -1,0 +1,52 @@
+manifestVersion: 1
+id: chepetime-kapowarr
+name: Kapowarr
+tagline: The *arr for comics — build, organise and complete your collection
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-kapowarr/icon.svg
+category: media
+version: "1.3.1"
+port: 46253
+description: >-
+  Kapowarr manages a comic book library the way Radarr and Sonarr manage film
+  and television. You add volumes, it builds the issue list from ComicVine,
+  shows you what is missing, and searches for it.
+
+
+  Files are renamed and filed to a naming convention you choose, converted
+  between formats where you want that, and monitored so new issues are picked
+  up as they are released.
+
+
+  It works with Direct Download, Mega and torrent clients, and keeps a full
+  history of what it fetched and from where.
+
+
+  You will need a free ComicVine API key before it can identify anything —
+  set it in Settings on first run.
+
+
+  The comics library is mounted from Umbrel's shared storage at
+  downloads/comics, so it sits beside everything the *arr apps manage.
+developer: Casvt
+website: https://casvt.github.io/Kapowarr
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/Casvt/Kapowarr
+support: https://github.com/Casvt/Kapowarr/issues
+gallery: []
+releaseNotes: >-
+  First packaging of Kapowarr 1.3.1 for this store.
+
+  Runs as uid 1000 rather than upstream's default root, so files it writes
+  match what the other media apps on this Umbrel produce.
+
+  The database lives in app data; the library and the in-progress download
+  folder are on Umbrel's shared storage, on the same filesystem, so completed
+  downloads move rather than copy.
+
+dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
+path: ""
+defaultUsername: ""
+defaultPassword: ""

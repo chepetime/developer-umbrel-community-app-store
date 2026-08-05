@@ -1,0 +1,47 @@
+manifestVersion: 1
+id: chepetime-pairdrop
+name: PairDrop
+tagline: Send files between any two devices on your network, from the browser
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-pairdrop/icon.svg
+category: files
+version: "1.11.2"
+port: 46257
+description: >-
+  PairDrop moves files between devices that have nothing else in common.
+  Open the same page on a phone and a laptop and they see each other; drag a
+  file onto the other device's icon and it transfers. No app to install, no
+  account, no cloud in the middle.
+
+
+  Transfers go peer to peer over WebRTC, so the file does not pass through
+  this server unless the direct connection fails.
+
+
+  Devices on the same network pair automatically. Devices elsewhere can be
+  paired with a six-digit code or a room link, which is what makes it more
+  useful than AirDrop between mixed platforms.
+
+
+  You can also send plain text and links the same way, which is the fastest
+  route between a phone and a desktop that do not share an ecosystem.
+developer: schlagmichdoch
+website: https://pairdrop.net
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/schlagmichdoch/PairDrop
+support: https://github.com/schlagmichdoch/PairDrop/issues
+gallery: []
+releaseNotes: >-
+  First packaging of PairDrop 1.11.2 for this store, using the LinuxServer.io
+  image.
+
+  The WebSocket fallback is on, so transfers still complete on networks that
+  block direct peer connections. The built-in rate limiter is off, because
+  behind Umbrel's app proxy it would see every client as the same address.
+
+  Stateless by design — there is nothing to back up.
+
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

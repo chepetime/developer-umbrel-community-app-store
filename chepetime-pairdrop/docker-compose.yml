@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-pairdrop_server_1
+      APP_PORT: 3000
+
+  server:
+    # Multi-arch index digest (amd64, arm64).
+    image: linuxserver/pairdrop:1.11.2@sha256:3279d2d986c01a223f76e306e222a742508baf75b8eca03b097f25d9344584f6
+    environment:
+      PUID: 1000
+      PGID: 1000
+      # Peers normally send to each other directly over WebRTC. When a network
+      # blocks that, this relays the transfer through the server instead of
+      # failing — slower, but it works. Worth having on a LAN with an isolated
+      # guest VLAN or client isolation on the access point.
+      WS_FALLBACK: "true"
+      # Off because this instance sits behind Umbrel's login already, and the
+      # limiter counts requests from the app proxy rather than from real
+      # clients, so it would throttle everyone at once.
+      RATE_LIMIT: "false"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure

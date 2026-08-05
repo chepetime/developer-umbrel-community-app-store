@@ -11,6 +11,19 @@ Umbrel UI as "José Lugo App Store".
 - `chepetime-netalertx`: NetAlertX, third-party LAN scanner. Host ports `20211`
   and `20212`. Repackaged upstream image, no source repo of ours.
 
+Repackaged third-party apps (each has its own README):
+
+| App         | ID                      | Port    | Notes                                    |
+| ----------- | ----------------------- | ------- | ---------------------------------------- |
+| Tinyauth    | `chepetime-tinyauth`    | `46250` | Needs a reverse proxy to protect anything |
+| Pocket ID   | `chepetime-pocket-id`   | `46251` | Needs https before passkeys will register |
+| Tdarr       | `chepetime-tdarr`       | `46252` | Hardware transcoding is opt-in            |
+| Kapowarr    | `chepetime-kapowarr`    | `46253` | Needs a free ComicVine API key            |
+| Threadfin   | `chepetime-threadfin`   | `46254` | Bring your own IPTV provider              |
+| SmokePing   | `chepetime-smokeping`   | `46255` | Edit `Targets` or the graphs stay empty   |
+| Maintainerr | `chepetime-maintainerr` | `46256` | Point it at Plex and the *arr apps        |
+| PairDrop    | `chepetime-pairdrop`    | `46257` | Nothing to configure                      |
+
 Goose and Billow are independent: separate repositories, separate images,
 separate databases. Installing one does not affect the other, and there is no
 way to move data between them.

@@ -1,0 +1,50 @@
+manifestVersion: 1
+id: chepetime-smokeping
+name: SmokePing
+tagline: Long-term latency and packet loss graphs for the hosts you care about
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-smokeping/icon.svg
+category: networking
+version: "2.9.0"
+port: 46255
+description: >-
+  SmokePing measures latency to a list of hosts continuously and draws the
+  result as a graph where the line is the median and the smoke around it is
+  the spread. Jitter and packet loss are visible at a glance, which is exactly
+  what a speed test cannot tell you.
+
+
+  It is built for the long baseline. A month of history answers "is the
+  connection worse than it used to be, or does it only feel that way", and it
+  makes intermittent problems — evening congestion, a failing cable, a flaky
+  access point — obvious rather than anecdotal.
+
+
+  Probe your gateway, your ISP's first hop and a couple of public addresses,
+  and you can tell a problem inside the house from a problem outside it.
+
+
+  It complements the device-level view: NetAlertX tells you what is on the
+  network, SmokePing tells you when the network is bad.
+
+
+  Note: nothing useful is graphed until you edit the Targets file at
+  ${APP_DATA_DIR}/config/Targets and add hosts. The shipped default probes
+  localhost only.
+developer: LinuxServer.io
+website: https://oss.oetiker.ch/smokeping
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/linuxserver/docker-smokeping
+support: https://github.com/linuxserver/docker-smokeping/issues
+gallery: []
+releaseNotes: >-
+  First packaging of SmokePing 2.9.0 for this store, using the LinuxServer.io
+  image.
+
+  Config and the RRD measurement history are separate volumes under app data,
+  so a config mistake never costs you the graph history.
+
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

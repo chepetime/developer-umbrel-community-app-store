@@ -1,0 +1,52 @@
+manifestVersion: 1
+id: chepetime-threadfin
+name: Threadfin
+tagline: Turn IPTV playlists into a tuner Plex, Jellyfin and Emby understand
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-threadfin/icon.svg
+category: media
+version: "1.2.37"
+port: 46254
+description: >-
+  Threadfin sits between an M3U playlist and your media server and pretends to
+  be an HDHomeRun tuner. Plex, Jellyfin and Emby then treat IPTV channels as
+  ordinary live TV, with a proper guide.
+
+
+  You pick which channels from a provider's list you actually want, reorder
+  and rename them, map them to XMLTV guide data, and set how many streams may
+  run at once. Several playlists and guide sources can be merged into one
+  tuner.
+
+
+  It buffers streams itself, which smooths over providers that stall, and it
+  can filter by group so a list of thousands becomes the twenty channels you
+  watch.
+
+
+  Threadfin is the maintained fork of xTeVe, which is no longer developed.
+  Bring your own provider — none is included, and nothing works until you add
+  an M3U URL in Settings.
+
+
+  Note: the playlist, guide and tuner endpoints are exempt from Umbrel's login
+  so your media server can reach them. Do not expose this app to the internet.
+developer: Threadfin
+website: https://github.com/Threadfin/Threadfin
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/Threadfin/Threadfin
+support: https://github.com/Threadfin/Threadfin/issues
+gallery: []
+releaseNotes: >-
+  First packaging of Threadfin 1.2.37 for this store.
+
+  Pinned to a version tag rather than `latest`, because upstream's `latest` is
+  currently amd64-only while the version tags are multi-arch.
+
+  The M3U, XMLTV and HDHomeRun discovery endpoints bypass Umbrel's app proxy
+  auth, which is what lets Plex and Jellyfin read the tuner at all.
+
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

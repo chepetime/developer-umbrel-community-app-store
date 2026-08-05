@@ -1,0 +1,49 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-tdarr_server_1
+      APP_PORT: 8265
+
+  server:
+    # Multi-arch index digest (amd64, arm64).
+    image: haveagitgat/tdarr:2.85.01@sha256:eaeb1b39242685915b50f299a89f15e8ec4ef47f54d4b5b5ceee7e9d2a81c412
+    environment:
+      PUID: 1000
+      PGID: 1000
+      UMASK_SET: "002"
+      serverIP: 0.0.0.0
+      serverPort: 8266
+      webUIPort: 8265
+      # One container running both the server and a worker node. Upstream's
+      # second `tdarr-node` service is for spreading transcodes across other
+      # machines; add it there, not here.
+      internalNode: "true"
+      inContainer: "true"
+      ffmpegVersion: "7"
+      nodeName: UmbrelInternalNode
+      # Tdarr's own login is off because Umbrel's app_proxy already sits in
+      # front of the UI. Turn it on if you ever expose 8265 directly.
+      auth: "false"
+      openBrowser: "false"
+      maxLogSizeMB: "10"
+    volumes:
+      - ${APP_DATA_DIR}/server:/app/server
+      - ${APP_DATA_DIR}/configs:/app/configs
+      - ${APP_DATA_DIR}/logs:/app/logs
+      # Same shared storage the *arr apps use, mounted at the same path they
+      # use, so Tdarr's library scan and their file paths agree.
+      - ${UMBREL_ROOT}/data/storage/downloads:/downloads
+      # Transcode scratch space. This gets large and is rewritten constantly —
+      # it lives in app data rather than on the media volume on purpose.
+      - ${APP_DATA_DIR}/transcode:/temp
+      - /etc/localtime:/etc/localtime:ro
+    # Hardware transcoding needs the host's render device. Umbrel Home has
+    # integrated graphics; a Raspberry Pi does not, and a missing device stops
+    # the container from starting at all, so this is left commented out.
+    # Uncomment only if /dev/dri exists on your host.
+    #
+    # devices:
+    #   - /dev/dri:/dev/dri
+    restart: on-failure

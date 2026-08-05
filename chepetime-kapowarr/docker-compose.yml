@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-kapowarr_server_1
+      APP_PORT: 5656
+
+  server:
+    # Multi-arch index digest (amd64, arm64).
+    image: mrcas/kapowarr:v1.3.1@sha256:d455797e4f2c5b1a8ccc5ce05c427f1af2179451bb1af195ca3fa8c3e928623b
+    environment:
+      # Upstream's docs default to PUID/PGID 0, i.e. root. Umbrel creates app
+      # data as 1000:1000 and the shared storage is owned the same way, so
+      # 1000 both works and keeps new comic files consistent with what the
+      # *arr apps write.
+      PUID: 1000
+      PGID: 1000
+    volumes:
+      - ${APP_DATA_DIR}/db:/app/db
+      # Comics library and the in-progress download folder, both on Umbrel's
+      # shared storage so files land beside everything else and can be moved
+      # without crossing a filesystem boundary.
+      - ${UMBREL_ROOT}/data/storage/downloads/comics:/comics
+      - ${UMBREL_ROOT}/data/storage/downloads/kapowarr-incomplete:/app/temp_downloads
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure

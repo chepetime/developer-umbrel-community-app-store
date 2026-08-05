@@ -1,0 +1,56 @@
+manifestVersion: 1
+id: chepetime-tdarr
+name: Tdarr
+tagline: Transcode and health-check your whole media library, automatically
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-tdarr/icon.svg
+category: media
+version: "2.85.01"
+port: 46252
+description: >-
+  Tdarr keeps a media library in the shape you want it. You define what
+  "correct" means — container, video and audio codecs, resolution, subtitle
+  and language tracks — and it scans everything you have, finds the files that
+  do not match, and transcodes them.
+
+
+  It also health-checks files with ffmpeg, so corrupt or truncated media is
+  something you find out about before you sit down to watch it.
+
+
+  Work runs through a plugin pipeline you can build from a large community
+  library or write yourself, with per-library schedules and a queue you can
+  watch as it goes.
+
+
+  This package runs the server and one worker node in a single container,
+  which is what you want on one machine. Transcoding across several machines
+  means adding Tdarr node containers elsewhere, pointed at this server on port
+  8266.
+
+
+  Note: hardware transcoding is off. It needs /dev/dri from the host, and a
+  missing device stops the container from starting, so the mount is commented
+  out in docker-compose.yml. Uncomment it if your Umbrel has an iGPU.
+developer: HaveAGitGat
+website: https://home.tdarr.io
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/HaveAGitGat/Tdarr
+support: https://github.com/HaveAGitGat/Tdarr/issues
+gallery: []
+releaseNotes: >-
+  First packaging of Tdarr 2.85.01 for this store.
+
+  Server plus internal node in one container. Umbrel's shared downloads
+  storage is mounted at /downloads, matching the *arr apps, and the transcode
+  cache lives in app data rather than on the media volume.
+
+  Tdarr's own login is disabled because Umbrel's app_proxy already
+  authenticates the UI.
+
+dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
+path: ""
+defaultUsername: ""
+defaultPassword: ""

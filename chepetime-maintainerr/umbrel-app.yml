@@ -1,0 +1,48 @@
+manifestVersion: 1
+id: chepetime-maintainerr
+name: Maintainerr
+tagline: Rules that decide what leaves your media library, and when
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-maintainerr/icon.svg
+category: media
+version: "3.21.1"
+port: 46256
+description: >-
+  Maintainerr decides what should leave your library so you do not have to.
+  You write rules from what Plex and the *arr apps already know — last watched,
+  date added, rating, collection, whether anyone ever finished it — and
+  Maintainerr collects the matches, shows them to you, and deletes them on a
+  schedule you set.
+
+
+  Matched media can be surfaced in Plex as a "leaving soon" collection first,
+  so nothing disappears without warning. Deletions go back through Radarr and
+  Sonarr, so the entries are removed properly rather than orphaned on disk.
+
+
+  It reads from Plex, Radarr, Sonarr, Overseerr and Jellyseerr. You already run
+  Plex, Radarr, Sonarr, Lidarr and Jellyseerr on this Umbrel, so it has
+  everything it needs on the same Docker network.
+
+
+  Point it at your services using their Umbrel container names, for example
+  http://plex_server_1:32400 and http://radarr_server_1:7878.
+developer: jorenn92
+website: https://docs.maintainerr.info
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/jorenn92/Maintainerr
+support: https://github.com/jorenn92/Maintainerr/issues
+gallery: []
+releaseNotes: >-
+  First packaging of Maintainerr 3.21.1 for this store.
+
+  Runs as uid 1000 so it can write ${APP_DATA_DIR}/data, and mounts Umbrel's
+  shared downloads storage at /downloads, the same path the *arr apps use, so
+  the leftover-folder rules see the library where Radarr and Sonarr report it.
+
+dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
+path: ""
+defaultUsername: ""
+defaultPassword: ""

@@ -61,6 +61,23 @@ installation:
 - `chepetime-netalertx`: NetAlertX, third-party LAN scanner. Host ports `20211`
   and `20212`, upstream's own, outside this store's `462xx` allocations.
 
+Repackaged third-party apps, all behind `app_proxy` on allocated host ports:
+
+| App           | ID                     | Port    |
+| ------------- | ---------------------- | ------- |
+| Tinyauth      | `chepetime-tinyauth`   | `46250` |
+| Pocket ID     | `chepetime-pocket-id`  | `46251` |
+| Tdarr         | `chepetime-tdarr`      | `46252` |
+| Kapowarr      | `chepetime-kapowarr`   | `46253` |
+| Threadfin     | `chepetime-threadfin`  | `46254` |
+| SmokePing     | `chepetime-smokeping`  | `46255` |
+| Maintainerr   | `chepetime-maintainerr`| `46256` |
+| PairDrop      | `chepetime-pairdrop`   | `46257` |
+
+Allocate the next free `462xx` for anything new, and check it is actually free
+on the host (`ss -lntu`) before publishing — a taken port leaves
+`<app-id>_app_proxy_1` stuck in `Created` with no useful error.
+
 Goose is a full copy of the Billow tree, not a fork sharing history, and the two
 are independent from here on: separate repositories, separate GHCR packages,
 separate ports, separate databases. There is no migration path between them —
@@ -272,6 +289,51 @@ Then bump `version` and `releaseNotes` in `chepetime-netalertx/umbrel-app.yml`.
 Upstream releases roughly monthly on a `YY.M.P` scheme, so the tag is a date,
 not semver. `26.8.5` was published the same day it was packaged here; if a
 fresh release ever misbehaves, `26.7.1` is the previous known-good tag.
+
+## Repackaged Third-Party Apps
+
+Eight apps added on 2026-08-04 that are not ours: they repackage upstream
+images, so there is nothing to build and only the pin moves. Each has its own
+README with the setup detail. What is worth knowing at store level:
+
+- **Every one is pinned by tag *and* multi-arch index digest.** Get the digest
+  with `docker buildx imagetools inspect <image>:<tag> --format
+  '{{.Manifest.Digest}}'`. It works without a running Docker daemon.
+- **Media apps mount Umbrel's shared storage**, following the official Radarr
+  package: `${UMBREL_ROOT}/data/storage/downloads` plus
+  `permissions: [STORAGE_DOWNLOADS]` in the manifest. Tdarr, Kapowarr and
+  Maintainerr all mount it at the same path the *arr apps use, or their
+  library paths would not agree.
+- **`PROXY_AUTH_WHITELIST` is load-bearing for three of them.** Threadfin's
+  tuner endpoints, Pocket ID's OIDC discovery and Tinyauth's forward-auth API
+  are all called by machines, not by a logged-in browser, and fail behind
+  Umbrel's login. The cost is that those paths are unauthenticated on the LAN.
+- **Use fully-qualified container names** when pointing one app at another
+  (`radarr_server_1`, not `radarr`). Every Umbrel app shares one network, so
+  bare service names collide across apps.
+
+Two carry caveats big enough that they may never be usable as packaged, both
+recorded in their descriptions so they show in the store listing:
+
+- **Tinyauth** is forward-auth only. It protects nothing until a reverse proxy
+  is added, and no store currently on this Umbrel has one. It also ships with
+  an empty user list by design.
+- **Pocket ID** needs https. Passkeys are WebAuthn, and browsers refuse to
+  register one over `http://umbrel.local`. It needs Tailscale Serve or a
+  tunnel in front before it can be used at all, and `APP_URL` must be set to
+  that address *before* anyone enrols, since passkeys bind to the origin.
+
+Two version-pin traps found while packaging:
+
+- **Threadfin's `latest` is amd64-only**; its version tags are multi-arch.
+  Check `docker buildx imagetools inspect` before moving the pin.
+- **Tinyauth publishes rolling major tags** on GHCR (`v5`, `latest`) with no
+  per-patch tag, so the digest is the only real pin.
+
+**Huntarr was considered and rejected.** Upstream `plexguide/huntarr.io` is
+gone (404) and there is a public reproducible unauthenticated auth-bypass in
+v9.4.2 that returns the API keys of every *arr app it manages. Do not package
+it.
 
 ## Umbrel Debugging
 

@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-tinyauth_server_1
+      APP_PORT: 3000
+      # The forward-auth endpoints are called by a reverse proxy, not by a
+      # logged-in browser session, so they cannot sit behind Umbrel's login.
+      PROXY_AUTH_WHITELIST: "/api/auth/*,/api/healthcheck"
+
+  server:
+    # Upstream publishes rolling major tags rather than per-patch tags on
+    # GHCR: `v5` and `latest` resolve to the same image. The digest is what
+    # actually pins this, so a re-push of `v5` cannot change what is running.
+    # This is v5.1.3. Multi-arch index digest.
+    image: ghcr.io/tinyauthapp/tinyauth:v5@sha256:a1bde189951900f84a60f133c26a1ec7a3264073ec7875b548f4fbadb7f5f735
+    environment:
+      # Must match the URL you actually reach Tinyauth on. Change this if you
+      # front it with Tailscale or a tunnel, then restart the app.
+      TINYAUTH_APPURL: http://umbrel.local:46250
+      # Sessions and users live here. The default is a relative path inside
+      # the container, which would be wiped on every update.
+      TINYAUTH_DATABASE_PATH: /data/tinyauth.db
+      # REQUIRED before anyone can log in: comma-separated username:bcrypt.
+      # Left empty on purpose — there is no safe default, and a shipped one
+      # would be a published credential. See this app's README to generate it.
+      TINYAUTH_AUTH_USERS: ""
+      TINYAUTH_LOG_LEVEL: info
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure

@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-smokeping_server_1
+      APP_PORT: 80
+
+  server:
+    # Multi-arch index digest (amd64, arm64).
+    image: linuxserver/smokeping:2.9.0@sha256:f91de6eeb3384d00c1d92cf0c2b2956692fe64048eb1f6c9207e43b0c479af77
+    environment:
+      PUID: 1000
+      PGID: 1000
+    volumes:
+      # Edit Targets here to choose what gets pinged. The default file only
+      # probes localhost, so the graphs stay empty until you add hosts.
+      - ${APP_DATA_DIR}/config:/config
+      # RRD files: the entire measurement history. Losing this loses every
+      # graph, and the point of SmokePing is the long baseline.
+      - ${APP_DATA_DIR}/data:/data
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure

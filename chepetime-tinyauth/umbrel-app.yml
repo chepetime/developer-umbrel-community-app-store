@@ -1,0 +1,58 @@
+manifestVersion: 1
+id: chepetime-tinyauth
+name: Tinyauth
+tagline: A login page for services that have none — needs a reverse proxy
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-tinyauth/icon.svg
+category: networking
+version: "5.1.3"
+port: 46250
+description: >-
+  Tinyauth puts a login screen in front of applications that have no
+  authentication of their own. A reverse proxy asks Tinyauth about every
+  request; unauthenticated visitors get a login page, and everyone else is
+  passed through.
+
+
+  It supports local username and password accounts, OAuth and OIDC providers
+  such as Google, GitHub and Pocket ID, LDAP, and per-application access
+  rules, in a single small container with a SQLite database.
+
+
+  Read this before installing: Tinyauth is not useful on its own. It protects
+  nothing until a reverse proxy — Traefik, Caddy, nginx or similar — is
+  configured to send its authentication checks here. Umbrel's built-in app
+  proxy does not support forward auth, and there is no reverse proxy in the
+  app stores currently added to this Umbrel, so one has to be added first.
+
+
+  It also needs a user before anyone can log in. The account list is an
+  environment variable holding a bcrypt hash, which has to be set by hand —
+  see this app's README.
+
+
+  If what you want is single sign-on for apps that already speak OIDC, Pocket
+  ID does that without a reverse proxy.
+developer: steveiliop56
+website: https://tinyauth.app
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/steveiliop56/tinyauth
+support: https://github.com/steveiliop56/tinyauth/issues
+gallery: []
+releaseNotes: >-
+  First packaging of Tinyauth 5.1.3 for this store.
+
+  Pinned by digest against the rolling `v5` tag, since upstream does not
+  publish per-patch tags on GHCR.
+
+  The database is moved to a mounted volume so accounts and sessions survive
+  updates, and the forward-auth endpoints bypass Umbrel's login because a
+  reverse proxy, not a browser, calls them.
+
+  Requires manual setup: a reverse proxy to protect anything, and at least one
+  user in TINYAUTH_AUTH_USERS.
+
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

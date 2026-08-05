@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-threadfin_server_1
+      APP_PORT: 34400
+      # Plex, Jellyfin and Emby fetch the M3U playlist and XMLTV guide from
+      # these paths with no session cookie, so they must bypass Umbrel's auth
+      # or the tuner shows up empty.
+      PROXY_AUTH_WHITELIST: "/m3u/*,/xmltv/*,/data_images/*,/api/*,/auto/*,/stream/*,/discover.json,/lineup.json,/lineup_status.json,/device.xml,/capability"
+
+  server:
+    # Pinned to 1.2.37 rather than `latest` on purpose: upstream's `latest`
+    # tag is currently amd64-only, while the version tags are multi-arch
+    # (amd64, arm, arm64). This is the multi-arch index digest.
+    image: fyb3roptik/threadfin:1.2.37@sha256:96122ab220e14b881cbd40d7f8c7b022e1f9c6ecfe05aca2ab801e0321dc0d61
+    environment:
+      PUID: 1000
+      PGID: 1000
+    volumes:
+      - ${APP_DATA_DIR}/conf:/home/threadfin/conf
+      # Buffer scratch space. Kept off the container filesystem because it is
+      # written continuously while streams are running.
+      - ${APP_DATA_DIR}/temp:/tmp/threadfin
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure
