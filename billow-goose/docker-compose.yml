@@ -4,7 +4,7 @@ services:
   app_proxy:
     environment:
       # The format here is: <app-id>_<docker-service-name>_1
-      APP_HOST: goose_server_1
+      APP_HOST: billow-goose_server_1
       APP_PORT: 3000
 
   server:
@@ -38,7 +38,7 @@ services:
       # generic alias like "db" also resolves to other apps' Postgres
       # containers (Docmost ships one too) and intermittently fails with
       # "credentials for `goose` are not valid".
-      DATABASE_URL: postgresql://goose:${APP_SEED}@goose_db_1:5432/goose?schema=public
+      DATABASE_URL: postgresql://goose:${APP_SEED}@billow-goose_db_1:5432/goose?schema=public
       # BetterAuth session secret. APP_SEED is Umbrel's per-install
       # deterministic secret (64 hex chars, so it is URL-safe and can also be
       # used in DATABASE_URL above). Without it the app throws at startup.

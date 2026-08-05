@@ -42,8 +42,8 @@ Umbrel installs keep their data.
 
 ## Goose Updates
 
-The same four steps, against `goose/` and the `chepetime/umbrel-goose`
-repository. Keep `id: goose`, host port `46248`, and the Postgres volume path
+The same four steps, against `billow-goose/` and the `chepetime/umbrel-goose`
+repository. Keep `id: billow-goose`, host port `46248`, and the Postgres volume path
 stable.
 
 Note that `scripts/bump-billow.sh` handles Billow only; Goose is bumped by hand.

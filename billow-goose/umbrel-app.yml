@@ -1,8 +1,8 @@
 manifestVersion: 1
-id: goose
+id: billow-goose
 name: Goose
 tagline: A self-hosted app with the boring parts already built
-icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/goose/icon.svg
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow-goose/icon.svg
 category: Development
 version: "0.1.0"
 port: 46248
@@ -38,9 +38,9 @@ support: https://github.com/chepetime/umbrel-goose/issues
 # replacing them here is a drop-in. They show Billow's name in the UI until
 # Goose's own captures replace them.
 gallery:
-  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/goose/gallery/1-home.jpg
-  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/goose/gallery/2-account.jpg
-  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/goose/gallery/3-api-keys.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow-goose/gallery/1-home.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow-goose/gallery/2-account.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow-goose/gallery/3-api-keys.jpg
 releaseNotes: >-
   First release.
 
