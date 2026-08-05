@@ -1,0 +1,67 @@
+version: "3.7"
+
+# No app_proxy service here, deliberately.
+#
+# The proxy can only reach a container on umbrel_main_network, and this one
+# runs on the host's network stack instead. Home Assistant, the reference
+# host-network app in getumbrel/umbrel-apps, omits it for the same reason:
+# Umbrel then links straight to <host>:<port> from umbrel-app.yml.
+#
+# The consequence is that the UI on 20211 has no Umbrel auth in front of it.
+# Turn on NetAlertX's own password in Settings -> General. See the README.
+services:
+  server:
+    # Multi-arch index digest (amd64, arm64, arm), so one pin covers Umbrel
+    # Home and Raspberry Pi. Update tag and digest together.
+    image: jokobsk/netalertx:26.8.5@sha256:e8d800176d35a2fcc856ddc68c354a6b472e535c6ed42c52d040b715ca9bb127
+    # Required. NetAlertX finds devices with arp-scan, nmap and nbtscan
+    # against the real LAN; bridged, it would only see Docker's own subnet.
+    network_mode: host
+    # Upstream's own capability set: drop everything, then add back only what
+    # the scanners and the entrypoint need.
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_ADMIN # arp-scan, nmap, nbtscan, traceroute, zero-conf
+      - NET_RAW # raw sockets for the same scanners
+      - NET_BIND_SERVICE # nbtscan binds a privileged port
+      - CHOWN # entrypoint chowns /data and /tmp before dropping root
+      - SETUID # entrypoint drops to the PUID user
+      - SETGID # entrypoint drops to the PGID group
+    #
+    # Upstream's compose also sets these sysctls for ARP-flux accuracy:
+    #
+    #   net.ipv4.conf.all.arp_ignore: 1
+    #   net.ipv4.conf.all.arp_announce: 2
+    #
+    # They are deliberately NOT copied here. Docker rejects any `net.*` sysctl
+    # when the container shares the host network namespace — the daemon fails
+    # the container with "sysctl ... is not allowed in host network mode", so
+    # copying upstream's file verbatim would stop the app from starting at all.
+    # They would also be changing the Umbrel host's global ARP behaviour rather
+    # than the container's. Set them on the host directly if scan accuracy ever
+    # needs it.
+    #
+    # Upstream ships a read-only root filesystem. Everything writable is either
+    # the /data volume or the tmpfs below.
+    read_only: true
+    tmpfs:
+      - "/tmp:mode=1700,uid=0,gid=0,rw,noexec,nosuid,nodev,async,noatime,nodiratime"
+    environment:
+      # Runtime user after the entrypoint drops root. Upstream's default.
+      PUID: 20211
+      PGID: 20211
+      LISTEN_ADDR: 0.0.0.0
+      PORT: 20211
+      GRAPHQL_PORT: 20212
+      # Guard rail: `true` wipes the config and database on every start.
+      ALWAYS_FRESH_INSTALL: "false"
+      NETALERTX_DEBUG: "0"
+    volumes:
+      # Config and the SQLite database, consolidated under /data upstream.
+      # The container filesystem is replaced on every update, so this is what
+      # keeps the device history and settings.
+      - ${APP_DATA_DIR}/data:/data
+      # Report timestamps follow the Umbrel host's timezone.
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure

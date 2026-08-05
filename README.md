@@ -8,6 +8,8 @@ Umbrel UI as "José Lugo App Store".
 - `chepetime-billow`: Billow, a personal invoices app. Host port `46247`.
 - `chepetime-goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
   `46248`.
+- `chepetime-netalertx`: NetAlertX, third-party LAN scanner. Host ports `20211`
+  and `20212`. Repackaged upstream image, no source repo of ours.
 
 Goose and Billow are independent: separate repositories, separate images,
 separate databases. Installing one does not affect the other, and there is no

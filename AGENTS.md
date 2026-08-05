@@ -58,6 +58,8 @@ installation:
 - `chepetime-billow`: Billow, a personal invoices app. Host port `46247`.
 - `chepetime-goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
   `46248`.
+- `chepetime-netalertx`: NetAlertX, third-party LAN scanner. Host ports `20211`
+  and `20212`, upstream's own, outside this store's `462xx` allocations.
 
 Goose is a full copy of the Billow tree, not a fork sharing history, and the two
 are independent from here on: separate repositories, separate GHCR packages,
@@ -207,7 +209,93 @@ in the UI.
 If an app is missing from the store, check the manifest against that schema
 before assuming a caching problem.
 
+## NetAlertX Store Contract
+
+Not our app: this repackages the third-party image `jokobsk/netalertx`. There
+is no source repo of ours and no release to publish — only the pin moves.
+
+```yaml
+id: chepetime-netalertx
+port: 20211
+image: jokobsk/netalertx:26.8.5@sha256:e8d800176d35a2fcc856ddc68c354a6b472e535c6ed42c52d040b715ca9bb127
+```
+
+Four things differ from the Billow/Goose shape. Each looks like a bug to
+anyone who assumes that shape:
+
+- **No `app_proxy` service.** The app runs `network_mode: host`, and the proxy
+  only reaches containers on `umbrel_main_network`. Home Assistant in
+  `getumbrel/umbrel-apps` omits it identically. The cost is that the UI has no
+  Umbrel auth in front of it, so NetAlertX's own password must be turned on in
+  Settings after install.
+- **`sysctls` are deliberately absent.** Upstream's compose sets
+  `net.ipv4.conf.all.arp_ignore=1` and `arp_announce=2`. Docker rejects any
+  `net.*` sysctl on a host-network container — "sysctl ... is not allowed in
+  host network mode" — so copying upstream's file verbatim prevents the
+  container from starting. Do not "restore" them.
+- **A narrow capability set, not `privileged`.** `cap_drop: ALL` then
+  `NET_ADMIN`, `NET_RAW`, `NET_BIND_SERVICE`, `CHOWN`, `SETUID`, `SETGID`.
+  The scanners need raw sockets; the entrypoint needs the last three to chown
+  `/data` and drop to uid 20211.
+- **`read_only: true` plus a `/tmp` tmpfs**, as upstream ships. Anything the
+  app writes goes to `/data` or that tmpfs.
+
+Ports `20211` (UI, REST) and `20212` (GraphQL) are upstream's, deliberately
+outside this store's `462xx` range. Both were free on the host when packaged.
+
+Keep the state path stable — losing it loses the whole device history:
+
+```yaml
+volumes:
+  - ${APP_DATA_DIR}/data:/data
+```
+
+Never set `ALWAYS_FRESH_INSTALL: "true"`; it wipes config and database on
+every start.
+
+`gallery: []` is intentional for now. Upstream's screenshots are theirs;
+replace with our own captures of a running instance.
+
+## Updating NetAlertX
+
+No build step. Check Docker Hub for a newer tag, then update the tag *and* its
+multi-arch index digest in `chepetime-netalertx/docker-compose.yml` and in the
+pin quoted above:
+
+```bash
+docker buildx imagetools inspect jokobsk/netalertx:X.Y.Z \
+  --format '{{.Manifest.Digest}}'
+```
+
+Then bump `version` and `releaseNotes` in `chepetime-netalertx/umbrel-app.yml`.
+
+Upstream releases roughly monthly on a `YY.M.P` scheme, so the tag is a date,
+not semver. `26.8.5` was published the same day it was packaged here; if a
+fresh release ever misbehaves, `26.7.1` is the previous known-good tag.
+
 ## Umbrel Debugging
+
+**Check the clone's commit before suspecting the manifest.** umbreld re-clones
+every app repository on a five-minute timer (`updateInterval = '5m'` in
+`apps/app-store.ts`); the refresh control in the UI does not force a pull. A
+just-pushed app is legitimately missing for a few minutes, and that is
+indistinguishable from a broken manifest. This cost an hour once. On the host:
+
+```bash
+ssh umbrel
+cat ~/umbrel/app-stores/<user>-<repo>-github-<hash>/.git/refs/heads/*
+umbreld client appStore.registry.query   # what the store actually serves
+```
+
+Note also that umbreld 1.7.4 does **not** validate manifests against the Zod
+schema — `validateManifest` only normalises `manifestVersion` and returns, with
+the `AppManifestSchema.parse` call commented out. The `gallery:` rule above was
+real on the older umbreld it was learned on, but it cannot silently drop an app
+on 1.7.4. Keep writing `gallery:` anyway; the rule may come back.
+
+`umbreld client <path>.<query|mutate>` takes `--key value` pairs, not
+`--input '{json}'`. For example
+`umbreld client apps.uninstall.mutate --appId chepetime-netalertx`.
 
 If an app appears in the store but install fails, the store metadata is loading.
 Check the app containers on the Umbrel host:

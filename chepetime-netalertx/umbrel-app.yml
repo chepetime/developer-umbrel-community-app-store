@@ -1,0 +1,64 @@
+manifestVersion: 1
+id: chepetime-netalertx
+name: NetAlertX
+tagline: Know every device on your network, and get told when a new one joins
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-netalertx/icon.svg
+category: networking
+version: "26.8.5"
+port: 20211
+description: >-
+  NetAlertX scans your network continuously and keeps a record of every device
+  it has ever seen. It tells you when something new appears, when a known
+  device comes back, and when one goes offline, so an unfamiliar device on the
+  network is something you find out about rather than something you discover
+  later.
+
+
+  Devices can be named, grouped and given an owner, and each one gets a
+  presence timeline. It scans with arp-scan, nmap, nbtscan and more, reads
+  leases from your DHCP server or router where it can, and enriches what it
+  finds with vendor lookups and open-port checks.
+
+
+  Alerts go wherever you already read them: email, Telegram, ntfy, Pushover,
+  MQTT, webhooks and Apprise. There is a full REST and GraphQL API if you want
+  to drive it from elsewhere.
+
+
+  It runs on the host network with the capabilities the scanners need, so it
+  sees the real LAN rather than Docker's own subnet.
+
+
+  Note: this app has no Umbrel login in front of it. Turn on NetAlertX's own
+  password in Settings after the first start — see this app's README.
+developer: jokob-sk
+website: https://github.com/jokob-sk/NetAlertX
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/jokob-sk/NetAlertX
+support: https://github.com/jokob-sk/NetAlertX/issues
+# Required, not optional: umbreld's manifest schema declares
+# `gallery: z.array(z.string())` with no `.optional()`, unlike every other
+# field that can be left out. On older umbreld this fails Zod validation and
+# the app is dropped from the store silently. An empty array validates.
+#
+# Empty here because NetAlertX's screenshots are upstream's assets. Replace
+# with our own captures of a running instance.
+gallery: []
+releaseNotes: >-
+  First packaging of NetAlertX 26.8.5 for this store.
+
+  Runs with host networking and upstream's capability set (drop ALL, add
+  NET_ADMIN, NET_RAW, NET_BIND_SERVICE, CHOWN, SETUID, SETGID), which the
+  arp-scan, nmap and nbtscan scanners need to see the real LAN.
+
+  Config and the device database live in ${APP_DATA_DIR}/data, so history and
+  settings survive updates.
+
+  Upstream's sysctl settings are intentionally left out: Docker refuses net.*
+  sysctls on a host-network container and would fail to start the app.
+
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
