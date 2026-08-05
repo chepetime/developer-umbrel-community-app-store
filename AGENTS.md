@@ -1,8 +1,16 @@
 # Repository Notes
 
 This repository is an Umbrel Community App Store named `José Lugo`, displayed
-in the Umbrel UI as "José Lugo App Store". The store `id` stays `billow`:
-changing it would make Umbrel treat this as a different store.
+in the Umbrel UI as "José Lugo App Store". The store `id` is `chepetime`.
+
+It used to be `billow`, named after the only app that existed at the time.
+That forced every later app to be prefixed `billow-` (see the rule below), so
+an unrelated app briefly had to be called `billow-goose`. It was renamed to
+`chepetime` so the prefix names the author rather than one of the apps.
+
+Changing the store `id` makes Umbrel treat this as a different store: the old
+one has to be removed and re-added, and any app installed from it keeps its
+old app ID and data directory rather than migrating.
 
 ## Every app ID must start with the store ID
 
@@ -15,21 +23,22 @@ umbreld filters the app list with
 .filter((app) => meta.id === 'umbrel-app-store' || app.id.startsWith(meta.id))
 ```
 
-The store `id` is `billow`, so **every app directory here must be named
-`billow…`**. An app whose ID does not match is dropped from the listing with
-no error, no log line in the UI, and no visible difference from a store that
-has not refreshed yet. Goose was published as `goose`, was invisible, and
-stayed invisible through a full remove-and-re-add of the store.
+The store `id` is `chepetime`, so **every app directory here must be named
+`chepetime-…`**. An app whose ID does not match is dropped from the listing
+with no error, no log line in the UI, and no visible difference from a store
+that has not refreshed yet. Goose was first published as `goose`, was
+invisible, and stayed invisible through a full remove-and-re-add of the store
+before anyone read this filter.
 
-That is why the Goose app is `billow-goose` and not `goose`. The `name:` field
-is what users see (`Goose`), so the prefix is invisible in the UI — it only
-shows up in the app ID, the data directory and container names.
+The `name:` field is what users see (`Billow`, `Goose`), so the prefix never
+appears in the UI — it shows up only in the app ID, the data directory and
+container names.
 
 Two more constraints that follow from the same file:
 
 - The **directory name must equal the app ID**. `app-store.ts` resolves an
-  app's files as `${repoPath}/${appId}`, so `billow-goose/` and
-  `id: billow-goose` have to agree or installation fails.
+  app's files as `${repoPath}/${appId}`, so `chepetime-goose/` and
+  `id: chepetime-goose` have to agree or installation fails.
 - App IDs must match `/^[a-zA-Z0-9-_]+$/`.
 
 Umbrel's own template store demonstrates the convention: store `id: sparkles`,
@@ -46,8 +55,8 @@ installation:
 
 ## Current Apps
 
-- `billow`: Billow, a personal invoices app. Host port `46247`.
-- `billow-goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
+- `chepetime-billow`: Billow, a personal invoices app. Host port `46247`.
+- `chepetime-goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
   `46248`.
 
 Goose is a full copy of the Billow tree, not a fork sharing history, and the two
@@ -87,7 +96,7 @@ The split is complete:
 Keep the app ID stable for existing installs:
 
 ```yaml
-id: billow
+id: chepetime-billow
 ```
 
 The store package currently points at:
@@ -110,7 +119,7 @@ port: 46247
 ```
 
 Earlier installs failed because the template port `4000` was already allocated
-on the Umbrel host, leaving `billow_app_proxy_1` in `Created`.
+on the Umbrel host, leaving `chepetime-billow_app_proxy_1` in `Created`.
 
 ## Updating Billow
 
@@ -123,7 +132,7 @@ on the Umbrel host, leaving `billow_app_proxy_1` in `Created`.
 4. Refresh the alt store in Umbrel.
 
 The script keeps the version in sync across `umbrel-app.yml`,
-`docker-compose.yml`, `billow/README.md`, and this file, and commits
+`docker-compose.yml`, `chepetime-billow/README.md`, and this file, and commits
 as `Billow Release X.Y.Z`.
 
 Before changing anything it queries GHCR and aborts if the target tag is not
@@ -139,7 +148,7 @@ files, or Docker build workflow back into this store repo.
 Same shape as Billow's, with its own values:
 
 ```yaml
-id: billow-goose
+id: chepetime-goose
 port: 46248
 image: ghcr.io/chepetime/goose:v0.1.0@sha256:266b8c54b46cdc52af913464edb14f297e3bb148e104483b8c4928150609bb0b
 ```
@@ -152,7 +161,7 @@ volumes:
 ```
 
 Do not reuse port `46247`. It belongs to Billow, and both apps may be installed
-on one host — a port already allocated leaves `billow-goose_app_proxy_1` stuck in
+on one host — a port already allocated leaves `chepetime-goose_app_proxy_1` stuck in
 `Created` with no useful error.
 
 ## Updating Goose
@@ -160,7 +169,7 @@ on one host — a port already allocated leaves `billow-goose_app_proxy_1` stuck
 1. Make app changes in `/Users/jose/Projects/personal/umbrel-goose`.
 2. Publish a new image tag from that repo (`gh workflow run release.yml
    -f version=X.Y.Z`, or push a `vX.Y.Z` tag).
-3. Update `billow-goose/docker-compose.yml` **and** the pin quoted above with the new
+3. Update `chepetime-goose/docker-compose.yml` **and** the pin quoted above with the new
    tag *and* its multi-arch index digest:
 
    ```bash
@@ -168,7 +177,7 @@ on one host — a port already allocated leaves `billow-goose_app_proxy_1` stuck
      --format '{{.Manifest.Digest}}'
    ```
 
-4. Bump `version` and `releaseNotes` in `billow-goose/umbrel-app.yml`.
+4. Bump `version` and `releaseNotes` in `chepetime-goose/umbrel-app.yml`.
 5. Refresh the alt store in Umbrel.
 
 `scripts/bump-billow.sh` is Billow-only — it hardcodes the app directory, the
@@ -191,7 +200,7 @@ was invisible until the schema was read.
 
 An empty array (`gallery: []`) validates, so a new app does not need
 screenshots to be listed. Goose currently reuses Billow's screenshots, copied
-into `billow-goose/gallery/` rather than linked to Billow's copies so that dropping
+into `chepetime-goose/gallery/` rather than linked to Billow's copies so that dropping
 real captures in place is a straight file swap. They still show Billow's name
 in the UI.
 
@@ -205,9 +214,9 @@ Check the app containers on the Umbrel host:
 
 ```bash
 sudo docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
-sudo docker logs billow_server_1 --tail 200
-sudo docker logs billow_db_1 --tail 120
-sudo docker inspect billow_app_proxy_1 --format '{{json .State}}'
+sudo docker logs chepetime-billow_server_1 --tail 200
+sudo docker logs chepetime-billow_db_1 --tail 120
+sudo docker inspect chepetime-billow_app_proxy_1 --format '{{json .State}}'
 ```
 
 Common Billow install failures seen so far:

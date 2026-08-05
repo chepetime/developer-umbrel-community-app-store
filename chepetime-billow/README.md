@@ -19,5 +19,5 @@ It then pulls the published image:
 ghcr.io/chepetime/billow:v0.1.0@sha256:8f49968de0ae0836a7ead27112720c28c27912e2f80a3838fb68b65cb560dae9
 ```
 
-Keep `id: billow` and the Postgres volume path unchanged so existing
+Keep `id: chepetime-billow` and the Postgres volume path unchanged so existing
 Umbrel installs keep their app data across image updates.

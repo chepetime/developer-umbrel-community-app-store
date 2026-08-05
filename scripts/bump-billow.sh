@@ -3,9 +3,9 @@
 # Bump the Billow store package to the next version, commit, and push.
 #
 # The version appears in four places that must stay in sync:
-#   - billow/umbrel-app.yml   version: "X.Y.Z"
-#   - billow/docker-compose.yml   image: ghcr.io/chepetime/billow:vX.Y.Z
-#   - billow/README.md            ghcr.io/chepetime/billow:vX.Y.Z
+#   - chepetime-billow/umbrel-app.yml   version: "X.Y.Z"
+#   - chepetime-billow/docker-compose.yml   image: ghcr.io/chepetime/billow:vX.Y.Z
+#   - chepetime-billow/README.md            ghcr.io/chepetime/billow:vX.Y.Z
 #   - AGENTS.md                            image: ghcr.io/chepetime/billow:vX.Y.Z
 #
 # Usage:
@@ -27,9 +27,9 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-manifest="billow/umbrel-app.yml"
-compose="billow/docker-compose.yml"
-app_readme="billow/README.md"
+manifest="chepetime-billow/umbrel-app.yml"
+compose="chepetime-billow/docker-compose.yml"
+app_readme="chepetime-billow/README.md"
 agents="AGENTS.md"
 files=("$manifest" "$compose" "$app_readme" "$agents")
 

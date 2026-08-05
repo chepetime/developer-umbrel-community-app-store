@@ -1,8 +1,8 @@
 manifestVersion: 1
-id: billow
+id: chepetime-billow
 name: Billow
 tagline: A self-hosted app with the boring parts already built
-icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/icon.svg
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
 version: "0.1.0"
 port: 46247
@@ -29,9 +29,9 @@ submission: https://github.com/chepetime/developer-umbrel-community-app-store
 repo: https://github.com/chepetime/billow
 support: https://github.com/chepetime/billow/issues
 gallery:
-  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/1-home.jpg
-  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/2-account.jpg
-  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/billow/gallery/3-api-keys.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/1-home.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/2-account.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/3-api-keys.jpg
 releaseNotes: >-
   A renumbering, not a rewrite. The code here is exactly what shipped as
   0.1.44, rebuilt from the same source and restarted at 0.1.0 so the version

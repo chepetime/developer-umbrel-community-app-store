@@ -19,7 +19,7 @@ It then pulls the published image:
 ghcr.io/chepetime/goose:v0.1.0@sha256:266b8c54b46cdc52af913464edb14f297e3bb148e104483b8c4928150609bb0b
 ```
 
-Keep `id: billow-goose` and the Postgres volume path unchanged so existing
+Keep `id: chepetime-goose` and the Postgres volume path unchanged so existing
 Umbrel installs keep their app data across image updates.
 
 Goose is a copy of Billow renamed, restarted at 0.1.0. It binds host port
