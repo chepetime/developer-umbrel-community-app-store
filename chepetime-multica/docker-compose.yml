@@ -83,20 +83,22 @@ services:
       # characters, unique to this machine, never published. Without it the
       # server falls back to a hardcoded default and logs a warning.
       JWT_SECRET: ${APP_SEED}
-      # The address you actually open. This is not cosmetic: the scheme here
-      # decides whether session cookies carry the Secure flag (http => no, or
-      # the browser would drop them), and it seeds the WebSocket origin
-      # allowlist and invitation email links. Change it, and
-      # CORS_ALLOWED_ORIGINS below, if you reach this app at another address.
-      FRONTEND_ORIGIN: http://umbrel.local:46258
-      MULTICA_APP_URL: http://umbrel.local:46258
-      # Comma-separated. Only the WebSocket origin check consults this in
-      # practice — HTTP is same-origin through the gateway, so CORS never
-      # applies. An origin that is not listed and does not match the Host the
-      # gateway forwards is refused with `ws: rejected origin` in this log,
-      # and the UI loops "disconnected, reconnecting in 3s" while page loads
-      # keep working. Add your LAN IP or Tailscale name here if you use one.
-      CORS_ALLOWED_ORIGINS: http://umbrel.local:46258,http://umbrel:46258
+      # NOTE: FRONTEND_ORIGIN, MULTICA_APP_URL, CORS_ALLOWED_ORIGINS and
+      # MULTICA_PUBLIC_URL are deliberately NOT set here. They name the
+      # address this install is actually reached at, which differs per host
+      # and is often a private domain that must not be published. Declaring
+      # them here would also make them unoverridable: `environment` silently
+      # beats env_file, so a value in secrets.env would be ignored. They
+      # belong in secrets.env — see env_file below.
+      #
+      # Leaving them unset is safe for the paths that resolve per request:
+      # the gateway forwards $http_host and MULTICA_TRUSTED_PROXIES lets the
+      # backend trust X-Forwarded-Host, so the WebSocket origin check passes
+      # on whatever hostname the browser used, and cookies stay non-Secure so
+      # they work over plain http. What does NOT work unset is anything that
+      # needs an absolute URL from config: invitation email links, the daemon
+      # setup command shown in the UI, and autopilot webhook URLs.
+      #
       # umbrel_main_network. Lets the backend trust X-Forwarded-Host from the
       # gateway, so a browser arriving on any hostname that reaches this box
       # is treated as same-origin without being listed above.
@@ -124,10 +126,12 @@ services:
     #   printf 'MULTICA_VCS_SECRET_KEY=%s\n' "$(openssl rand -base64 32)" > secrets.env
     #   umbreld client apps.restart.mutate --appId chepetime-multica
     #
-    # Useful keys: MULTICA_VCS_SECRET_KEY (self-hosted Git providers),
-    # SMTP_HOST/SMTP_PORT/SMTP_USERNAME/SMTP_PASSWORD/SMTP_TLS or
-    # RESEND_API_KEY (real login emails instead of codes in the log),
-    # ALLOW_SIGNUP=false (close signup once your account exists).
+    # Useful keys: FRONTEND_ORIGIN, MULTICA_APP_URL, CORS_ALLOWED_ORIGINS and
+    # MULTICA_PUBLIC_URL (the address this install is reached at — see the
+    # note in `environment` above), MULTICA_VCS_SECRET_KEY (self-hosted Git
+    # providers), SMTP_HOST/SMTP_PORT/SMTP_USERNAME/SMTP_PASSWORD/SMTP_TLS or
+    # RESEND_API_KEY + RESEND_FROM_EMAIL (real login emails instead of codes
+    # in the log), ALLOW_SIGNUP=false (close signup once your account exists).
     env_file:
       - path: ${APP_DATA_DIR}/secrets.env
         required: false

@@ -185,12 +185,36 @@ update (which copies a whitelist, and this is not in that either).
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_TLS` | login codes get emailed instead of printed to the backend log. Also makes workspace invitations work |
 | `RESEND_API_KEY` | same, via Resend instead of SMTP |
 | `ALLOW_SIGNUP=false` | close signup once your account exists |
+| `FRONTEND_ORIGIN`, `MULTICA_APP_URL`, `MULTICA_PUBLIC_URL`, `CORS_ALLOWED_ORIGINS` | the address this install is actually reached at — see below |
 
 **A variable set under `environment:` in `docker-compose.yml` beats the same
 variable here, silently.** So this file can only supply keys the compose file
-does not already declare. `FRONTEND_ORIGIN`, `CORS_ALLOWED_ORIGINS` and
-`MULTICA_APP_URL` are declared there and must be changed in the compose file
-itself — those edits are lost on update.
+does not declare, which is why the four address variables are deliberately
+absent from it.
+
+### The address variables
+
+Unset, the app still works on any hostname for everything resolved per
+request — the gateway forwards the browser's `Host` and the backend trusts
+`X-Forwarded-Host`, so realtime connects and cookies stay non-`Secure` so they
+survive plain http. What breaks is anything needing an absolute URL from
+config: **invitation email links**, the daemon setup command shown in the UI,
+and autopilot webhook URLs.
+
+If you reach this app at anything other than `http://umbrel.local:46258`:
+
+```bash
+FRONTEND_ORIGIN=https://multica.example.com
+MULTICA_APP_URL=https://multica.example.com
+MULTICA_PUBLIC_URL=https://multica.example.com
+CORS_ALLOWED_ORIGINS=https://multica.example.com,http://umbrel.local:46258
+```
+
+`FRONTEND_ORIGIN`'s **scheme** is load-bearing: `https` makes session cookies
+`Secure`, and a `Secure` cookie is dropped by the browser on a plain-http
+page — so once it is set to https, logging in at the LAN address stops
+working. Listing the LAN origin in `CORS_ALLOWED_ORIGINS` keeps realtime
+working there, but the login itself follows the scheme.
 
 ## Not wired up
 

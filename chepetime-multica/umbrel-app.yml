@@ -4,7 +4,7 @@ name: Multica
 tagline: Assign issues to coding agents like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
 category: developer
-version: "0.4.22-2"
+version: "0.4.22-3"
 port: 46258
 description: >-
   Multica is an issue tracker whose assignees can be AI coding agents. You
@@ -47,6 +47,23 @@ repo: https://github.com/multica-ai/multica
 support: https://github.com/multica-ai/multica/issues
 gallery: []
 releaseNotes: >-
+  The address this install is reached at now lives in secrets.env instead of
+  being hardcoded to http://umbrel.local:46258 in the compose file.
+  FRONTEND_ORIGIN, MULTICA_APP_URL, CORS_ALLOWED_ORIGINS and
+  MULTICA_PUBLIC_URL are no longer declared under environment, because a
+  value declared there silently overrides the same key in secrets.env — and
+  because the real address is often a private domain that does not belong in
+  a public store.
+
+  Unset, the paths that resolve per request still work: the gateway forwards
+  the browser's Host and the backend trusts X-Forwarded-Host, so realtime
+  connects on any hostname. What needs an absolute URL from config does not
+  — invitation email links, the daemon setup command shown in the UI, and
+  autopilot webhook URLs. Set the four keys in secrets.env if you reach this
+  app at anything other than the default.
+
+  ---
+
   Adds an optional secrets file. Create
   app-data/chepetime-multica/secrets.env and the backend reads it as
   environment: the place for MULTICA_VCS_SECRET_KEY (self-hosted Git
