@@ -67,10 +67,23 @@ two upstreams:
 - the Go backend on `:8080`, for the WebSocket endpoints — **Next.js rewrites
   forward HTTP only and drop the `Upgrade` handshake.**
 
-So `nginx.conf` sends exactly `/ws` (browser: chat streaming, live issue
-updates, notifications) and `/api/daemon/ws` (the daemon's control channel) to
-the backend, and leaves everything else on upstream's tested path. Without it
-the UI loads and then loops `disconnected, reconnecting in 3s`.
+So `hooks/nginx.conf` sends exactly four paths to the backend and leaves
+everything else on upstream's tested path:
+
+| Path | Why it cannot go through Next.js |
+| ---- | -------------------------------- |
+| `/ws` | browser realtime; the rewrite drops the `Upgrade` handshake |
+| `/api/daemon/ws` | the daemon's control channel, same reason |
+| `/health` | not in the rewrite list at all — `multica setup self-host` probes it and reports "not reachable" on a 404 |
+| `/healthz` | same, for readiness |
+
+Without the gateway the UI loads and then loops
+`disconnected, reconnecting in 3s`.
+
+The config lives in `hooks/` because an Umbrel app **update** copies only
+`docker-compose.yml`, `*.template`, `exports.sh`, `torrc` and `hooks` — a file
+anywhere else is frozen at whatever the first install wrote, and fixing it
+would mean an uninstall, which deletes the database.
 
 The rewrites are Next.js `afterFiles` rewrites, meaning real pages win over
 them. That is why `/auth/*` is **not** routed to the backend here:

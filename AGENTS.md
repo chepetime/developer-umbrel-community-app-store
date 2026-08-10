@@ -371,17 +371,23 @@ config file alongside the manifest. Both are deliberate:
   `/api/daemon/ws` (agent daemon) — must reach the backend directly. Without
   the gateway the UI loads and then loops `disconnected, reconnecting in 3s`,
   and the daemon never connects at all.
-- **`nginx.conf` is mounted from `${APP_DATA_DIR}`**, which works because
-  umbreld rsyncs the *whole* app template directory into app-data on install
-  (`apps.ts`: `rsync --archive --exclude ".gitkeep" ${appTemplatePath}/.
-  ${appDataDirectory}`). Arbitrary extra files in an app directory are
-  therefore available to compose. No `--delete`, so files a user adds in
-  app-data survive an update while ours are overwritten.
-- **Only `/ws` and `/api/daemon/ws` are exact-matched to the backend.**
-  Everything else, `/api` included, stays on upstream's tested path through
-  Next.js. Do not "simplify" this by routing `/auth/*` to the backend: those
-  are `afterFiles` rewrites, so real pages win, and `/auth/callback` is a
-  frontend page used by Google sign-in.
+- **`nginx.conf` lives in `hooks/`, not beside the manifest.** A fresh install
+  would find it either way, but only `hooks/` survives an app update — see
+  "Installs Copy Everything, Updates Copy A Whitelist" below. Do not move it
+  back for tidiness; that silently freezes the file at whatever the first
+  install wrote.
+- **Only `/ws`, `/api/daemon/ws`, `/health` and `/healthz` are exact-matched
+  to the backend.** Everything else, `/api` included, stays on upstream's
+  tested path through Next.js. Do not "simplify" this by routing `/auth/*` to
+  the backend: those are `afterFiles` rewrites, so real pages win, and
+  `/auth/callback` is a frontend page used by Google sign-in.
+- **`/health` must be routed *and* whitelisted.** `multica setup self-host`
+  probes `GET <server-url>/health` and refuses to write any config unless it
+  answers 200 (`cmd_setup.go` `probeServer`). Next.js does not rewrite it, so
+  the frontend 404s it; `app_proxy` redirects it to Umbrel's login unless it
+  is in `PROXY_AUTH_WHITELIST`. Either failure is reported to the user as
+  "Server is not reachable", which reads like a DNS or tunnel fault and sends
+  you debugging the wrong layer entirely.
 - **`proxy_set_header Host $http_host`, never `$host`.** The backend accepts a
   WebSocket when `Origin`'s host equals `r.Host`; `$host` strips the port, so
   `umbrel.local` would never match `umbrel.local:46258` and every upgrade
@@ -451,6 +457,46 @@ docker buildx imagetools inspect ghcr.io/multica-ai/multica-web:vX.Y.Z \
 Then bump `version` and `releaseNotes` in `chepetime-multica/umbrel-app.yml`
 and the pins above. Upstream shipped v0.4.18 through v0.4.22 in a single week,
 so a fresh tag has had almost no soak time; `v0.4.21` is the previous release.
+
+## Installs Copy Everything, Updates Copy A Whitelist
+
+This applies to every app here and is the least obvious rule in the whole
+repository.
+
+A **fresh install** rsyncs the entire app directory into app-data
+(`apps.ts`: `rsync --archive`), so any file you ship is available to compose.
+An **update** does not. `app-script`'s `pre-patch-update` copies only:
+
+```sh
+UPDATE_FILES_WHITELIST_PRE="docker-compose.yml *.template exports.sh torrc hooks"
+UPDATE_FILES_WHITELIST_POST="umbrel-app.yml"
+```
+
+So a config file shipped beside the manifest installs correctly once and is
+then **frozen for the life of the install**. Fixing it later would need an
+uninstall, and uninstall deletes app-data — the database with it. This was
+found the hard way on Multica: a `/health` routing fix in `nginx.conf` could
+never have reached the existing install, and had to be applied by hand on the
+host.
+
+Two workarounds, one of which does not work:
+
+- **`hooks/` is the answer.** It is a directory in the whitelist, and
+  `cp --archive` merges it over the existing one rather than nesting
+  (verified on the host: `cp -a repo/hooks data/` overwrites
+  `data/hooks/<file>`, it does not create `data/hooks/hooks`). Nothing runs a
+  file parked there — `execute_hook` only invokes specific hook names, and
+  only when they are executable. Mount it as
+  `${APP_DATA_DIR}/hooks/<file>`.
+- **`*.template` is not.** `template_app` pipes the file through plain
+  `envsubst` on every app start, with no variable filter, so anything using
+  `$` for its own syntax — an nginx config, a shell script — is silently
+  gutted.
+
+Version bumps are what make an update offer appear at all. The UI compares
+with string inequality (`version!==u.version` in the bundle), not semver, so a
+packaging-only revision can use a `-N` suffix: Multica ships `0.4.22-1` with
+unchanged `v0.4.22` images.
 
 ## Umbrel Debugging
 

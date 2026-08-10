@@ -4,7 +4,7 @@ name: Multica
 tagline: Assign issues to coding agents like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
 category: developer
-version: "0.4.22"
+version: "0.4.22-1"
 port: 46258
 description: >-
   Multica is an issue tracker whose assignees can be AI coding agents. You
@@ -47,6 +47,23 @@ repo: https://github.com/multica-ai/multica
 support: https://github.com/multica-ai/multica/issues
 gallery: []
 releaseNotes: >-
+  Packaging fix. The images are unchanged at v0.4.22; the -1 suffix is a
+  packaging revision.
+
+  /health and /healthz now reach the backend. Next.js only rewrites /api,
+  /auth, /uploads and /ws, so the frontend was answering /health with a 404,
+  and `multica setup self-host` probes exactly that URL for a 200 before it
+  will write any config — it reported the server as unreachable. /health is
+  whitelisted past Umbrel's login for the same reason.
+
+  nginx.conf moved into hooks/ so that later fixes to it actually reach
+  installed apps: an Umbrel app update copies only docker-compose.yml,
+  *.template, exports.sh, torrc and hooks, so a file anywhere else is frozen
+  at whatever the first install put there. The old copy is left behind in the
+  app data directory and can be deleted.
+
+  ---
+
   First packaging of Multica 0.4.22 for this store.
 
   Four containers: the Go backend, the Next.js frontend, PostgreSQL with

@@ -29,7 +29,22 @@ services:
       - frontend
       - backend
     volumes:
-      - ${APP_DATA_DIR}/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # In hooks/ rather than beside the manifest, and that is load-bearing.
+      # A fresh install rsyncs the whole app directory into app-data, but an
+      # *update* copies only a whitelist (app-script, `pre-patch-update`):
+      #
+      #   docker-compose.yml *.template exports.sh torrc hooks
+      #
+      # A plain nginx.conf therefore installs correctly and then never
+      # changes again — every later fix to it would need an uninstall, which
+      # deletes app-data and the database with it. `hooks` is a directory in
+      # that whitelist and `cp --archive` merges it over the existing one, so
+      # a file parked here does move with updates. `*.template` is not an
+      # option: template_app runs plain envsubst, which would blank every
+      # nginx variable ($http_upgrade, $request_uri, …). Nothing executes
+      # this file — execute_hook only runs specific hook names, and only if
+      # they are executable.
+      - ${APP_DATA_DIR}/hooks/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/localtime:/etc/localtime:ro
     restart: on-failure
 
