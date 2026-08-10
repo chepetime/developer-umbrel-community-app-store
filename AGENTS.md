@@ -418,6 +418,24 @@ There is no email backend, so login codes are printed to the backend log
 `MULTICA_DEV_VERIFICATION_CODE`; it is a fixed code that turns any known email
 address into an account.
 
+**The first install looks like it fails.** umbreld starts `app_proxy` before
+the rest of the stack (`app-script`: `compose up --detach app_proxy`), so it
+logs `The address 'chepetime-multica_gateway_1' cannot be found` / `Retrying...`
+until the gateway exists. With five services to pull, `initdb` to run and 271
+migrations to apply, that took 17 retries on first install here and the UI
+reported failure while it was still coming up. The app reached
+`state: ready` on its own. Check before changing anything:
+
+```bash
+umbreld client apps.state.query --appId chepetime-multica
+sudo docker logs chepetime-multica_app_proxy_1 --tail 5   # "Multica is now ready..."
+```
+
+Verified working on 2026-08-10: `/api/config` returns JSON with no Umbrel
+login (the whitelist), and `/api/daemon/ws` returns `401` from the backend
+rather than a Next.js 404, which is what proves the gateway is routing the
+daemon's WebSocket past the frontend.
+
 ## Updating Multica
 
 No build step. Move both images to the same new tag, with their multi-arch
