@@ -73,6 +73,7 @@ Repackaged third-party apps, all behind `app_proxy` on allocated host ports:
 | SmokePing     | `chepetime-smokeping`  | `46255` |
 | Maintainerr   | `chepetime-maintainerr`| `46256` |
 | PairDrop      | `chepetime-pairdrop`   | `46257` |
+| Multica       | `chepetime-multica`    | `46258` |
 
 Allocate the next free `462xx` for anything new, and check it is actually free
 on the host (`ss -lntu`) before publishing — a taken port leaves
@@ -344,6 +345,94 @@ Two version-pin traps found while packaging:
 gone (404) and there is a public reproducible unauthenticated auth-bypass in
 v9.4.2 that returns the API keys of every *arr app it manages. Do not package
 it.
+
+## Multica Store Contract
+
+Not our app: it repackages upstream's `ghcr.io/multica-ai/multica-backend` and
+`ghcr.io/multica-ai/multica-web`. Both move together — they share a release.
+
+```yaml
+id: chepetime-multica
+port: 46258
+image: ghcr.io/multica-ai/multica-backend:v0.4.22@sha256:613fe513bee6a4bdede7a8c06f7b0f7975c5da2b8c3ee4b1a7dc8b049535872e
+image: ghcr.io/multica-ai/multica-web:v0.4.22@sha256:67557e0e3efe3b2c90a4d46a61277e9e29edc6a5bfbb5722bf34b70c1af5f0ba
+image: pgvector/pgvector:pg17@sha256:7ae6051efd0e60444282c27c7e141af07f322ce033300e727a49c3dd11075e38
+image: nginx:1.29-alpine@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
+```
+
+This is the first app here with **four** services, and the first that ships a
+config file alongside the manifest. Both are deliberate:
+
+- **The `gateway` nginx container is not optional.** `app_proxy` forwards to a
+  single `APP_HOST`/`APP_PORT`, and Multica needs two upstreams. The Next.js
+  frontend proxies `/api`, `/auth` and `/uploads` to the Go backend through
+  its own rewrites, but **Next.js rewrites forward HTTP only and drop the
+  `Upgrade` handshake**, so both WebSocket endpoints — `/ws` (browser) and
+  `/api/daemon/ws` (agent daemon) — must reach the backend directly. Without
+  the gateway the UI loads and then loops `disconnected, reconnecting in 3s`,
+  and the daemon never connects at all.
+- **`nginx.conf` is mounted from `${APP_DATA_DIR}`**, which works because
+  umbreld rsyncs the *whole* app template directory into app-data on install
+  (`apps.ts`: `rsync --archive --exclude ".gitkeep" ${appTemplatePath}/.
+  ${appDataDirectory}`). Arbitrary extra files in an app directory are
+  therefore available to compose. No `--delete`, so files a user adds in
+  app-data survive an update while ours are overwritten.
+- **Only `/ws` and `/api/daemon/ws` are exact-matched to the backend.**
+  Everything else, `/api` included, stays on upstream's tested path through
+  Next.js. Do not "simplify" this by routing `/auth/*` to the backend: those
+  are `afterFiles` rewrites, so real pages win, and `/auth/callback` is a
+  frontend page used by Google sign-in.
+- **`proxy_set_header Host $http_host`, never `$host`.** The backend accepts a
+  WebSocket when `Origin`'s host equals `r.Host`; `$host` strips the port, so
+  `umbrel.local` would never match `umbrel.local:46258` and every upgrade
+  would be rejected.
+- **`proxy_pass` targets are held in variables with a `resolver`.** A literal
+  name in `proxy_pass` is resolved once at nginx startup, so a recreated
+  backend container leaves nginx talking to a dead IP.
+
+Three more traps specific to this app:
+
+- **`Dockerfile.web` bakes in `REMOTE_API_URL=http://backend:8080`.** A bare
+  `backend` alias on `umbrel_main_network` resolves to other apps' containers.
+  The compose file overrides it with the fully-qualified container name; if
+  the frontend ever starts talking to something surprising, check this first.
+- **`JWT_SECRET: ${APP_SEED}` and `POSTGRES_PASSWORD: ${APP_PASSWORD}` are
+  different values on purpose.** `app-script` derives both
+  (`derive_entropy "${app_entropy_identifier}"` and the same identifier with
+  `-APP_PASSWORD` appended), so there is no reason to sign sessions with the
+  database password.
+- **`MULTICA_VCS_SECRET_KEY` cannot be wired to `APP_SEED`.** It is parsed as
+  base64 and must decode to exactly 32 bytes (`secretbox.LoadKey`); a 64-char
+  hex seed decodes to 48. It is left unset, and the self-hosted Git provider
+  endpoints return 503 naming the variable until a user sets one.
+
+The app is **only the server**. The agent daemon runs on the user's own
+machine, which is why `PROXY_AUTH_WHITELIST: "/api/*,/ws"` is there: the CLI
+and daemon authenticate with a `mul_` PAT over `Authorization: Bearer` and
+have no Umbrel session cookie. The trade-off is the same one Pocket ID and
+Threadfin make — the API is LAN-reachable behind Multica's own auth only.
+
+There is no email backend, so login codes are printed to the backend log
+(`SendVerificationCode` falls through to stdout when neither `SMTP_HOST` nor
+`RESEND_API_KEY` is set). The first sign-in therefore needs SSH. Never set
+`MULTICA_DEV_VERIFICATION_CODE`; it is a fixed code that turns any known email
+address into an account.
+
+## Updating Multica
+
+No build step. Move both images to the same new tag, with their multi-arch
+index digests:
+
+```bash
+docker buildx imagetools inspect ghcr.io/multica-ai/multica-backend:vX.Y.Z \
+  --format '{{.Manifest.Digest}}'
+docker buildx imagetools inspect ghcr.io/multica-ai/multica-web:vX.Y.Z \
+  --format '{{.Manifest.Digest}}'
+```
+
+Then bump `version` and `releaseNotes` in `chepetime-multica/umbrel-app.yml`
+and the pins above. Upstream shipped v0.4.18 through v0.4.22 in a single week,
+so a fresh tag has had almost no soak time; `v0.4.21` is the previous release.
 
 ## Umbrel Debugging
 

@@ -1,0 +1,67 @@
+manifestVersion: 1
+id: chepetime-multica
+name: Multica
+tagline: Assign issues to coding agents like teammates
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
+category: developer
+version: "0.4.22"
+port: 46258
+description: >-
+  Multica is an issue tracker whose assignees can be AI coding agents. You
+  write an issue the way you would for a person, assign it to an agent, and it
+  picks up the task, works on it, reports progress in the comments and opens a
+  pull request for review. Every run keeps its full execution log and token
+  cost, so you can see what the agent actually did rather than trusting a
+  summary.
+
+
+  It speaks to twenty agent CLIs, including Claude Code, Codex, Cursor Agent,
+  GitHub Copilot CLI, Gemini's Antigravity, Qwen Code and Grok. Around that
+  sits the ordinary project-management surface: projects, squads, labels,
+  custom properties, saved views, and autopilots that trigger a run from a
+  webhook or a schedule.
+
+
+  Read this before installing — this app is only half of Multica. It runs the
+  server: the database, the API and the web UI. The part that actually runs
+  the agents, the daemon, has to run on the machine where your code and your
+  agent CLIs live, which is not this Umbrel. You install the multica CLI there
+  and point it at this server. Nothing happens on an assigned issue until that
+  daemon is connected, so an install on its own does nothing.
+
+
+  Also note that no email is configured, and Multica logs you in with a code
+  sent by email. Without a mail backend that code is printed to the backend
+  container's log, so the first sign-in needs SSH access to this Umbrel to
+  read it. The README beside this app has the command.
+
+
+  Licensed under the Multica License, an Apache 2.0 derivative that permits
+  self-hosting and modification but restricts reselling it as a hosted
+  service.
+developer: Multica
+website: https://multica.ai
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/multica-ai/multica
+support: https://github.com/multica-ai/multica/issues
+gallery: []
+releaseNotes: >-
+  First packaging of Multica 0.4.22 for this store.
+
+  Four containers: the Go backend, the Next.js frontend, PostgreSQL with
+  pgvector, and an nginx gateway. The gateway exists because Umbrel's app
+  proxy forwards to one upstream and Multica needs two — Next.js cannot carry
+  the WebSocket upgrade that chat streaming and live updates depend on.
+
+  The API is whitelisted past Umbrel's login so the multica CLI and the agent
+  daemon on your own machine can reach it with a personal access token.
+
+  JWT_SECRET and the database password are both derived from this Umbrel's
+  own per-install secrets, so nothing sensitive is committed to a public
+  repository.
+
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

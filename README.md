@@ -23,6 +23,7 @@ Repackaged third-party apps (each has its own README):
 | SmokePing   | `chepetime-smokeping`   | `46255` | Edit `Targets` or the graphs stay empty   |
 | Maintainerr | `chepetime-maintainerr` | `46256` | Point it at Plex and the *arr apps        |
 | PairDrop    | `chepetime-pairdrop`    | `46257` | Nothing to configure                      |
+| Multica     | `chepetime-multica`     | `46258` | Server only; the agent daemon runs on your machine |
 
 Goose and Billow are independent: separate repositories, separate images,
 separate databases. Installing one does not affect the other, and there is no

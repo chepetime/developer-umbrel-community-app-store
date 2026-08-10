@@ -1,0 +1,126 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      # The gateway, not the frontend: Multica needs two upstreams and
+      # app_proxy only forwards to one. See nginx.conf.
+      APP_HOST: chepetime-multica_gateway_1
+      APP_PORT: 80
+      # The multica CLI and the agent daemon run on your own machine and
+      # authenticate with a `mul_` personal access token over
+      # Authorization: Bearer. They have no Umbrel session cookie, so every
+      # call would be bounced by Umbrel's login without this. /api/daemon/ws
+      # is the daemon's WebSocket; /ws is the browser's.
+      #
+      # The cost: the whole API is reachable from the LAN without Umbrel auth,
+      # protected only by Multica's own tokens and login. That is real auth —
+      # every route outside /api/auth requires it — but it is a smaller wall
+      # than Umbrel's. The UI itself stays behind Umbrel's login.
+      PROXY_AUTH_WHITELIST: "/api/*,/ws"
+
+  gateway:
+    image: nginx:1.29-alpine@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - ${APP_DATA_DIR}/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure
+
+  frontend:
+    # Multi-arch index digest (amd64, arm64).
+    image: ghcr.io/multica-ai/multica-web:v0.4.22@sha256:67557e0e3efe3b2c90a4d46a61277e9e29edc6a5bfbb5722bf34b70c1af5f0ba
+    depends_on:
+      - backend
+    environment:
+      HOSTNAME: "0.0.0.0"
+      # MUST be overridden. Dockerfile.web bakes in
+      # REMOTE_API_URL=http://backend:8080, and on Umbrel's shared network the
+      # bare name `backend` also resolves to other apps' containers.
+      REMOTE_API_URL: http://chepetime-multica_backend_1:8080
+      # Left empty on purpose: the browser then calls /api and /ws on the
+      # page's own origin, so cookies stay host-only and no CORS or
+      # cross-host CSRF problem can arise. NEXT_PUBLIC_WS_URL is a build-time
+      # variable anyway — setting it here would do nothing.
+      NEXT_PUBLIC_API_URL: ""
+      NEXT_PUBLIC_WS_URL: ""
+    restart: on-failure
+
+  backend:
+    # Multi-arch index digest (amd64, arm64).
+    image: ghcr.io/multica-ai/multica-backend:v0.4.22@sha256:613fe513bee6a4bdede7a8c06f7b0f7975c5da2b8c3ee4b1a7dc8b049535872e
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Fully-qualified container name, not `postgres`: several Umbrel apps
+      # ship a service by that name on the same network.
+      DATABASE_URL: postgres://multica:${APP_PASSWORD}@chepetime-multica_postgres_1:5432/multica?sslmode=disable
+      PORT: "8080"
+      APP_ENV: production
+      # Signs session JWTs. APP_SEED is Umbrel's per-install secret — 64 hex
+      # characters, unique to this machine, never published. Without it the
+      # server falls back to a hardcoded default and logs a warning.
+      JWT_SECRET: ${APP_SEED}
+      # The address you actually open. This is not cosmetic: the scheme here
+      # decides whether session cookies carry the Secure flag (http => no, or
+      # the browser would drop them), and it seeds the WebSocket origin
+      # allowlist and invitation email links. Change it, and
+      # CORS_ALLOWED_ORIGINS below, if you reach this app at another address.
+      FRONTEND_ORIGIN: http://umbrel.local:46258
+      MULTICA_APP_URL: http://umbrel.local:46258
+      # Comma-separated. Only the WebSocket origin check consults this in
+      # practice — HTTP is same-origin through the gateway, so CORS never
+      # applies. An origin that is not listed and does not match the Host the
+      # gateway forwards is refused with `ws: rejected origin` in this log,
+      # and the UI loops "disconnected, reconnecting in 3s" while page loads
+      # keep working. Add your LAN IP or Tailscale name here if you use one.
+      CORS_ALLOWED_ORIGINS: http://umbrel.local:46258,http://umbrel:46258
+      # umbrel_main_network. Lets the backend trust X-Forwarded-Host from the
+      # gateway, so a browser arriving on any hostname that reaches this box
+      # is treated as same-origin without being listed above.
+      MULTICA_TRUSTED_PROXIES: 10.21.0.0/16
+      # Self-hosted Git providers (Forgejo, Gitea, GitLab). The feature stays
+      # off until MULTICA_VCS_SECRET_KEY is set, and that key must be exactly
+      # 32 bytes base64-encoded (`openssl rand -base64 32`), which cannot be
+      # derived from APP_SEED here. The endpoints return 503 naming the
+      # variable until you add it. GitHub does not need it.
+      MULTICA_VCS_INTEGRATION_ENABLED: "true"
+      # No email backend is configured, so login codes are printed to this
+      # container's log instead of being sent. See the README. Set SMTP_HOST
+      # (or RESEND_API_KEY) to change that.
+      SMTP_HOST: ""
+      RESEND_API_KEY: ""
+    volumes:
+      # Attachments and avatars. The container filesystem is replaced on every
+      # update, so this has to be a mount to survive.
+      - ${APP_DATA_DIR}/uploads:/app/data/uploads
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure
+
+  postgres:
+    # pgvector, not plain postgres: Multica stores embeddings and the
+    # migrations create a vector extension.
+    image: pgvector/pgvector:pg17@sha256:7ae6051efd0e60444282c27c7e141af07f322ce033300e727a49c3dd11075e38
+    # Postgres needs time to flush and shut down cleanly when Umbrel stops the
+    # app; the default 10s can leave the data directory needing recovery.
+    stop_grace_period: 1m
+    environment:
+      POSTGRES_DB: multica
+      POSTGRES_USER: multica
+      # Every Umbrel app shares one Docker network, so a password committed to
+      # a public repository would let any other installed app read this
+      # database. APP_PASSWORD is derived per install and never published.
+      # It is a different value from APP_SEED above on purpose.
+      POSTGRES_PASSWORD: ${APP_PASSWORD}
+    volumes:
+      - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U multica -d multica"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: on-failure
