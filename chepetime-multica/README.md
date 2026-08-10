@@ -221,12 +221,31 @@ working there, but the login itself follows the scheme.
 **S3 attachment storage, Slack, Lark and WeCom bots** are all left unset. See
 upstream's `.env.example`; their keys can go in `secrets.env` too.
 
+## Rate limiting
+
+Redis is what switches the per-IP rate limiter on — `RATE_LIMIT_AUTH` (5/min
+on `/auth/send-code`) and `RATE_LIMIT_AUTH_VERIFY` (20/min on
+`/auth/verify-code`). Without it the server logs `rate limiting disabled` and
+accepts unlimited attempts at a six-digit code that stays valid for ten
+minutes, which is worth caring about the moment this is reachable from
+outside the LAN.
+
+`RATE_LIMIT_TRUSTED_PROXIES` is deliberately unset. The limiter then keys on
+`RemoteAddr`, which behind the gateway is one address for everybody, so the
+limits apply globally rather than per client. Honouring `X-Forwarded-For`
+instead would let a caller choose their own bucket by forging the header and
+skip the limit entirely. The trade-off is that one abusive client can lock
+others out of login for a minute.
+
 ## Data
 
 ```text
 ${APP_DATA_DIR}/postgres    everything: issues, runs, logs, tokens
 ${APP_DATA_DIR}/uploads     attachments and avatars
 ```
+
+Redis holds only counters and short-lived caches, has persistence disabled,
+and mounts nothing — there is nothing there to back up.
 
 Both are bind mounts and survive updates. The `postgres` directory is the
 whole application state — back it up before touching the pin.

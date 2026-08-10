@@ -73,12 +73,29 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       # Fully-qualified container name, not `postgres`: several Umbrel apps
       # ship a service by that name on the same network.
       DATABASE_URL: postgres://multica:${APP_PASSWORD}@chepetime-multica_postgres_1:5432/multica?sslmode=disable
       PORT: "8080"
       APP_ENV: production
+      # Turns the per-IP rate limiter on. Without it the server logs
+      # "rate limiting disabled: REDIS_URL not configured" and POST
+      # /auth/verify-code is unlimited — a six-digit login code with a ten
+      # minute lifetime is brute-forceable in that state, and this API is
+      # reachable from the internet through a tunnel. Also backs the daemon
+      # token and empty-claim caches, which otherwise hit Postgres directly.
+      #
+      # Deliberately NOT setting RATE_LIMIT_TRUSTED_PROXIES. Unset, the
+      # limiter keys on RemoteAddr, which behind this gateway is one address
+      # for everybody — so the limits are global rather than per client. That
+      # is the safe direction: honouring X-Forwarded-For here would let a
+      # caller pick their own bucket by forging the header and bypass the
+      # limit entirely. The cost is that one abusive client can lock others
+      # out of login for a minute.
+      REDIS_URL: redis://:${APP_PASSWORD}@chepetime-multica_redis_1:6379
       # Signs session JWTs. APP_SEED is Umbrel's per-install secret — 64 hex
       # characters, unique to this machine, never published. Without it the
       # server falls back to a hardcoded default and logs a warning.
@@ -140,6 +157,37 @@ services:
       # update, so this has to be a mount to survive.
       - ${APP_DATA_DIR}/uploads:/app/data/uploads
       - /etc/localtime:/etc/localtime:ro
+    restart: on-failure
+
+  redis:
+    # Multi-arch index digest (amd64, arm64, armv6, armv7).
+    image: redis:8-alpine@sha256:978f0e01593e65eed801f2402944efcd936d43b5027e4908a7897baf88ed6241
+    # Password-protected because every Umbrel app shares one Docker network,
+    # so an open Redis here is readable and writable by any other installed
+    # app. APP_PASSWORD is derived per install and is hex, so it needs no
+    # escaping inside the redis:// URL above.
+    #
+    # Persistence is off: this holds rate-limit counters and short-lived
+    # caches, all of which are correct to lose on restart. Without --save ""
+    # the image would also try to write RDB snapshots into a volume that
+    # deliberately does not exist.
+    command:
+      - redis-server
+      - --requirepass
+      - ${APP_PASSWORD}
+      - --save
+      - ""
+      - --appendonly
+      - "no"
+    environment:
+      # redis-cli reads this, so the healthcheck below does not have to put
+      # the password on a command line visible in `docker inspect`.
+      REDISCLI_AUTH: ${APP_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: on-failure
 
   postgres:

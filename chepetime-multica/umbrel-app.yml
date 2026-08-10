@@ -4,7 +4,7 @@ name: Multica
 tagline: Assign issues to coding agents like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
 category: developer
-version: "0.4.22-3"
+version: "0.4.22-4"
 port: 46258
 description: >-
   Multica is an issue tracker whose assignees can be AI coding agents. You
@@ -47,6 +47,20 @@ repo: https://github.com/multica-ai/multica
 support: https://github.com/multica-ai/multica/issues
 gallery: []
 releaseNotes: >-
+  Adds Redis, which turns the per-IP rate limiter on. Without it the server
+  logged "rate limiting disabled: REDIS_URL not configured" and
+  POST /auth/verify-code accepted unlimited attempts — a six-digit login code
+  valid for ten minutes is brute-forceable in that state, and this API is
+  reachable from the internet when it sits behind a tunnel. Redis also backs
+  the daemon token and empty-claim caches.
+
+  It is password-protected with the same per-install secret as Postgres,
+  because every Umbrel app shares one Docker network. Persistence is off:
+  it holds counters and short-lived caches only, so there is nothing to back
+  up and nothing lost on restart.
+
+  ---
+
   The address this install is reached at now lives in secrets.env instead of
   being hardcoded to http://umbrel.local:46258 in the compose file.
   FRONTEND_ORIGIN, MULTICA_APP_URL, CORS_ALLOWED_ORIGINS and
