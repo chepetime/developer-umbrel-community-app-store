@@ -104,14 +104,33 @@ services:
       # Self-hosted Git providers (Forgejo, Gitea, GitLab). The feature stays
       # off until MULTICA_VCS_SECRET_KEY is set, and that key must be exactly
       # 32 bytes base64-encoded (`openssl rand -base64 32`), which cannot be
-      # derived from APP_SEED here. The endpoints return 503 naming the
-      # variable until you add it. GitHub does not need it.
+      # derived from APP_SEED here. Put it in secrets.env — see env_file
+      # below. GitHub does not need it.
       MULTICA_VCS_INTEGRATION_ENABLED: "true"
-      # No email backend is configured, so login codes are printed to this
-      # container's log instead of being sent. See the README. Set SMTP_HOST
-      # (or RESEND_API_KEY) to change that.
-      SMTP_HOST: ""
-      RESEND_API_KEY: ""
+    # Optional, user-managed, never in this repo. The only place secrets and
+    # per-host settings can live and survive: it is not in the app template,
+    # so a fresh install's rsync never touches it, and not in the update
+    # whitelist, so an update cannot overwrite it either. `required: false`
+    # means the app still starts when the file does not exist (compose 2.24+;
+    # the host runs v5.3.1).
+    #
+    # Anything set here must NOT also appear under `environment:` above —
+    # environment wins over env_file, silently. That is why SMTP_HOST and
+    # RESEND_API_KEY are no longer declared there as empty strings.
+    #
+    #   ssh umbrel
+    #   umask 077
+    #   cd ~/umbrel/app-data/chepetime-multica
+    #   printf 'MULTICA_VCS_SECRET_KEY=%s\n' "$(openssl rand -base64 32)" > secrets.env
+    #   umbreld client apps.restart.mutate --appId chepetime-multica
+    #
+    # Useful keys: MULTICA_VCS_SECRET_KEY (self-hosted Git providers),
+    # SMTP_HOST/SMTP_PORT/SMTP_USERNAME/SMTP_PASSWORD/SMTP_TLS or
+    # RESEND_API_KEY (real login emails instead of codes in the log),
+    # ALLOW_SIGNUP=false (close signup once your account exists).
+    env_file:
+      - path: ${APP_DATA_DIR}/secrets.env
+        required: false
     volumes:
       # Attachments and avatars. The container filesystem is replaced on every
       # update, so this has to be a mount to survive.

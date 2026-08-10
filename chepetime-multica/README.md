@@ -161,16 +161,41 @@ front of it. Every route outside `/api/auth` requires a valid token or
 session, so this is not an open door — but it is a smaller wall than Umbrel's.
 The web UI itself stays behind Umbrel's login.
 
+## secrets.env
+
+Settings that must not be published, and must survive updates, go in a file
+the store never ships:
+
+```bash
+ssh umbrel
+umask 077
+cd ~/umbrel/app-data/chepetime-multica
+printf 'MULTICA_VCS_SECRET_KEY=%s\n' "$(openssl rand -base64 32)" > secrets.env
+umbreld client apps.restart.mutate --appId chepetime-multica
+```
+
+The backend reads it via `env_file` with `required: false`, so the app still
+starts when it does not exist. It is the only file here that survives both a
+fresh install (rsync copies the app template, and this is not in it) and an
+update (which copies a whitelist, and this is not in that either).
+
+| Key | Effect |
+| --- | ------ |
+| `MULTICA_VCS_SECRET_KEY` | enables self-hosted Git providers — Forgejo, Gitea, GitLab. Must be **exactly 32 bytes, base64-encoded**; `secretbox.LoadKey` rejects anything else, which is why it cannot be derived from `APP_SEED`. Until it is set, "Connect a provider instance" reports *Git provider integration is not configured on this server*. GitHub needs none of this. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_TLS` | login codes get emailed instead of printed to the backend log. Also makes workspace invitations work |
+| `RESEND_API_KEY` | same, via Resend instead of SMTP |
+| `ALLOW_SIGNUP=false` | close signup once your account exists |
+
+**A variable set under `environment:` in `docker-compose.yml` beats the same
+variable here, silently.** So this file can only supply keys the compose file
+does not already declare. `FRONTEND_ORIGIN`, `CORS_ALLOWED_ORIGINS` and
+`MULTICA_APP_URL` are declared there and must be changed in the compose file
+itself — those edits are lost on update.
+
 ## Not wired up
 
-- **Self-hosted Git providers** (Forgejo, Gitea, GitLab) need
-  `MULTICA_VCS_SECRET_KEY`, which must be exactly 32 bytes base64-encoded and
-  so cannot be derived from `APP_SEED` in compose. Generate one with
-  `openssl rand -base64 32`, add it to the backend environment and restart.
-  The endpoints return `503` naming the variable until then. GitHub works
-  without it.
-- **S3 attachment storage, Slack, Lark and WeCom bots** are all left unset.
-  See upstream's `.env.example`.
+**S3 attachment storage, Slack, Lark and WeCom bots** are all left unset. See
+upstream's `.env.example`; their keys can go in `secrets.env` too.
 
 ## Data
 

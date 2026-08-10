@@ -493,6 +493,23 @@ Two workarounds, one of which does not work:
   `$` for its own syntax — an nginx config, a shell script — is silently
   gutted.
 
+For **secrets and per-host settings**, the inverse trick works: a file that is
+*not* in the app template and *not* in the whitelist is touched by neither an
+install nor an update, so it is the only durable place for values that must
+never be committed to a public store. Multica declares one:
+
+```yaml
+    env_file:
+      - path: ${APP_DATA_DIR}/secrets.env
+        required: false
+```
+
+`required: false` needs compose 2.24+; the host runs v5.3.1. The catch is that
+a variable declared under `environment:` **silently wins** over the same
+variable from an env_file, so anything meant to be user-supplied must be left
+out of `environment:` entirely — which is why Multica no longer declares
+`SMTP_HOST: ""` there.
+
 Version bumps are what make an update offer appear at all. The UI compares
 with string inequality (`version!==u.version` in the bundle), not semver, so a
 packaging-only revision can use a `-N` suffix: Multica ships `0.4.22-1` with

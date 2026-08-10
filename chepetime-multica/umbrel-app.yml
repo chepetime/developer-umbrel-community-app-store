@@ -4,7 +4,7 @@ name: Multica
 tagline: Assign issues to coding agents like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
 category: developer
-version: "0.4.22-1"
+version: "0.4.22-2"
 port: 46258
 description: >-
   Multica is an issue tracker whose assignees can be AI coding agents. You
@@ -47,6 +47,22 @@ repo: https://github.com/multica-ai/multica
 support: https://github.com/multica-ai/multica/issues
 gallery: []
 releaseNotes: >-
+  Adds an optional secrets file. Create
+  app-data/chepetime-multica/secrets.env and the backend reads it as
+  environment: the place for MULTICA_VCS_SECRET_KEY (self-hosted Git
+  providers), SMTP or Resend credentials so login codes are emailed instead
+  of printed to the log, and ALLOW_SIGNUP=false.
+
+  It is the only file that survives everything — not in the app template, so
+  a fresh install's rsync cannot touch it, and not in the update whitelist,
+  so an update cannot either. Nothing in it is ever published.
+
+  SMTP_HOST and RESEND_API_KEY are no longer declared as empty strings in the
+  compose file, because a variable set under environment silently overrides
+  the same variable from a secrets file.
+
+  ---
+
   Packaging fix. The images are unchanged at v0.4.22; the -1 suffix is a
   packaging revision.
 
