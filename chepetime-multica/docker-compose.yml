@@ -17,7 +17,11 @@ services:
       # protected only by Multica's own tokens and login. That is real auth —
       # every route outside /api/auth requires it — but it is a smaller wall
       # than Umbrel's. The UI itself stays behind Umbrel's login.
-      PROXY_AUTH_WHITELIST: "/api/*,/ws"
+      # /health is here because `multica setup self-host` probes it before it
+      # will write any config, and app_proxy would otherwise answer the CLI
+      # with a redirect to Umbrel's login — reported as "Server is not
+      # reachable", which reads like a network fault rather than an auth wall.
+      PROXY_AUTH_WHITELIST: "/api/*,/ws,/health"
 
   gateway:
     image: nginx:1.29-alpine@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
