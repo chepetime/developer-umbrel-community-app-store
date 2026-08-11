@@ -186,6 +186,45 @@ update (which copies a whitelist, and this is not in that either).
 | `RESEND_API_KEY` | same, via Resend instead of SMTP |
 | `ALLOW_SIGNUP=false` | close signup once your account exists |
 | `FRONTEND_ORIGIN`, `MULTICA_APP_URL`, `MULTICA_PUBLIC_URL`, `CORS_ALLOWED_ORIGINS` | the address this install is actually reached at — see below |
+| `GITHUB_APP_SLUG`, `GITHUB_WEBHOOK_SECRET` | enables the "Connect GitHub" flow — see below |
+| `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY` | live PR cards: mergeability and CI status |
+| `GITHUB_TOKEN` | scopeless PAT; only lifts the API rate limit when importing skills from GitHub repos |
+
+### The GitHub App
+
+Optional. **Your agents' git work does not use it** — the daemon clones,
+branches, pushes and opens PRs on its own machine with your local git
+credentials. The App only lets the *server* read PR state, so cards show
+mergeability and CI status without a manual refresh. Unset, every refresh
+trigger is a no-op and nothing else degrades.
+
+Register at `https://github.com/settings/apps/new`:
+
+```text
+Homepage URL     https://<your-host>
+Setup URL        https://<your-host>/api/github/setup     ☑ Redirect on update
+Webhook URL      https://<your-host>/api/webhooks/github  ☑ Active
+Callback URL     (leave blank — no OAuth flow exists)
+
+Repository permissions, all Read-only:
+  Metadata · Pull requests · Checks · Commit statuses
+Subscribe to events:
+  Pull request · Check suite · Check run · Status
+```
+
+Those four events are exactly what the handler switches on; `installation`
+arrives automatically. Then generate a private key and put all four values in
+`secrets.env`. The key must be a real PEM — `jwt.ParseRSAPrivateKeyFromPEM`
+takes no base64 or `\n`-escaped form — so write it as a multi-line
+double-quoted value:
+
+```bash
+{ printf 'GITHUB_APP_PRIVATE_KEY="'; cat app.private-key.pem; printf '"\n'; } >> secrets.env
+```
+
+**Install it from Multica's own Connect GitHub button**, not from GitHub's
+install page. The connect endpoint appends a signed `state` that maps the
+installation to your workspace; installing directly omits it.
 
 **A variable set under `environment:` in `docker-compose.yml` beats the same
 variable here, silently.** So this file can only supply keys the compose file
