@@ -346,6 +346,52 @@ gone (404) and there is a public reproducible unauthenticated auth-bypass in
 v9.4.2 that returns the API keys of every *arr app it manages. Do not package
 it.
 
+## Keeping Image Pins Current
+
+`scripts/check-image-updates.ts` checks every `image:` line in the store
+against its registry and can release what it finds. Node 24 runs the
+TypeScript directly, so there is nothing to build; `pnpm install` only pulls
+`typescript` and `@types/node` for `pnpm typecheck`.
+
+```bash
+pnpm check-images                 # report only
+pnpm check-images:apply           # rewrite the files, no commit
+pnpm check-images:release         # rewrite, one commit per app, push
+pnpm check-images --app tdarr     # limit to some apps
+pnpm check-images --allow-major   # let a tag cross a major
+pnpm check-images --check         # exit 1 if anything is stale
+```
+
+It uses anonymous registry v2 APIs over `fetch` — no Docker daemon, no login —
+and works against Docker Hub and GHCR alike. Two kinds of staleness are
+reported: a newer tag, and a digest that moved under a tag that did not.
+
+How far a tag may move is per image, in the `POLICIES` table at the top of the
+script. The default is `minor`, newest tag inside the current major:
+
+- **Postgres, pgvector and Redis are `digest`.** Their tag *is* the major, and
+  moving it is a data-directory migration somebody has to do by hand. A newer
+  major is still reported, as `[held back: pg18]`, so it does not go unnoticed.
+- **Tinyauth is `digest`** for the reason above: `v5` is all upstream
+  publishes.
+- **Billow, Goose and Multica's own images are `skip`.** Their store version
+  is released alongside their source, Billow's by `scripts/bump-billow.sh`.
+
+Two behaviours worth knowing before trusting it:
+
+- **A candidate tag is rejected unless it covers every platform the current
+  pin covers**, which is the Threadfin trap above enforced automatically.
+- **The store version follows the primary image's tag** — the service behind
+  `app_proxy` — but only when the two were already in step. Otherwise it adds
+  or increments a `-N` store revision, which is what makes Umbrel offer an
+  update for a change that carries no upstream version. Multica takes that
+  path: its primary service is the nginx gateway, whose version is not
+  Multica's.
+
+New release notes are prepended above the existing ones with a `---` rule
+rather than replacing them, so the packaging notes explaining why an app is
+set up the way it is survive. Pass `--keep-notes` to leave the block alone.
+
 ## Multica Store Contract
 
 Not our app: it repackages upstream's `ghcr.io/multica-ai/multica-backend` and

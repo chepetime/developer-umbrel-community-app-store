@@ -1,0 +1,19 @@
+{
+  "name": "developer-umbrel-community-app-store",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.20.0",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "check-images": "node scripts/check-image-updates.ts",
+    "check-images:apply": "node scripts/check-image-updates.ts --apply",
+    "check-images:release": "node scripts/check-image-updates.ts --push",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
+  }
+}
