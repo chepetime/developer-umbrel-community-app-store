@@ -392,6 +392,32 @@ New release notes are prepended above the existing ones with a `---` rule
 rather than replacing them, so the packaging notes explaining why an app is
 set up the way it is survive. Pass `--keep-notes` to leave the block alone.
 
+### The nightly run
+
+`.github/workflows/check-image-updates.yml` runs the same thing every night
+and pushes what it finds straight to `master`, as `github-actions[bot]`. The
+store picks the commits up on its next five-minute refresh, so an update can
+appear in the Umbrel UI without anyone having touched this repo.
+
+- **`cron: "0 6 * * *"` is local midnight.** GitHub schedules in UTC, and
+  America/Mexico_City is UTC-6 all year since Mexico dropped daylight saving
+  in 2022. There is no half-year drift to correct for. Scheduled runs are
+  best-effort and can be delayed under load.
+- **Run it by hand from the Actions tab** with `workflow_dispatch`. It takes a
+  `dry_run` input that reports without committing, which is the safe way to
+  test a change to the `POLICIES` table.
+- **The report is written to `$RUNNER_TEMP`, not the checkout.** The checker
+  aborts on a dirty tree, and an untracked `report.txt` beside it counts as
+  dirty. It also lands in the run's step summary, so the Actions page says
+  what moved without anyone opening the log.
+- **GitHub disables scheduled workflows after 60 days without repository
+  activity**, and commits pushed by `GITHUB_TOKEN` do not count as activity.
+  If the store goes quiet for two months the nightly run stops silently and
+  has to be re-enabled from the Actions tab.
+
+A push that races something else onto `master` fails the job rather than
+merging; rerun it and the next check picks up wherever the pins ended up.
+
 ## Multica Store Contract
 
 Not our app: it repackages upstream's `ghcr.io/multica-ai/multica-backend` and

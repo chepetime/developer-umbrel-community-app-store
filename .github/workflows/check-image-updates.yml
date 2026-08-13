@@ -1,0 +1,75 @@
+name: Check image updates
+
+# Midnight in America/Mexico_City, which is UTC-6 all year — Mexico dropped
+# daylight saving in 2022, so this does not drift into 1am for half of it.
+# GitHub runs scheduled jobs on a best-effort basis and can delay them by a
+# while under load; nothing here cares when in the night it lands.
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Report only, do not commit or push"
+        type: boolean
+        default: false
+
+# Needed to push the release commits back to master.
+permissions:
+  contents: write
+
+# A second run starting while one is mid-push would race it to master.
+concurrency:
+  group: check-image-updates
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # Only typescript and @types/node, and only so `pnpm typecheck` works.
+      # The checker itself has no dependencies — Node strips its types.
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm typecheck
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Check pins, release what moved
+        shell: bash
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+        # The report goes to the runner's temp, not the checkout: the checker
+        # refuses to commit into a dirty tree, and an untracked report.txt
+        # beside it counts as dirty.
+        run: |
+          set -eo pipefail
+          if [ "$DRY_RUN" = "true" ]; then
+            pnpm check-images 2>&1 | tee "$RUNNER_TEMP/report.txt"
+          else
+            pnpm check-images:release 2>&1 | tee "$RUNNER_TEMP/report.txt"
+          fi
+
+      # The run page should say what happened without anyone opening the log.
+      - name: Summarise
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Image pins"
+            echo '```'
+            cat "$RUNNER_TEMP/report.txt" 2>/dev/null || echo "the check did not produce a report"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
