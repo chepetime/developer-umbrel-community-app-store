@@ -4,7 +4,7 @@ name: Tdarr
 tagline: Transcode and health-check your whole media library, automatically
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-tdarr/icon.svg
 category: media
-version: "2.85.01"
+version: "2.86.01"
 port: 46252
 description: >-
   Tdarr keeps a media library in the shape you want it. You define what
@@ -39,6 +39,10 @@ repo: https://github.com/HaveAGitGat/Tdarr
 support: https://github.com/HaveAGitGat/Tdarr/issues
 gallery: []
 releaseNotes: >-
+  Tdarr updated from 2.85.01 to 2.86.01.
+
+  ---
+
   First packaging of Tdarr 2.85.01 for this store.
 
   Server plus internal node in one container. Umbrel's shared downloads
