@@ -403,7 +403,7 @@ port: 46258
 image: ghcr.io/multica-ai/multica-backend:v0.4.22@sha256:613fe513bee6a4bdede7a8c06f7b0f7975c5da2b8c3ee4b1a7dc8b049535872e
 image: ghcr.io/multica-ai/multica-web:v0.4.22@sha256:67557e0e3efe3b2c90a4d46a61277e9e29edc6a5bfbb5722bf34b70c1af5f0ba
 image: pgvector/pgvector:pg17@sha256:7ae6051efd0e60444282c27c7e141af07f322ce033300e727a49c3dd11075e38
-image: nginx:1.29-alpine@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
+image: nginx:1.31-alpine@sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752
 ```
 
 This is the first app here with **four** services, and the first that ships a
