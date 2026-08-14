@@ -4,7 +4,7 @@ name: Multica
 tagline: Assign issues to coding agents like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
 category: developer
-version: "0.4.22-5"
+version: "0.4.22-6"
 port: 46258
 description: >-
   Multica is an issue tracker whose assignees can be AI coding agents. You
@@ -47,6 +47,11 @@ repo: https://github.com/multica-ai/multica
 support: https://github.com/multica-ai/multica/issues
 gallery: []
 releaseNotes: >-
+  Refreshed the pinned digest for pgvector/pgvector:pg17; upstream
+  re-published the same tag, so nothing else changed.
+
+  ---
+
   nginx updated from 1.29-alpine to 1.31-alpine.
 
   ---
