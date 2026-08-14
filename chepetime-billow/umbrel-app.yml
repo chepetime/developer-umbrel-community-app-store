@@ -4,7 +4,7 @@ name: Billow
 tagline: A self-hosted app with the boring parts already built
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
-version: "0.1.0"
+version: "0.1.0-1"
 port: 46247
 description: >-
   A base setup for self-hosted apps. The parts every such app needs are already
@@ -33,6 +33,11 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/3-api-keys.jpg
 releaseNotes: >-
+  Refreshed the pinned digest for postgres:16-alpine; upstream re-published
+  the same tag, so nothing else changed.
+
+  ---
+
   A renumbering, not a rewrite. The code here is exactly what shipped as
   0.1.44, rebuilt from the same source and restarted at 0.1.0 so the version
   history begins again from one.
