@@ -4,7 +4,7 @@ name: Maintainerr
 tagline: Rules that decide what leaves your media library, and when
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-maintainerr/icon.svg
 category: media
-version: "3.22.1"
+version: "3.23.0"
 port: 46256
 description: >-
   Maintainerr decides what should leave your library so you do not have to.
@@ -34,6 +34,10 @@ repo: https://github.com/jorenn92/Maintainerr
 support: https://github.com/jorenn92/Maintainerr/issues
 gallery: []
 releaseNotes: >-
+  Maintainerr updated from 3.22.1 to 3.23.0.
+
+  ---
+
   Maintainerr updated from 3.21.1 to 3.22.1.
 
   ---
