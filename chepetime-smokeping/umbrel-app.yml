@@ -4,7 +4,7 @@ name: SmokePing
 tagline: Long-term latency and packet loss graphs for the hosts you care about
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-smokeping/icon.svg
 category: networking
-version: "2.9.0"
+version: "2.9.0-1"
 port: 46255
 description: >-
   SmokePing measures latency to a list of hosts continuously and draws the
@@ -38,6 +38,11 @@ repo: https://github.com/linuxserver/docker-smokeping
 support: https://github.com/linuxserver/docker-smokeping/issues
 gallery: []
 releaseNotes: >-
+  Refreshed the pinned digest for linuxserver/smokeping:2.9.0; upstream
+  re-published the same tag, so nothing else changed.
+
+  ---
+
   First packaging of SmokePing 2.9.0 for this store, using the LinuxServer.io
   image.
 
