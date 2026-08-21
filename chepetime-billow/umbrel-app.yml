@@ -4,7 +4,7 @@ name: Billow
 tagline: Write invoices, and know what happened to each one
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
-version: "0.1.1"
+version: "0.1.2"
 port: 46247
 description: >-
   Billow writes invoices, prints them to PDF, and then keeps track of what
@@ -39,8 +39,11 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Billow is an invoice manager now, not a starter kit with an invoicing demo
-  bolted on.
+  Fixed a bug where the invoice detail page never decrypted bank details
+  and tax IDs. Redesigned the printable invoice for a cleaner, single-page
+  PDF. Backup and restore now have their own Settings tab, refuse to export
+  if the encryption key isn't available, and can also export invoices as
+  CSV.
 
 
   You can add and edit sender profiles, bank accounts and clients, write an
