@@ -46,29 +46,6 @@ releaseNotes: >-
   registry, so installing it failed with "manifest unknown". It now points at
   the image v0.1.0 currently resolves to; the code is unchanged.
 
-  ---
-
-  Refreshed the pinned digest for postgres:16-alpine; upstream re-published
-  the same tag, so nothing else changed.
-
-  ---
-
-  Refreshed the pinned digest for postgres:16-alpine; upstream re-published
-  the same tag, so nothing else changed.
-
-  ---
-
-  First release.
-
-  Goose starts from the Billow codebase at its 0.1.44 tree and restarts
-  numbering at 0.1.0, so this build already carries everything Billow had
-  learned: encrypted-at-rest bank details, trusted-origin checks on password
-  reset links, uploads removed with the account, redaction on recorded errors,
-  and migrations applied automatically on start.
-
-  Goose runs on host port 46248 rather than Billow's 46247, so the two can be
-  installed side by side. They do not share data, and there is no migration
-  path between them - a Goose install starts empty.
 
 dependencies: []
 path: ""

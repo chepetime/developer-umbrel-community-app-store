@@ -548,11 +548,20 @@ function wrap(text: string, width: number): string[] {
 }
 
 /**
- * Put `notes` at the top of the folded `releaseNotes: >-` block, above what is
- * already there and separated by a `---` rule — the shape Multica's notes
- * already use by hand. Replacing the block instead would throw away the
- * packaging notes, which are the only record of why an app is set up the way
- * it is, and which Umbrel shows on the app's page and not just once.
+ * Replace the folded `releaseNotes: >-` block with `notes`.
+ *
+ * This used to prepend above the previous entries, separated by a `---` rule,
+ * on the reasoning that the packaging notes are the only record of why an app
+ * is set up the way it is. In practice that reasoning did not hold: this
+ * script writes the *same* sentence every time an upstream tag is
+ * re-published, so the block grew into a wall with the digest-refresh note
+ * repeated verbatim, and the one entry a user actually wants — what changed in
+ * the version being offered to them — buried under it.
+ *
+ * Umbrel shows these notes on the app page every time, not once, so the block
+ * is read repeatedly and length costs something. Why an app is packaged the
+ * way it is belongs in the compose file's comments, which is where it already
+ * lives; git history keeps the superseded entries.
  */
 function rewriteNotes(text: string, notes: string): string {
   const lines = text.split("\n");
@@ -568,9 +577,7 @@ function rewriteNotes(text: string, notes: string): string {
   // Trailing blank lines separate the block from the next key; leave them be.
   while (end > start + 1 && lines[end - 1]!.trim() === "") end--;
 
-  const previous = lines.slice(start + 1, end);
-  const body = wrap(notes, 74).map((line) => `  ${line}`);
-  const block = previous.length > 0 ? [...body, "", "  ---", "", ...previous] : body;
+  const block = wrap(notes, 74).map((line) => `  ${line}`);
 
   return [...lines.slice(0, start), "releaseNotes: >-", ...block, ...lines.slice(end)].join("\n");
 }

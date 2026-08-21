@@ -388,9 +388,14 @@ Two behaviours worth knowing before trusting it:
   path: its primary service is the nginx gateway, whose version is not
   Multica's.
 
-New release notes are prepended above the existing ones with a `---` rule
-rather than replacing them, so the packaging notes explaining why an app is
-set up the way it is survive. Pass `--keep-notes` to leave the block alone.
+New release notes **replace** the block rather than being prepended above it.
+They used to accumulate behind `---` rules, but this script writes the same
+sentence every time an upstream tag is re-published, so the block filled with
+verbatim repeats and buried the one entry a user wants: what changed in the
+version being offered. Umbrel shows these notes on the app page every time, so
+length costs something. Packaging rationale belongs in the compose file's
+comments, and git keeps superseded entries. Pass `--keep-notes` to leave the
+block alone.
 
 ### The nightly run
 

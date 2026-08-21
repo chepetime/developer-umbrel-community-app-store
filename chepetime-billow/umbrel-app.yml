@@ -1,26 +1,32 @@
 manifestVersion: 1
 id: chepetime-billow
 name: Billow
-tagline: A self-hosted app with the boring parts already built
+tagline: Write invoices, and know what happened to each one
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
-version: "0.1.0-3"
+version: "0.1.1"
 port: 46247
 description: >-
-  A base setup for self-hosted apps. The parts every such app needs are already
-  built and tested: accounts with email or username sign-in, TOTP two-factor,
-  personal API keys, admin roles, database migrations applied on start, backup
-  and restore, file uploads, health checks and an error log.
+  Billow writes invoices, prints them to PDF, and then keeps track of what
+  happens to each one afterwards - sent, received, paid, turned into a CFDI by
+  your accountant, and included in a filed monthly tax report.
+
+
+  Writing the invoice is the short part of the job. Knowing months later which
+  ones are still unfinished is the long part, and that is what Billow is for.
+
+
+  Senders, bank accounts and clients are all editable, and an invoice can be
+  duplicated into next month's in one click. Bank details are encrypted at
+  rest with a key only your password opens.
 
 
   Built with Next.js App Router and React Server Components, Prisma on
-  PostgreSQL, better-auth, Tailwind and shadcn/ui, shipped as a single
-  multi-architecture Docker image.
-
-
-  It comes with a small invoicing workspace. That is a worked example of the
-  platform rather than the point - a real domain wired through the same auth,
-  validation, backup and API conventions, there to be replaced by your own.
+  PostgreSQL, better-auth and Tailwind, shipped as a single multi-architecture
+  Docker image. It carries a full platform underneath: accounts with email or
+  username sign-in, TOTP two-factor, personal API keys, admin roles, database
+  migrations applied on start, backup and restore, file uploads, health checks
+  and an error log.
 
 developer: ChepeTime
 website: https://github.com/chepetime/billow
@@ -33,40 +39,23 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Repinned the app image. The digest this app pinned was deleted from the
-  registry, so installing it failed with "manifest unknown". It now points at
-  the image v0.1.0 currently resolves to; the code is unchanged.
+  Billow is an invoice manager now, not a starter kit with an invoicing demo
+  bolted on.
 
-  ---
 
-  Refreshed the pinned digest for postgres:16-alpine; upstream re-published
-  the same tag, so nothing else changed.
+  You can add and edit sender profiles, bank accounts and clients, write an
+  invoice against them, and duplicate one into next month's without retyping
+  it. Every one of those screens is new.
 
-  ---
 
-  Refreshed the pinned digest for postgres:16-alpine; upstream re-published
-  the same tag, so nothing else changed.
+  The invoice form suggests the next number, defaults to the end of the
+  current month, remembers the client and currency you used last, and totals
+  as you type. Editing an invoice records what changed.
 
-  ---
 
-  A renumbering, not a rewrite. The code here is exactly what shipped as
-  0.1.44, rebuilt from the same source and restarted at 0.1.0 so the version
-  history begins again from one.
-
-  Everything 0.1.44 carried is still here: bank account details encrypted on
-  every path that writes them, password reset links checked against a trusted
-  origin, uploaded files removed along with the account, recorded errors
-  stripped by default, and the rate limiter, installation-ownership and
-  dashboard fixes that shipped beside them.
-
-  Every image published before this one has been removed from the registry,
-  so 0.1.0 is now the only version available to install.
-
-  If you already run Billow, it will keep reporting 0.1.44 and will not offer
-  this as an update, because 0.1.0 is not a newer number. Nothing is wrong and
-  nothing is lost — the code is identical and your data is untouched. The
-  version shown only corrects itself if the app is reinstalled, which is not
-  worth doing for a label.
+  All of it is now covered by the browser test suite that runs against the
+  published image nightly, which had been failing silently for weeks and is
+  green again.
 
 
 dependencies: []
