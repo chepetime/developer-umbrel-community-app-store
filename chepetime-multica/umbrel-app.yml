@@ -4,7 +4,7 @@ name: Multica
 tagline: Assign issues to coding agents like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
 category: developer
-version: "0.4.22-7"
+version: "0.4.22-8"
 port: 46258
 description: >-
   Multica is an issue tracker whose assignees can be AI coding agents. You
@@ -47,97 +47,8 @@ repo: https://github.com/multica-ai/multica
 support: https://github.com/multica-ai/multica/issues
 gallery: []
 releaseNotes: >-
-  Refreshed the pinned digest for nginx:1.31-alpine; upstream re-published
-  the same tag, so nothing else changed.
-
-  ---
-
-  Refreshed the pinned digest for pgvector/pgvector:pg17; upstream
-  re-published the same tag, so nothing else changed.
-
-  ---
-
-  nginx updated from 1.29-alpine to 1.31-alpine.
-
-  ---
-
-  Adds Redis, which turns the per-IP rate limiter on. Without it the server
-  logged "rate limiting disabled: REDIS_URL not configured" and
-  POST /auth/verify-code accepted unlimited attempts — a six-digit login code
-  valid for ten minutes is brute-forceable in that state, and this API is
-  reachable from the internet when it sits behind a tunnel. Redis also backs
-  the daemon token and empty-claim caches.
-
-  It is password-protected with the same per-install secret as Postgres,
-  because every Umbrel app shares one Docker network. Persistence is off:
-  it holds counters and short-lived caches only, so there is nothing to back
-  up and nothing lost on restart.
-
-  ---
-
-  The address this install is reached at now lives in secrets.env instead of
-  being hardcoded to http://umbrel.local:46258 in the compose file.
-  FRONTEND_ORIGIN, MULTICA_APP_URL, CORS_ALLOWED_ORIGINS and
-  MULTICA_PUBLIC_URL are no longer declared under environment, because a
-  value declared there silently overrides the same key in secrets.env — and
-  because the real address is often a private domain that does not belong in
-  a public store.
-
-  Unset, the paths that resolve per request still work: the gateway forwards
-  the browser's Host and the backend trusts X-Forwarded-Host, so realtime
-  connects on any hostname. What needs an absolute URL from config does not
-  — invitation email links, the daemon setup command shown in the UI, and
-  autopilot webhook URLs. Set the four keys in secrets.env if you reach this
-  app at anything other than the default.
-
-  ---
-
-  Adds an optional secrets file. Create
-  app-data/chepetime-multica/secrets.env and the backend reads it as
-  environment: the place for MULTICA_VCS_SECRET_KEY (self-hosted Git
-  providers), SMTP or Resend credentials so login codes are emailed instead
-  of printed to the log, and ALLOW_SIGNUP=false.
-
-  It is the only file that survives everything — not in the app template, so
-  a fresh install's rsync cannot touch it, and not in the update whitelist,
-  so an update cannot either. Nothing in it is ever published.
-
-  SMTP_HOST and RESEND_API_KEY are no longer declared as empty strings in the
-  compose file, because a variable set under environment silently overrides
-  the same variable from a secrets file.
-
-  ---
-
-  Packaging fix. The images are unchanged at v0.4.22; the -1 suffix is a
-  packaging revision.
-
-  /health and /healthz now reach the backend. Next.js only rewrites /api,
-  /auth, /uploads and /ws, so the frontend was answering /health with a 404,
-  and `multica setup self-host` probes exactly that URL for a 200 before it
-  will write any config — it reported the server as unreachable. /health is
-  whitelisted past Umbrel's login for the same reason.
-
-  nginx.conf moved into hooks/ so that later fixes to it actually reach
-  installed apps: an Umbrel app update copies only docker-compose.yml,
-  *.template, exports.sh, torrc and hooks, so a file anywhere else is frozen
-  at whatever the first install put there. The old copy is left behind in the
-  app data directory and can be deleted.
-
-  ---
-
-  First packaging of Multica 0.4.22 for this store.
-
-  Four containers: the Go backend, the Next.js frontend, PostgreSQL with
-  pgvector, and an nginx gateway. The gateway exists because Umbrel's app
-  proxy forwards to one upstream and Multica needs two — Next.js cannot carry
-  the WebSocket upgrade that chat streaming and live updates depend on.
-
-  The API is whitelisted past Umbrel's login so the multica CLI and the agent
-  daemon on your own machine can reach it with a personal access token.
-
-  JWT_SECRET and the database password are both derived from this Umbrel's
-  own per-install secrets, so nothing sensitive is committed to a public
-  repository.
+  Refreshed the pinned digest for redis:8-alpine; upstream re-published the
+  same tag, so nothing else changed.
 
 dependencies: []
 path: ""
