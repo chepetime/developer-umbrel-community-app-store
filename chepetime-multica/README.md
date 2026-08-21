@@ -1,6 +1,6 @@
 # Multica
 
-An issue tracker whose assignees can be coding agents. Pinned at `v0.4.22`
+An issue tracker whose assignees can be coding agents. Pinned at `v0.4.32`
 (upstream's own GHCR images).
 
 ## This app is only the server

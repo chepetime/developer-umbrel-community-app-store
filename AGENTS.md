@@ -371,7 +371,7 @@ script. The default is `minor`, newest tag inside the current major:
 
 - **Postgres, pgvector and Redis are `digest`.** Their tag *is* the major, and
   moving it is a data-directory migration somebody has to do by hand. A newer
-  major is still reported, as `[held back: pg18]`, so it does not go unnoticed.
+  major is still reported, as `[held back: pg19]`, so it does not go unnoticed.
 - **Tinyauth is `digest`** for the reason above: `v5` is all upstream
   publishes.
 - **Billow, Goose and Multica's own images are `skip`.** Their store version
@@ -431,9 +431,9 @@ Not our app: it repackages upstream's `ghcr.io/multica-ai/multica-backend` and
 ```yaml
 id: chepetime-multica
 port: 46258
-image: ghcr.io/multica-ai/multica-backend:v0.4.22@sha256:613fe513bee6a4bdede7a8c06f7b0f7975c5da2b8c3ee4b1a7dc8b049535872e
-image: ghcr.io/multica-ai/multica-web:v0.4.22@sha256:67557e0e3efe3b2c90a4d46a61277e9e29edc6a5bfbb5722bf34b70c1af5f0ba
-image: pgvector/pgvector:pg17@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f
+image: ghcr.io/multica-ai/multica-backend:v0.4.32@sha256:508de17e1ddb335a5a3907a2a7702f2a20e7cf4a9321f63ee7a2bcdfef57ee35
+image: ghcr.io/multica-ai/multica-web:v0.4.32@sha256:c6976fbee1b1c566543067cde544d3168d3f9b71c60e6a5ccb7f2851392e8234
+image: pgvector/pgvector:pg18@sha256:2ba9ca5f2e7daa0f0e7723cba1ee9167bab54efd3640516a44ac1a928dd67e7a
 image: nginx:1.31-alpine@sha256:db35bfc6b2951e7f8a72db5db120288c127ffaeeb4a6d4b95a26fead017d5913
 ```
 
@@ -532,8 +532,9 @@ docker buildx imagetools inspect ghcr.io/multica-ai/multica-web:vX.Y.Z \
 ```
 
 Then bump `version` and `releaseNotes` in `chepetime-multica/umbrel-app.yml`
-and the pins above. Upstream shipped v0.4.18 through v0.4.22 in a single week,
-so a fresh tag has had almost no soak time; `v0.4.21` is the previous release.
+and the pins above. Upstream ships roughly one release a day; `v0.4.31` is the
+previous release before the current `v0.4.32` pin, so a fresh tag has had
+almost no soak time.
 
 ## Installs Copy Everything, Updates Copy A Whitelist
 
