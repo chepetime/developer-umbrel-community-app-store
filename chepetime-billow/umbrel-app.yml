@@ -4,7 +4,7 @@ name: Billow
 tagline: A self-hosted app with the boring parts already built
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
-version: "0.1.0-2"
+version: "0.1.0-3"
 port: 46247
 description: >-
   A base setup for self-hosted apps. The parts every such app needs are already
@@ -33,6 +33,12 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/3-api-keys.jpg
 releaseNotes: >-
+  Repinned the app image. The digest this app pinned was deleted from the
+  registry, so installing it failed with "manifest unknown". It now points at
+  the image v0.1.0 currently resolves to; the code is unchanged.
+
+  ---
+
   Refreshed the pinned digest for postgres:16-alpine; upstream re-published
   the same tag, so nothing else changed.
 
