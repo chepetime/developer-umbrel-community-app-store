@@ -676,11 +676,34 @@ presigned URLs would need either an external S3 bucket or a hand-patched
 Caddyfile mounted over the image's own — extra maintenance surface the full
 CE stack doesn't need.
 
-**`WEB_URL`/`CORS_ALLOWED_ORIGINS` are deliberately absent from
-`environment:`** on `api`/`worker`/`beat-worker`/`migrator`, same reasoning
-as Multica's `FRONTEND_ORIGIN`: a value under `environment:` silently beats
-the same key from `env_file:`, so the address this install is actually
-reached at goes in `secrets.env` instead, never committed.
+**`WEB_URL`/`CORS_ALLOWED_ORIGINS` cannot be left unset, unlike Multica's
+address variables — this broke sign-up and sign-in outright in
+production.** The first cut of this app followed Multica's pattern exactly:
+leave them out of `environment:` (since a value there silently beats the
+same key from `env_file:`) and source them from an optional `secrets.env`
+instead, on the theory that "unset is safe, only absolute-URL cases need
+it." That theory is true for Multica and false for Plane.
+`plane.utils.host.base_host()` does
+`settings.WEB_URL or settings.APP_BASE_URL` with **no None-safety**, and
+both are `None` by default — neither ships an env default anywhere in
+Plane's own settings. **Confirmed live on 2026-08-22**: sign-up and sign-in
+both 500'd with `ImproperlyConfigured("APP_BASE_URL or WEB_URL is not set")`
+(or, one layer up in `get_safe_redirect_url`, `AttributeError: 'NoneType'
+object has no attribute 'rstrip'`) — this is not an edge case, it is the
+very first thing a new install needs to do. Fix: `WEB_URL` and
+`CORS_ALLOWED_ORIGINS` now default to `http://umbrel.local:46259` directly
+under `environment:` in `x-app-env`. This is **not** a secrets-out-of-the-repo
+concern the way Multica's `FRONTEND_ORIGIN` is — `http://umbrel.local:46259`
+is a generic default, not anyone's real address — so there is no
+`secrets.env`/`env_file:` on this app at all; a user reaching it at a
+different address hand-edits these two values directly in their
+`app-data/chepetime-plane/docker-compose.yml`, same as Multica's own
+tunnel-address instructions do for its four address variables.
+**Any other app in this store that leaves an address variable unset by
+default needs this same check first**: does the vendor's own code actually
+tolerate `None`/empty here, or does it just happen to work in whatever
+manual test was run? Confirmed by reading the source
+(`plane.utils.host.base_host`), not by assumption.
 
 ## Updating Plane
 

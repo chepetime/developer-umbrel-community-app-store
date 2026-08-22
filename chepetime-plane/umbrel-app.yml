@@ -4,7 +4,7 @@ name: Plane
 tagline: Open-source project management for issues, cycles and modules
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-plane/icon.svg
 category: developer
-version: "1.4.1-2"
+version: "1.4.1-3"
 port: 46259
 description: >-
   Plane is an open-source project management tool: issues, cycles (sprints),
@@ -50,6 +50,21 @@ repo: https://github.com/makeplane/plane
 support: https://github.com/makeplane/plane/issues
 gallery: []
 releaseNotes: >-
+  Fixes sign-up and sign-in 500ing outright — not an edge case, the very
+  first thing a new install needs to do. WEB_URL and CORS_ALLOWED_ORIGINS
+  were left unset on the (wrong, for this app) assumption that they're
+  optional the way Multica's address variables are. Plane's own
+  plane.utils.host.base_host() does `settings.WEB_URL or
+  settings.APP_BASE_URL` with no None-safety and both are None by default,
+  so every sign-up/sign-in crashed with "APP_BASE_URL or WEB_URL is not
+  set" (or, one layer up, "'NoneType' object has no attribute 'rstrip'").
+  Both now default to http://umbrel.local:46259 directly in the compose
+  file — not secret, just the generic default address, so no separate
+  override file is needed; reaching this install elsewhere means
+  hand-editing those two values in app-data's docker-compose.yml directly.
+
+  ---
+
   Fixes sign-up (and any other action touching file storage) 500ing.
   AWS_S3_ENDPOINT_URL pointed at plane-minio's real container name
   (chepetime-plane_plane-minio_1), which boto3 rejects outright — its

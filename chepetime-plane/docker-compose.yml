@@ -90,6 +90,22 @@ x-app-env: &app-env
   MINIO_ENDPOINT_SSL: 0
   WEBHOOK_ALLOWED_IPS: ""
   WEBHOOK_ALLOWED_HOSTS: ""
+  # MUST be a non-empty string — unlike Multica's optional address vars,
+  # Plane's own code has no None-safety here: plane.utils.host.base_host()
+  # does `settings.WEB_URL or settings.APP_BASE_URL` and raises
+  # ImproperlyConfigured (or, on older builds, crashes with
+  # `'NoneType' object has no attribute 'rstrip'` one level up in
+  # get_safe_redirect_url) the instant both are unset — which they are by
+  # default, since neither ships an env default. Confirmed live: sign-up
+  # and sign-in both 500'd until this was set. Not secret — this is just
+  # the default LAN address, safe to publish — so unlike Multica's
+  # FRONTEND_ORIGIN it lives here directly rather than in secrets.env. If
+  # you reach this install at a different address (a tunnel, a different
+  # port), hand-edit these two values directly in
+  # ~/umbrel/app-data/chepetime-plane/docker-compose.yml and restart; there
+  # is no separate override file for them.
+  WEB_URL: http://umbrel.local:46259
+  CORS_ALLOWED_ORIGINS: http://umbrel.local:46259
 
 services:
   app_proxy:
@@ -139,26 +155,6 @@ services:
     command: ./bin/docker-entrypoint-api.sh
     environment:
       <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
-    # Optional, user-managed, never in this repo — same shape as Multica's.
-    # WEB_URL (used to build absolute links in invite/notification emails)
-    # and CORS_ALLOWED_ORIGINS name the address this install is actually
-    # reached at, which differs per host. Declaring them under `environment:`
-    # above would also make them unoverridable, since environment silently
-    # beats env_file. Unset, the app still works over the same origin the
-    # browser used (Caddy proxies web+api+auth together) — only absolute-URL
-    # cases (email links) need this set.
-    #
-    #   ssh umbrel
-    #   umask 077
-    #   cd ~/umbrel/app-data/chepetime-plane
-    #   cat > secrets.env <<'EOF'
-    #   WEB_URL=https://plane.yourdomain.example
-    #   CORS_ALLOWED_ORIGINS=https://plane.yourdomain.example
-    #   EOF
-    #   umbreld client apps.restart.mutate --appId chepetime-plane
-    env_file:
-      - path: ${APP_DATA_DIR}/secrets.env
-        required: false
     volumes:
       - ${APP_DATA_DIR}/logs/api:/code/plane/logs
       - /etc/localtime:/etc/localtime:ro
@@ -176,9 +172,6 @@ services:
     command: ./bin/docker-entrypoint-worker.sh
     environment:
       <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
-    env_file:
-      - path: ${APP_DATA_DIR}/secrets.env
-        required: false
     volumes:
       - ${APP_DATA_DIR}/logs/worker:/code/plane/logs
       - /etc/localtime:/etc/localtime:ro
@@ -198,9 +191,6 @@ services:
     command: ./bin/docker-entrypoint-beat.sh
     environment:
       <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
-    env_file:
-      - path: ${APP_DATA_DIR}/secrets.env
-        required: false
     volumes:
       - ${APP_DATA_DIR}/logs/beat-worker:/code/plane/logs
       - /etc/localtime:/etc/localtime:ro
@@ -220,9 +210,6 @@ services:
     command: ./bin/docker-entrypoint-migrator.sh
     environment:
       <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
-    env_file:
-      - path: ${APP_DATA_DIR}/secrets.env
-        required: false
     volumes:
       - ${APP_DATA_DIR}/logs/migrator:/code/plane/logs
       - /etc/localtime:/etc/localtime:ro

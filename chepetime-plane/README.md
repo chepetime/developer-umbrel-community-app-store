@@ -89,33 +89,21 @@ session cookie — same reasoning as Multica's `mul_` tokens. The API is
 therefore reachable from the LAN with only Plane's own auth in front of it.
 The web UI itself stays behind Umbrel's login.
 
-## secrets.env
+## WEB_URL and CORS_ALLOWED_ORIGINS
 
-Settings that must not be published, and must survive updates, go in a file
-the store never ships:
-
-```bash
-ssh umbrel
-umask 077
-cd ~/umbrel/app-data/chepetime-plane
-cat > secrets.env <<'EOF'
-WEB_URL=https://plane.example.com
-CORS_ALLOWED_ORIGINS=https://plane.example.com
-EOF
-umbreld client apps.restart.mutate --appId chepetime-plane
-```
-
-`api`, `worker`, `beat-worker` and `migrator` all read it via `env_file` with
-`required: false`, so the app still starts when it does not exist.
-
-| Key | Effect |
-| --- | ------ |
-| `WEB_URL` | the address this install is reached at — used to build absolute links in invite/notification emails. Unset, the app still works over whatever origin the browser used |
-| `CORS_ALLOWED_ORIGINS` | only matters if something outside the browser's same-origin calls the API cross-origin; leave unset for normal single-address use |
-
-**A variable set under `environment:` in `docker-compose.yml` beats the same
-variable here, silently** — which is why `WEB_URL`/`CORS_ALLOWED_ORIGINS` are
-deliberately absent from the compose file.
+Unlike Multica's address variables, these two **cannot be left unset** —
+Plane's own `plane.utils.host.base_host()` does
+`settings.WEB_URL or settings.APP_BASE_URL` with no None-safety, and crashes
+sign-up and sign-in outright (`ImproperlyConfigured` or, on some builds,
+`'NoneType' object has no attribute 'rstrip'`) the instant both are unset.
+They default here to `http://umbrel.local:46259` — not secret, just the
+generic default LAN address, safe to publish. If you reach this install at
+a different address (a tunnel, a different port), hand-edit these two
+values directly in `~/umbrel/app-data/chepetime-plane/docker-compose.yml`
+(they're under `x-app-env`, referenced by `api`/`worker`/`beat-worker`/
+`migrator`) and restart — there is no separate override file for them, the
+way there is for Multica's `secrets.env`, since the value isn't sensitive
+enough to warrant keeping it out of the compose file.
 
 ## Reaching it over https through a tunnel
 
@@ -133,8 +121,7 @@ the trip.
   service: http://chepetime-plane_proxy_1:80
 ```
 
-Then set `WEB_URL`/`CORS_ALLOWED_ORIGINS` in `secrets.env` as above and
-restart.
+Then set `WEB_URL`/`CORS_ALLOWED_ORIGINS` as above and restart.
 
 ## Data
 
