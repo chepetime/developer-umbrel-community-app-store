@@ -9,7 +9,7 @@ services:
   server:
     # Upstream moved the package from jorenn92/maintainerr to the org path;
     # both resolve to the same digest today. Multi-arch index digest.
-    image: ghcr.io/maintainerr/maintainerr:3.23.0@sha256:b6ec7216c5032dd1b8a3aeab8babd167dbeb0794b531fe01fd90b013915db093
+    image: ghcr.io/maintainerr/maintainerr:3.24.0@sha256:2ac67f176a77f1e78d66b24c1b0d108c587abe1063f46ce75cfaa4cd06516a80
     # Upstream requires /opt/data to be writable by this uid, and Umbrel
     # creates app data as 1000:1000, so the two already agree.
     user: "1000:1000"
