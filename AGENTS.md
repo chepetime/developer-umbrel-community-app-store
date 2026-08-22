@@ -437,6 +437,24 @@ image: pgvector/pgvector:pg18@sha256:2ba9ca5f2e7daa0f0e7723cba1ee9167bab54efd364
 image: nginx:1.31-alpine@sha256:db35bfc6b2951e7f8a72db5db120288c127ffaeeb4a6d4b95a26fead017d5913
 ```
 
+**Postgres 18 changed what it expects mounted where, and it broke this app
+on the very first attempt at the pg18 pin above.** The official `postgres`
+image (which `pgvector/pgvector` builds on) started refusing to start, from
+18 onward, when a volume lands directly on `/var/lib/postgresql/data` —
+treated as leftover pre-18 state and rejected
+(`docker-library/postgres#1259`), even against a completely empty volume on
+a first boot. It wants a single mount at the parent `/var/lib/postgresql`
+instead, and places data itself in a version-named subdirectory below it.
+Confirmed live on 2026-08-21: the crash loop this produced left the app
+stuck `Restarting` and every other service stuck `Created`, reported by
+Umbrel as the install simply failing back to `not-installed` with no useful
+error anywhere in the UI. `postgres:` volumes on this pin mount
+`${APP_DATA_DIR}/postgres:/var/lib/postgresql`, not `.../postgresql/data` —
+if a future edit "corrects" that back to the more common-looking `.../data`
+path, it will reintroduce this exact crash loop. Do not route around it by
+setting `PGDATA` either; mounting the parent is upstream's actual fix, not a
+workaround.
+
 This is the first app here with **four** services, and the first that ships a
 config file alongside the manifest. Both are deliberate:
 

@@ -206,7 +206,18 @@ services:
       # It is a different value from APP_SEED above on purpose.
       POSTGRES_PASSWORD: ${APP_PASSWORD}
     volumes:
-      - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+      # 18+ changed what the official postgres image expects here (see
+      # docker-library/postgres#1259): a mount landing directly on
+      # /var/lib/postgresql/data is now treated as leftover pre-18 state and
+      # refuses to start ("these Docker images are configured to store
+      # database data in a format which is compatible with pg_ctlcluster"),
+      # even on a first boot with nothing in it. 18+ wants a single mount at
+      # the parent /var/lib/postgresql instead, and places data itself in a
+      # version-named subdirectory below it (enables pg_upgrade --link
+      # later). Do not set PGDATA to route around this — that just trades
+      # one hardcoded path for another that breaks the next major again;
+      # mounting the parent is upstream's actual fix.
+      - ${APP_DATA_DIR}/postgres:/var/lib/postgresql
       - /etc/localtime:/etc/localtime:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U multica -d multica"]
