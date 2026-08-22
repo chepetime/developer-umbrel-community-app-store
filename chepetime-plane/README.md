@@ -62,6 +62,13 @@ To use an external S3-compatible bucket instead, set `AWS_S3_ENDPOINT_URL`,
 `secrets.env` (below), drop `USE_MINIO`, and comment out the `plane-minio`
 service.
 
+`AWS_S3_ENDPOINT_URL` points at `chepetime-plane-plane-minio`, not the
+container's real name (`chepetime-plane_plane-minio_1`) — boto3 rejects
+hostnames with underscores outright, so the real name 500s every action
+that touches file storage, sign-up included. The hyphen-only name is a
+second network alias for the exact same container (`plane-minio`'s
+`networks.default.aliases` in the compose file); do not "simplify" it back.
+
 ### The MinIO image pin
 
 MinIO stopped publishing new community builds to Docker Hub after

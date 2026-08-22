@@ -636,6 +636,24 @@ routes `/{$BUCKET_NAME}/*` to `plane-minio` through the same origin as
 everything else, so browser-facing attachment links resolve fine without any
 extra configuration — once that target is qualified the same way, per above.
 
+**`AWS_S3_ENDPOINT_URL` cannot use the container's real name either, for a
+completely different reason: boto3 itself rejects it.** Fully-qualifying
+`plane-minio`'s hostname as `chepetime-plane_plane-minio_1` (correct, and
+required, per the collision reasoning above) fixed the Caddy-routing
+collision but broke the Django backend's own S3 client: botocore's
+endpoint-hostname validation disallows underscores by RFC 1123, and Docker's
+DNS resolving that name without complaint doesn't change what botocore
+itself will accept. **Confirmed live on 2026-08-22**: the `api` container's
+`create_bucket` step failed silently at boot with `Invalid endpoint`, and
+every code path touching real file storage 500'd afterward — sign-up
+included, since it checks/creates the default bucket. `AWS_S3_ENDPOINT_URL`
+now points at `chepetime-plane-plane-minio`, a *second*,
+hyphen-only network alias for the same `plane-minio` container
+(`networks.default.aliases` on that service) — fully-qualified (so it still
+can't collide with another app), just spelled without the underscore boto3
+chokes on. Do not "simplify" this back to the real container name; it will
+reintroduce the exact same silent bucket-creation failure.
+
 **MinIO's own tag is a real trap.** MinIO stopped publishing new community
 builds to Docker Hub after `RELEASE.2025-09-07T16-13-09Z` (their move away
 from free rolling releases toward the commercial AIStor product). That tag

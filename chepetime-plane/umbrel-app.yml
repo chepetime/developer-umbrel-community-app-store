@@ -4,7 +4,7 @@ name: Plane
 tagline: Open-source project management for issues, cycles and modules
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-plane/icon.svg
 category: developer
-version: "1.4.1-1"
+version: "1.4.1-2"
 port: 46259
 description: >-
   Plane is an open-source project management tool: issues, cycles (sprints),
@@ -50,6 +50,19 @@ repo: https://github.com/makeplane/plane
 support: https://github.com/makeplane/plane/issues
 gallery: []
 releaseNotes: >-
+  Fixes sign-up (and any other action touching file storage) 500ing.
+  AWS_S3_ENDPOINT_URL pointed at plane-minio's real container name
+  (chepetime-plane_plane-minio_1), which boto3 rejects outright — its
+  endpoint-hostname validation disallows underscores, which Docker's own
+  DNS resolves without complaint but botocore's stricter check does not.
+  The api container's bucket-creation step failed silently at boot
+  ("Invalid endpoint"), and every real S3 call afterward 500'd, sign-up's
+  avatar/bucket check included. Now points at
+  chepetime-plane-plane-minio, a hyphen-only network alias for the exact
+  same container, added without renaming the container itself.
+
+  ---
+
   Fixes the proxy serving a completely different app's UI instead of
   Plane's. The Caddyfile baked into makeplane/plane-proxy reverse-proxies to
   bare service names (web, space, admin, live, api, plane-minio), which

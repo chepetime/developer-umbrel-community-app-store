@@ -49,7 +49,18 @@ x-minio-env: &minio-env
 x-aws-s3-env: &aws-s3-env
   AWS_ACCESS_KEY_ID: plane
   AWS_SECRET_ACCESS_KEY: ${APP_PASSWORD}
-  AWS_S3_ENDPOINT_URL: http://chepetime-plane_plane-minio_1:9000
+  # NOT the container's real name (chepetime-plane_plane-minio_1) — boto3
+  # rejects it outright: botocore's endpoint-hostname validation disallows
+  # underscores, which Docker's own DNS resolves without complaint but a
+  # strict RFC 1123 hostname check does not. Confirmed live: the api
+  # container's create_bucket step failed with "Invalid endpoint" against
+  # the real container name and silently skipped bucket creation, then
+  # every real S3 call (sign-up's avatar/bucket check included) 500'd.
+  # chepetime-plane-plane-minio is a network alias for the exact same
+  # container (see plane-minio's `networks.default.aliases` below) —
+  # hyphens only, so boto3 accepts it, and still fully-qualified so it
+  # can't collide with another app's identically-named service.
+  AWS_S3_ENDPOINT_URL: http://chepetime-plane-plane-minio:9000
   AWS_S3_BUCKET_NAME: uploads
 
 x-mq-env: &mq-env
@@ -283,6 +294,15 @@ services:
     volumes:
       - ${APP_DATA_DIR}/uploads:/export
       - /etc/localtime:/etc/localtime:ro
+    # Umbrel's own container name for this service (chepetime-plane_plane-minio_1)
+    # has underscores, which boto3 refuses as an endpoint hostname — see
+    # AWS_S3_ENDPOINT_URL above. This is a second, hyphen-only name for the
+    # exact same container, added without touching the real container name
+    # Umbrel expects for its own tooling.
+    networks:
+      default:
+        aliases:
+          - chepetime-plane-plane-minio
     restart: on-failure
 
   # Comment this out if you already have a reverse proxy running.
