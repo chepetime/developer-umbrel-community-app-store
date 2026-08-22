@@ -1,0 +1,58 @@
+# Overrides the Caddyfile baked into makeplane/plane-proxy
+# (apps/proxy/Caddyfile.ce upstream), which reverse-proxies to bare service
+# names (web, space, admin, live, api, plane-minio). That works on
+# upstream's own compose, where Docker Compose scopes those names to one
+# project's network — but every Umbrel app shares a single Docker network,
+# so a bare name can resolve to an unrelated app's container of the same
+# name instead. Confirmed live on 2026-08-21: `web` resolved to a different
+# installed app entirely (Docmost) rather than Plane's own frontend, and the
+# whole app silently served the wrong UI with no error anywhere. Every
+# target below is the fully-qualified container name instead
+# (chepetime-plane_web_1, not web) for the same reason every cross-service
+# hostname elsewhere in this app is qualified.
+#
+# In hooks/ rather than beside the manifest so it survives an app update —
+# see "Installs Copy Everything, Updates Copy A Whitelist" in AGENTS.md. A
+# fresh install would find it either way, but only hooks/ is in the update
+# whitelist (docker-compose.yml *.template exports.sh torrc hooks); a plain
+# top-level Caddyfile would install correctly once and then be frozen for
+# the life of the install.
+(plane_proxy) {
+	request_body {
+		max_size {$FILE_SIZE_LIMIT}
+	}
+
+  redir /spaces /spaces/ permanent
+	reverse_proxy /spaces/* chepetime-plane_space_1:3000
+
+  redir /god-mode /god-mode/ permanent
+	reverse_proxy /god-mode/* chepetime-plane_admin_1:3000
+
+	reverse_proxy /live/* chepetime-plane_live_1:3000
+
+	reverse_proxy /api/* chepetime-plane_api_1:8000
+
+	reverse_proxy /auth/* chepetime-plane_api_1:8000
+
+	reverse_proxy /static/* chepetime-plane_api_1:8000
+
+	reverse_proxy /{$BUCKET_NAME}/* chepetime-plane_plane-minio_1:9000
+	reverse_proxy /{$BUCKET_NAME} chepetime-plane_plane-minio_1:9000
+
+	reverse_proxy /* chepetime-plane_web_1:3000
+}
+
+{
+	{$CERT_EMAIL}
+	acme_ca {$CERT_ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
+	{$CERT_ACME_DNS}
+	servers {
+		max_header_size 25MB
+		client_ip_headers X-Forwarded-For X-Real-IP
+		trusted_proxies static {$TRUSTED_PROXIES:0.0.0.0/0}
+	}
+}
+
+{$SITE_ADDRESS} {
+	import plane_proxy
+}

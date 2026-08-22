@@ -303,6 +303,12 @@ services:
       # for MULTICA_TRUSTED_PROXIES.
       TRUSTED_PROXIES: 10.21.0.0/16
     volumes:
+      # Replaces the image's own Caddyfile, which reverse-proxies to bare
+      # service names (web, space, admin, live, api, plane-minio) — safe on
+      # upstream's own compose, broken here since every Umbrel app shares
+      # one Docker network. See hooks/Caddyfile for the fully-qualified
+      # replacement and why it lives in hooks/ specifically.
+      - ${APP_DATA_DIR}/hooks/Caddyfile:/etc/caddy/Caddyfile:ro
       - ${APP_DATA_DIR}/proxy/config:/config
       - ${APP_DATA_DIR}/proxy/data:/data
       - /etc/localtime:/etc/localtime:ro

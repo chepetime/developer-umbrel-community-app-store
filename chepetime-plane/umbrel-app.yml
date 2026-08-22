@@ -4,7 +4,7 @@ name: Plane
 tagline: Open-source project management for issues, cycles and modules
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-plane/icon.svg
 category: developer
-version: "1.4.1"
+version: "1.4.1-1"
 port: 46259
 description: >-
   Plane is an open-source project management tool: issues, cycles (sprints),
@@ -50,6 +50,19 @@ repo: https://github.com/makeplane/plane
 support: https://github.com/makeplane/plane/issues
 gallery: []
 releaseNotes: >-
+  Fixes the proxy serving a completely different app's UI instead of
+  Plane's. The Caddyfile baked into makeplane/plane-proxy reverse-proxies to
+  bare service names (web, space, admin, live, api, plane-minio), which
+  Docker Compose scopes to one project on upstream's own network — but
+  every Umbrel app shares a single Docker network, so those bare names can
+  resolve to an unrelated app's container of the same name instead.
+  Confirmed live: `web` resolved to a different installed app entirely
+  (Docmost), and Plane silently served its UI with no error anywhere. Now
+  overridden with hooks/Caddyfile, using fully-qualified container names
+  throughout.
+
+  ---
+
   First packaging of Plane 1.4.1 for this store.
 
   Thirteen containers, transcribed from upstream's own official self-host

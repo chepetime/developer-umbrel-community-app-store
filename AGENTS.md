@@ -607,11 +607,34 @@ Deviations from upstream's literal compose, all deliberate:
 behind one `SITE_ADDRESS`. `app_proxy` points straight at
 `chepetime-plane_proxy_1:80`.
 
+**But the image's own Caddyfile had to be replaced anyway, and this one bit
+in production.** `Caddyfile.ce` reverse-proxies to bare service names —
+`web`, `space`, `admin`, `live`, `api`, `plane-minio` — which is exactly
+right on upstream's own compose, where Docker Compose scopes those names to
+one project's network. It is wrong here: every Umbrel app shares a single
+Docker network, so a bare name resolves whatever container happens to
+answer to it, not necessarily this app's own. **Confirmed live on
+2026-08-21**: `web` resolved to a different installed app entirely
+(Docmost) instead of `chepetime-plane_web_1` — Plane's proxy silently
+served Docmost's UI on Plane's own port, with no error anywhere, not in
+`docker ps`, not in any log, not in Umbrel's install state (which reported
+`ready`). Only a manual `curl` past the app_proxy layer surfaced it.
+`hooks/Caddyfile` replaces it with fully-qualified targets
+(`chepetime-plane_web_1:3000`, etc.), mounted over `/etc/caddy/Caddyfile` —
+same `hooks/`-for-survivability reasoning as Multica's `nginx.conf`. Caddy's
+`reverse_proxy` re-resolves hostnames per request (unlike nginx, which
+needs the `resolver` + variable trick Multica's `nginx.conf` uses), so no
+equivalent workaround is needed here beyond qualifying the name once.
+**Any other repackaged app whose own image ships a baked-in proxy/gateway
+config needs this same check** — do not assume a vendor's reverse-proxy
+config is network-safe just because it already unifies everything behind
+one origin; check what hostnames it actually targets.
+
 **MinIO's presigned URLs are not a problem here**, unlike the `plane-aio-community`
 all-in-one image (considered and rejected — see below): Caddyfile.ce already
 routes `/{$BUCKET_NAME}/*` to `plane-minio` through the same origin as
 everything else, so browser-facing attachment links resolve fine without any
-extra configuration.
+extra configuration — once that target is qualified the same way, per above.
 
 **MinIO's own tag is a real trap.** MinIO stopped publishing new community
 builds to Docker Hub after `RELEASE.2025-09-07T16-13-09Z` (their move away

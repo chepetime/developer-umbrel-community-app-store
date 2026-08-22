@@ -39,6 +39,14 @@ everything — `web`, `space`, `admin`, `live` (WebSocket, upgrade handled
 natively by Caddy) and `api` — behind one origin. `app_proxy` points straight
 at it (`chepetime-plane_proxy_1:80`); no second gateway was needed.
 
+Its baked-in Caddyfile targets bare service names (`web`, `space`, ...)
+though, which is only safe on upstream's own compose where those names are
+scoped to one project. Every Umbrel app shares one Docker network, so a bare
+name can resolve to an unrelated app's container — confirmed live, `web`
+resolved to a different installed app entirely and Plane silently served its
+UI instead. `hooks/Caddyfile` replaces it with fully-qualified targets,
+mounted over `/etc/caddy/Caddyfile`.
+
 ## File storage (MinIO)
 
 Attachments and avatars live in the bundled `plane-minio`, not on any
