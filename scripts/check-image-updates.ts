@@ -51,10 +51,14 @@ const POLICIES: Array<[pattern: string, policy: Policy]> = [
   ["ghcr.io/chepetime/billow", "skip"], // released by scripts/bump-billow.sh
   ["ghcr.io/chepetime/goose", "skip"], // released with the Goose source
   ["ghcr.io/multica-ai/*", "skip"], // released with the Multica source
+  ["makeplane/*", "skip"], // released with Plane's own source, six images move in lockstep
   ["ghcr.io/tinyauthapp/tinyauth", "digest"], // rolling v5, no per-patch tags
   ["postgres", "digest"], // a major is a data-directory migration
   ["pgvector/pgvector", "digest"], // same, and it carries the extension
   ["redis", "digest"],
+  ["valkey/valkey", "digest"], // same reasoning as redis
+  ["rabbitmq", "digest"], // mnesia data dir, same reasoning as postgres
+  ["minio/minio", "digest"], // date-based RELEASE tags, and object data to boot
   ["nginx", "minor"], // stateless proxy, nothing to migrate across 1.x
 ];
 const DEFAULT_POLICY: Policy = "minor";

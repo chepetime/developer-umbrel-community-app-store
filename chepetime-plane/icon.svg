@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Plane">
+  <!-- Upstream's brand mark (plane.so/brand-logos/logo-with-wordmark.svg, the
+       icon portion before the wordmark text; matches simple-icons' "Plane"
+       trace at https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/plane.svg).
+       Scaled down and centered here because Umbrel renders app icons inside
+       a rounded square that clips anything drawn edge to edge. -->
+  <rect width="100" height="100" rx="20" fill="#ffffff"/>
+  <g transform="translate(20, 24) scale(2.2)" fill="#121212">
+    <path d="M0 5.358a.854.854 0 0 1 1.235-.767L6.134 7.05v5.768c0 .81.456 1.553 1.179 1.915l4.42 2.218v1.692a.853.853 0 0 1-1.235.766L1.18 14.732A2.14 2.14 0 0 1 0 12.817zm6.134 0a.853.853 0 0 1 1.235-.766l4.898 2.458v5.768c0 .81.457 1.552 1.18 1.915l4.42 2.218v1.692a.853.853 0 0 1-1.235.765l-4.899-2.457v-5.769a2.14 2.14 0 0 0-1.179-1.914L6.134 7.05zm6.133 0a.853.853 0 0 1 1.235-.766l9.319 4.676A2.14 2.14 0 0 1 24 11.182v7.46a.853.853 0 0 1-1.235.766l-4.899-2.457v-5.769a2.14 2.14 0 0 0-1.179-1.914l-4.42-2.218z"/>
+  </g>
+</svg>

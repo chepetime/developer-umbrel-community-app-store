@@ -1,0 +1,315 @@
+version: "3.7"
+
+# Transcribed from upstream's official self-host compose
+# (deployments/cli/community/docker-compose.yml, the same file
+# https://developers.plane.so/self-hosting/methods/docker-compose's install
+# script downloads). Deviations from upstream, all deliberate:
+#
+#   - `deploy: {replicas, restart_policy}` (Swarm-only, ignored by plain
+#     `docker compose`) replaced with `restart: on-failure` everywhere, like
+#     every other app in this store.
+#   - `proxy` no longer publishes host ports; `app_proxy` reaches it over the
+#     shared Umbrel network by container name instead, same as Multica's
+#     `gateway`.
+#   - Every cross-service hostname is fully-qualified
+#     (`chepetime-plane_api_1`, not bare `api`) — every Umbrel app shares one
+#     Docker network, so a bare name can resolve to an unrelated app's
+#     container of the same name.
+#   - Postgres/Valkey/RabbitMQ get healthchecks and gate the services that
+#     need them on `condition: service_healthy`, matching the bar Multica's
+#     compose sets. Not strictly required — `api`/`worker`/`beat-worker`
+#     already run `wait_for_db`/`wait_for_migrations` internally before
+#     doing anything — but avoids needless crash-loop noise on first boot.
+#   - Every volume is a bind mount under ${APP_DATA_DIR} (upstream uses
+#     plain Docker-managed named volumes). Umbrel apps should keep all state
+#     under app-data; anything else survives an uninstall as an orphaned
+#     volume with no owner.
+#   - `WEB_URL` / `CORS_ALLOWED_ORIGINS` are deliberately left out of
+#     `environment:` on every service and sourced from an optional
+#     secrets.env instead — see the `api` service below for why.
+
+x-db-env: &db-env
+  PGHOST: chepetime-plane_plane-db_1
+  PGDATABASE: plane
+  POSTGRES_USER: plane
+  POSTGRES_PASSWORD: ${APP_PASSWORD}
+  POSTGRES_DB: plane
+  POSTGRES_PORT: 5432
+  PGDATA: /var/lib/postgresql/data
+
+x-redis-env: &redis-env
+  REDIS_HOST: chepetime-plane_plane-redis_1
+  REDIS_PORT: 6379
+  REDIS_URL: redis://chepetime-plane_plane-redis_1:6379/
+
+x-minio-env: &minio-env
+  MINIO_ROOT_USER: plane
+  MINIO_ROOT_PASSWORD: ${APP_PASSWORD}
+
+x-aws-s3-env: &aws-s3-env
+  AWS_ACCESS_KEY_ID: plane
+  AWS_SECRET_ACCESS_KEY: ${APP_PASSWORD}
+  AWS_S3_ENDPOINT_URL: http://chepetime-plane_plane-minio_1:9000
+  AWS_S3_BUCKET_NAME: uploads
+
+x-mq-env: &mq-env
+  RABBITMQ_HOST: chepetime-plane_plane-mq_1
+  RABBITMQ_PORT: 5672
+  RABBITMQ_DEFAULT_USER: plane
+  RABBITMQ_DEFAULT_PASS: ${APP_PASSWORD}
+  RABBITMQ_DEFAULT_VHOST: plane
+  RABBITMQ_VHOST: plane
+
+x-live-env: &live-env
+  API_BASE_URL: http://chepetime-plane_api_1:8000
+  LIVE_SERVER_SECRET_KEY: ${APP_SEED}
+
+x-app-env: &app-env
+  DEBUG: 0
+  GUNICORN_WORKERS: 1
+  USE_MINIO: 1
+  DATABASE_URL: postgres://plane:${APP_PASSWORD}@chepetime-plane_plane-db_1:5432/plane
+  # Django's signing key. LIVE_SERVER_SECRET_KEY reuses the same value: both
+  # are internal-only signing keys, never shown to a user, so there is no
+  # reason to derive two distinct secrets from Umbrel's one per-install seed.
+  SECRET_KEY: ${APP_SEED}
+  LIVE_SERVER_SECRET_KEY: ${APP_SEED}
+  AMQP_URL: amqp://plane:${APP_PASSWORD}@chepetime-plane_plane-mq_1:5672/plane
+  API_KEY_RATE_LIMIT: 60/minute
+  MINIO_ENDPOINT_SSL: 0
+  WEBHOOK_ALLOWED_IPS: ""
+  WEBHOOK_ALLOWED_HOSTS: ""
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-plane_proxy_1
+      APP_PORT: 80
+      # Plane has its own workspace-level API-key system for integrations
+      # (API_KEY_RATE_LIMIT above) — a script or webhook receiver calls
+      # /api/* with `Authorization: Bearer <key>` and no Umbrel session
+      # cookie, so it would otherwise be bounced by Umbrel's login. Same
+      # reasoning as Multica's PROXY_AUTH_WHITELIST.
+      PROXY_AUTH_WHITELIST: "/api/*"
+
+  web:
+    image: makeplane/plane-frontend:v1.4.1@sha256:577604d9d2d2cf7b055e5d5ecca84b26c70d70b6b6d87803488c412b9725907b
+    depends_on:
+      - api
+      - worker
+    restart: on-failure
+
+  space:
+    image: makeplane/plane-space:v1.4.1@sha256:741cd5d6bbfaa94bac4a28837d5fab3f7459b014a6c9066728a3b3cfe76fc6c8
+    depends_on:
+      - api
+      - worker
+      - web
+    restart: on-failure
+
+  admin:
+    image: makeplane/plane-admin:v1.4.1@sha256:db215110ef79ab4048334086c891e1499f4c0d30724030a884f6fb61df162d8d
+    depends_on:
+      - api
+      - web
+    restart: on-failure
+
+  live:
+    image: makeplane/plane-live:v1.4.1@sha256:02fd23645fa0f84a68ccfdbab8ba6ceaac5deca6c482bff041880b02295ae76c
+    environment:
+      <<: [*live-env, *redis-env]
+    depends_on:
+      - api
+      - web
+    restart: on-failure
+
+  api:
+    image: makeplane/plane-backend:v1.4.1@sha256:631f42fc01c1db5e7759c2e5ceffffa5fa2afd4b0ee7c8bc92cde9f1a6a0ec8f
+    command: ./bin/docker-entrypoint-api.sh
+    environment:
+      <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
+    # Optional, user-managed, never in this repo — same shape as Multica's.
+    # WEB_URL (used to build absolute links in invite/notification emails)
+    # and CORS_ALLOWED_ORIGINS name the address this install is actually
+    # reached at, which differs per host. Declaring them under `environment:`
+    # above would also make them unoverridable, since environment silently
+    # beats env_file. Unset, the app still works over the same origin the
+    # browser used (Caddy proxies web+api+auth together) — only absolute-URL
+    # cases (email links) need this set.
+    #
+    #   ssh umbrel
+    #   umask 077
+    #   cd ~/umbrel/app-data/chepetime-plane
+    #   cat > secrets.env <<'EOF'
+    #   WEB_URL=https://plane.yourdomain.example
+    #   CORS_ALLOWED_ORIGINS=https://plane.yourdomain.example
+    #   EOF
+    #   umbreld client apps.restart.mutate --appId chepetime-plane
+    env_file:
+      - path: ${APP_DATA_DIR}/secrets.env
+        required: false
+    volumes:
+      - ${APP_DATA_DIR}/logs/api:/code/plane/logs
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      plane-db:
+        condition: service_healthy
+      plane-redis:
+        condition: service_healthy
+      plane-mq:
+        condition: service_healthy
+    restart: on-failure
+
+  worker:
+    image: makeplane/plane-backend:v1.4.1@sha256:631f42fc01c1db5e7759c2e5ceffffa5fa2afd4b0ee7c8bc92cde9f1a6a0ec8f
+    command: ./bin/docker-entrypoint-worker.sh
+    environment:
+      <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
+    env_file:
+      - path: ${APP_DATA_DIR}/secrets.env
+        required: false
+    volumes:
+      - ${APP_DATA_DIR}/logs/worker:/code/plane/logs
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      api:
+        condition: service_started
+      plane-db:
+        condition: service_healthy
+      plane-redis:
+        condition: service_healthy
+      plane-mq:
+        condition: service_healthy
+    restart: on-failure
+
+  beat-worker:
+    image: makeplane/plane-backend:v1.4.1@sha256:631f42fc01c1db5e7759c2e5ceffffa5fa2afd4b0ee7c8bc92cde9f1a6a0ec8f
+    command: ./bin/docker-entrypoint-beat.sh
+    environment:
+      <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
+    env_file:
+      - path: ${APP_DATA_DIR}/secrets.env
+        required: false
+    volumes:
+      - ${APP_DATA_DIR}/logs/beat-worker:/code/plane/logs
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      api:
+        condition: service_started
+      plane-db:
+        condition: service_healthy
+      plane-redis:
+        condition: service_healthy
+      plane-mq:
+        condition: service_healthy
+    restart: on-failure
+
+  migrator:
+    image: makeplane/plane-backend:v1.4.1@sha256:631f42fc01c1db5e7759c2e5ceffffa5fa2afd4b0ee7c8bc92cde9f1a6a0ec8f
+    command: ./bin/docker-entrypoint-migrator.sh
+    environment:
+      <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
+    env_file:
+      - path: ${APP_DATA_DIR}/secrets.env
+        required: false
+    volumes:
+      - ${APP_DATA_DIR}/logs/migrator:/code/plane/logs
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      plane-db:
+        condition: service_healthy
+      plane-redis:
+        condition: service_healthy
+    restart: on-failure
+
+  # Comment this out if you already have a database running elsewhere.
+  plane-db:
+    image: postgres:15.7-alpine@sha256:468d34fefd6338031787c7b8e94078975b3aaf4d66c7ead25c39cd3ba46a15c6
+    command: postgres -c 'max_connections=1000'
+    environment:
+      <<: *db-env
+    volumes:
+      - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plane -d plane"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: on-failure
+
+  plane-redis:
+    image: valkey/valkey:7.2.11-alpine@sha256:10328d00120dc14fbc87b2ed61b7677ddbb0d011e705361b4788329a0ec69a93
+    volumes:
+      - ${APP_DATA_DIR}/redis:/data
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: on-failure
+
+  plane-mq:
+    image: rabbitmq:3.13.6-management-alpine@sha256:611107e29cce05c2acd968325d5dcbde7e2fee404970f1ead75fdb22be2821b3
+    environment:
+      <<: *mq-env
+    volumes:
+      - ${APP_DATA_DIR}/rabbitmq:/var/lib/rabbitmq
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: on-failure
+
+  # Comment this out if you're using external S3-compatible storage instead
+  # (set AWS_S3_ENDPOINT_URL etc. in secrets.env on api/worker/beat-worker/
+  # migrator and drop USE_MINIO).
+  plane-minio:
+    # MinIO stopped publishing new community builds to Docker Hub after this
+    # release (their move away from free rolling releases toward the
+    # commercial AIStor product) — this is genuinely the newest tag there,
+    # not a stale pin. It's also the last build confirmed multi-arch
+    # (amd64+arm64+ppc64le). A security-hotfixed rebuild of this same
+    # release exists at quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z.hotfix.7aa24e772,
+    # but it is amd64-only (verified: one real amd64 manifest, no arm64) —
+    # only switch to it if this box is confirmed x86.
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    command: server /export --console-address ":9090"
+    environment:
+      <<: *minio-env
+    volumes:
+      - ${APP_DATA_DIR}/uploads:/export
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure
+
+  # Comment this out if you already have a reverse proxy running.
+  proxy:
+    image: makeplane/plane-proxy:v1.4.1@sha256:a0d4e5eaac8d44f5b5a44a61ee25b7208ba1d6def20e6947bcbf6147f3cc024a
+    environment:
+      FILE_SIZE_LIMIT: 5242880
+      BUCKET_NAME: uploads
+      # Caddy never attempts ACME/HTTPS unless this looks like a real
+      # hostname with CERT_EMAIL set; ":80" keeps it plain HTTP, same
+      # posture Multica's gateway takes.
+      SITE_ADDRESS: ":80"
+      # Caddy's `trusted_proxies` gate for honouring X-Forwarded-For.
+      # Upstream's own variables.env defines TRUSTED_PROXIES but never wires
+      # it into any service's environment, so their compose silently falls
+      # back to the Caddyfile's `0.0.0.0/0` default — trusting every peer.
+      # Scoped to Umbrel's internal network instead, same value Multica uses
+      # for MULTICA_TRUSTED_PROXIES.
+      TRUSTED_PROXIES: 10.21.0.0/16
+    volumes:
+      - ${APP_DATA_DIR}/proxy/config:/config
+      - ${APP_DATA_DIR}/proxy/data:/data
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - web
+      - api
+      - space
+      - admin
+      - live
+    restart: on-failure

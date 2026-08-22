@@ -1,0 +1,85 @@
+manifestVersion: 1
+id: chepetime-plane
+name: Plane
+tagline: Open-source project management for issues, cycles and modules
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-plane/icon.svg
+category: developer
+version: "1.4.1"
+port: 46259
+description: >-
+  Plane is an open-source project management tool: issues, cycles (sprints),
+  modules (epics), custom views and workspace-level analytics, with a public
+  read-only "Space" surface for sharing views outside the workspace and a
+  "god-mode" instance-admin panel for configuring the install itself.
+
+
+  This packages upstream's official self-host stack exactly —
+  thirteen containers: the web app, the public Space app, the god-mode admin
+  panel, the realtime/WebSocket service, the API and three background
+  workers (worker, beat-worker, a one-shot migrator), PostgreSQL, Valkey
+  (Redis-compatible), RabbitMQ, MinIO for file storage, and a Caddy proxy
+  that fronts all of it behind one origin. It is by far the heaviest app in
+  this store — make sure the box has the memory for it before installing.
+
+
+  Attachments and avatars are stored in the bundled MinIO, not on the
+  container filesystem, so they survive updates. If you'd rather use an
+  external S3-compatible bucket instead, the compose file documents how to
+  swap it.
+
+
+  No email is configured out of the box. The first account is created
+  through the normal sign-up form with an email and password — no
+  verification email required — after which you can promote it to instance
+  admin. Email-dependent features (workspace invites, notifications) need
+  SMTP added afterwards through the god-mode panel; until then those actions
+  will fail silently rather than send anything. The README beside this app
+  has the exact commands.
+
+
+  Licensed under AGPL-3.0: self-hosting and even commercial hosting are both
+  explicitly permitted, the only obligation is making source available to
+  users of the service. The images used here are upstream's own
+  community-edition builds — no feature is gated behind a separate license
+  key.
+developer: Plane Software, Inc.
+website: https://plane.so
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/makeplane/plane
+support: https://github.com/makeplane/plane/issues
+gallery: []
+releaseNotes: >-
+  First packaging of Plane 1.4.1 for this store.
+
+  Thirteen containers, transcribed from upstream's own official self-host
+  docker-compose (the same file their install script downloads), converted
+  from Swarm-style deploy blocks to this store's usual restart: on-failure,
+  with every state directory bind-mounted under app-data instead of
+  Docker-managed named volumes, and every cross-service hostname
+  fully-qualified since every Umbrel app shares one network.
+
+  Caddy's proxy container already unifies web, space, god-mode, the realtime
+  WebSocket and the API behind one origin, so — unlike Multica — no extra
+  gateway container was needed here; app_proxy points straight at it.
+
+  Caddy's trusted_proxies is explicitly scoped to Umbrel's internal network
+  instead of upstream's own compose, which leaves it at the
+  trust-every-peer default because TRUSTED_PROXIES is defined in their
+  variables.env but never actually wired into any service.
+
+  MinIO is pinned to the last release upstream published to Docker Hub
+  before moving off it toward their commercial product — still the right
+  choice for a home Umbrel because it's confirmed multi-arch (amd64+arm64),
+  unlike the newer security-hotfixed build available only on quay.io, which
+  is amd64-only.
+
+  WEB_URL and CORS_ALLOWED_ORIGINS are deliberately left unset in the
+  compose file — same reasoning as Multica's FRONTEND_ORIGIN — and read
+  instead from an optional app-data/chepetime-plane/secrets.env. Unset, the
+  app still works over whatever origin the browser used; only absolute-URL
+  email links need it set.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

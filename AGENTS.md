@@ -74,6 +74,7 @@ Repackaged third-party apps, all behind `app_proxy` on allocated host ports:
 | Maintainerr   | `chepetime-maintainerr`| `46256` |
 | PairDrop      | `chepetime-pairdrop`   | `46257` |
 | Multica       | `chepetime-multica`    | `46258` |
+| Plane         | `chepetime-plane`      | `46259` |
 
 Allocate the next free `462xx` for anything new, and check it is actually free
 on the host (`ss -lntu`) before publishing — a taken port leaves
@@ -553,6 +554,109 @@ Then bump `version` and `releaseNotes` in `chepetime-multica/umbrel-app.yml`
 and the pins above. Upstream ships roughly one release a day; `v0.4.31` is the
 previous release before the current `v0.4.32` pin, so a fresh tag has had
 almost no soak time.
+
+## Plane Store Contract
+
+Not our app: it repackages upstream's official self-host
+`docker-compose.yml` (`deployments/cli/community/docker-compose.yml` in
+`makeplane/plane`, the same file
+https://developers.plane.so/self-hosting/methods/docker-compose's installer
+downloads) as closely as possible. AGPL-3.0, no self-hosting/resale
+restriction, and the images used are the real `.ce` community-edition
+builds — nothing is gated behind a separate license key.
+
+**Thirteen containers, by far the heaviest app in this store** (Multica, the
+previous heaviest, has four): `web`, `space`, `admin`, `live`, `api`,
+`worker`, `beat-worker`, `migrator` (one-shot, runs Django migrations then
+exits), `plane-db` (Postgres), `plane-redis` (Valkey), `plane-mq`
+(RabbitMQ), `plane-minio`, `proxy` (Caddy).
+
+Deviations from upstream's literal compose, all deliberate:
+
+- **`deploy: {replicas, restart_policy}` blocks are Swarm-only** and ignored
+  (with a warning) by plain `docker compose`, which is all Umbrel runs. Every
+  service uses `restart: on-failure` instead, like everywhere else in this
+  store.
+- **Every volume is a bind mount under `${APP_DATA_DIR}`.** Upstream uses
+  plain Docker-managed named volumes (`pgdata:`, `uploads:`, ...); those
+  survive an uninstall as ownerless orphans since nothing under app-data
+  references them. Converted all nine to explicit paths.
+- **Every cross-service hostname is fully-qualified**
+  (`chepetime-plane_api_1`, not bare `api`) — every Umbrel app shares one
+  Docker network, and generic names like `api`/`web`/`worker` are exactly
+  the kind that can resolve to an unrelated app's container.
+- **`TRUSTED_PROXIES` is set on `proxy`, scoped to `10.21.0.0/16`.**
+  Upstream's own `variables.env` defines this (Caddy's
+  `trusted_proxies static {$TRUSTED_PROXIES:0.0.0.0/0}`, gating whether
+  `X-Forwarded-For` is honoured) but never actually wires it into any
+  service's `environment:` block in their own compose — so their literal
+  file silently falls back to trusting every peer. Scoped to Umbrel's
+  internal network instead, same value and reasoning as Multica's
+  `MULTICA_TRUSTED_PROXIES`.
+- **Postgres/Valkey/RabbitMQ get healthchecks**, and `api`/`worker`/
+  `beat-worker`/`migrator` gate on `condition: service_healthy` for them.
+  Not strictly required — `docker-entrypoint-api.sh` and friends
+  (`apps/api/bin/` upstream) already run `python manage.py wait_for_db` then
+  `wait_for_migrations` before doing anything, so the app converges either
+  way — but it avoids needless crash-loop log noise on first boot, matching
+  the bar Multica's compose sets.
+
+**No extra gateway container, unlike Multica.** Upstream's own `proxy`
+(Caddy, `apps/proxy/Caddyfile.ce`) already reverse-proxies `web`, `space`,
+`admin`, `live` (WebSocket — Caddy handles `Upgrade` natively) and `api`
+behind one `SITE_ADDRESS`. `app_proxy` points straight at
+`chepetime-plane_proxy_1:80`.
+
+**MinIO's presigned URLs are not a problem here**, unlike the `plane-aio-community`
+all-in-one image (considered and rejected — see below): Caddyfile.ce already
+routes `/{$BUCKET_NAME}/*` to `plane-minio` through the same origin as
+everything else, so browser-facing attachment links resolve fine without any
+extra configuration.
+
+**MinIO's own tag is a real trap.** MinIO stopped publishing new community
+builds to Docker Hub after `RELEASE.2025-09-07T16-13-09Z` (their move away
+from free rolling releases toward the commercial AIStor product). That tag
+is pinned here — genuinely the newest on Docker Hub, and confirmed multi-arch
+(amd64+arm64+ppc64le). A security-hotfixed rebuild of the same release
+exists at `quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z.hotfix.7aa24e772`
+(patched as recently as April 2026) but is **amd64-only** — verified via its
+manifest list, one real `amd64` manifest and no `arm64`. Do not move to it
+without confirming the target box is x86; on arm64 it's the same trap as
+Threadfin's `latest`.
+
+**`plane-aio-community` (the all-in-one image) was considered and
+rejected.** It bundles `web`+`space`+`admin`+`api`+`worker`+`beat`+`live`+
+`proxy` into one container via supervisord, dropping the stack to five
+containers total (aio + postgres + valkey + rabbitmq + minio) — much closer
+to Multica's footprint. Not used because (a) it isn't what upstream's own
+documented docker-compose self-hosting method describes, and (b) its baked-in
+Caddyfile (`Caddyfile.aio.ce`) has no `/{bucket}/*` route, so MinIO's
+presigned URLs would need either an external S3 bucket or a hand-patched
+Caddyfile mounted over the image's own — extra maintenance surface the full
+CE stack doesn't need.
+
+**`WEB_URL`/`CORS_ALLOWED_ORIGINS` are deliberately absent from
+`environment:`** on `api`/`worker`/`beat-worker`/`migrator`, same reasoning
+as Multica's `FRONTEND_ORIGIN`: a value under `environment:` silently beats
+the same key from `env_file:`, so the address this install is actually
+reached at goes in `secrets.env` instead, never committed.
+
+## Updating Plane
+
+Seven image families, six of which move together (they share upstream's
+release):
+
+```bash
+for repo in plane-frontend plane-space plane-admin plane-live plane-backend plane-proxy; do
+  docker buildx imagetools inspect makeplane/$repo:vX.Y.Z --format '{{.Manifest.Digest}}'
+done
+```
+
+`plane-backend` is used four times (`api`, `worker`, `beat-worker`,
+`migrator`); move all four pins together. Postgres/Valkey/RabbitMQ/MinIO are
+independent and `digest`-only in `scripts/check-image-updates.ts` — see
+below — so they won't be suggested to cross a major automatically. Then bump
+`version` and `releaseNotes` in `chepetime-plane/umbrel-app.yml`.
 
 ## Installs Copy Everything, Updates Copy A Whitelist
 
