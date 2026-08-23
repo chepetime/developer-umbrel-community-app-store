@@ -4,7 +4,7 @@ name: Billow
 tagline: Write invoices, and know what happened to each one
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
-version: "0.1.2"
+version: "0.1.3"
 port: 46247
 description: >-
   Billow writes invoices, prints them to PDF, and then keeps track of what
@@ -39,26 +39,26 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Fixed a bug where the invoice detail page never decrypted bank details
-  and tax IDs. Redesigned the printable invoice for a cleaner, single-page
-  PDF. Backup and restore now have their own Settings tab, refuse to export
-  if the encryption key isn't available, and can also export invoices as
-  CSV.
+  Invoices now have opaque, non-sequential IDs and a complete workflow for
+  recording when they were sent, approved, paid, converted into a CFDI,
+  included in a monthly tax filing, and finished. Progress can be corrected
+  if a status or date was entered by mistake.
 
 
-  You can add and edit sender profiles, bank accounts and clients, write an
-  invoice against them, and duplicate one into next month's without retyping
-  it. Every one of those screens is new.
+  CFDI records can include both the XML and PDF delivered by the accountant.
+  Monthly tax filings can record the filing date, amount paid, payment date,
+  and payment confirmation file, including images.
 
 
-  The invoice form suggests the next number, defaults to the end of the
-  current month, remembers the client and currency you used last, and totals
-  as you type. Editing an invoice records what changed.
+  The invoice detail page has been redesigned around the workflow, with clear
+  next actions, editable milestones, and pointer feedback on interactive
+  controls.
 
 
-  All of it is now covered by the browser test suite that runs against the
-  published image nightly, which had been failing silently for weeks and is
-  green again.
+  Backup format 3 now carries lifecycle and tax records together with their
+  uploaded file contents, allowing current local data to be restored into
+  Umbrel after this update. Local development uploads also default to a
+  persistent directory inside the repository.
 
 
 dependencies: []
