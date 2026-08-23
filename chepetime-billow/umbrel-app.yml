@@ -4,7 +4,7 @@ name: Billow
 tagline: Write invoices, and know what happened to each one
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
-version: "0.1.3"
+version: "0.1.4"
 port: 46247
 description: >-
   Billow writes invoices, prints them to PDF, and then keeps track of what
@@ -39,26 +39,20 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Invoices now have opaque, non-sequential IDs and a complete workflow for
-  recording when they were sent, approved, paid, converted into a CFDI,
-  included in a monthly tax filing, and finished. Progress can be corrected
-  if a status or date was entered by mistake.
+  Adds a safe administrator workspace reset for replacing existing invoice
+  data with a complete backup. The reset removes invoices, sender profiles,
+  bank accounts, clients, monthly tax periods, and uploaded file contents so
+  the next restore starts from a genuinely empty workspace.
 
 
-  CFDI records can include both the XML and PDF delivered by the accountant.
-  Monthly tax filings can record the filing date, amount paid, payment date,
-  and payment confirmation file, including images.
+  The Billow account, password, sessions, recovery-key setup, API keys, and
+  installation ownership are preserved, so the administrator stays signed in
+  and can restore immediately afterward.
 
 
-  The invoice detail page has been redesigned around the workflow, with clear
-  next actions, editable milestones, and pointer feedback on interactive
-  controls.
-
-
-  Backup format 3 now carries lifecycle and tax records together with their
-  uploaded file contents, allowing current local data to be restored into
-  Umbrel after this update. Local development uploads also default to a
-  persistent directory inside the repository.
+  The operation requires an explicit destructive confirmation, is restricted
+  to administrators, and scopes every database and file deletion to the
+  signed-in user.
 
 
 dependencies: []
