@@ -76,6 +76,7 @@ Repackaged third-party apps, all behind `app_proxy` on allocated host ports:
 | Multica       | `chepetime-multica`    | `46258` |
 | Plane         | `chepetime-plane`      | `46259` |
 | MiroTalk P2P  | `chepetime-mirotalk`   | `46260` |
+| Calibre-Web Automated | `chepetime-calibre-web-automated` | `46261` |
 
 Allocate the next free `462xx` for anything new, and check it is actually free
 on the host (`ss -lntu`) before publishing — a taken port leaves
@@ -347,6 +348,65 @@ Two version-pin traps found while packaging:
 gone (404) and there is a public reproducible unauthenticated auth-bypass in
 v9.4.2 that returns the API keys of every *arr app it manages. Do not package
 it.
+
+## Calibre-Web Automated Store Contract
+
+Not our app: it repackages upstream's `crocodilestick/calibre-web-automated`.
+Added 2026-08-24.
+
+**`${UMBREL_ROOT}/data/storage/downloads` does not resolve to that path.** On
+umbreld 1.7.4 it lands on `~/umbrel/home/Downloads` — the directory Umbrel's
+Files app shows — not `~/umbrel/data/storage/downloads`, which exists,
+is `root:root 755`, and holds only the empty `audiobooks` and `podcasts`
+stubs. Verified against the running Kapowarr container:
+
+```text
+/home/umbrel/umbrel/home/Downloads/comics -> /comics
+```
+
+Anything reasoning about free space, ownership or "is it on the same
+filesystem" must look at `~/umbrel/home/Downloads`. Docker creates missing
+bind sources as root, but CWA's `cwa-init` runs `chown -R abc:abc` over
+`/config`, `/calibre-library` and the ingest dir at startup, so PUID 1000 ends
+up owning them anyway.
+
+**The ingest folder deletes what it processes.** `/cwa-book-ingest` is a
+conveyor belt: convert, file into the library, remove the original. Never
+point it at an existing collection. `~/umbrel/home/Downloads/books` — 38 loose
+files, 619 MB, no `metadata.db`, and a mix of epub/pdf/cbz plus a `.pptx` and
+a stray jpeg — is deliberately **not** mounted. Both mounted paths are fresh
+directories CWA owns outright, siblings of `books` so they share a filesystem
+and moves stay cheap. The 16 `.cbz` files there are Kapowarr's.
+
+Also note `chown -R` on `/calibre-library`: pointing it at an existing tree
+rewrites ownership across the whole thing. Another reason the library is a new
+directory.
+
+**OPDS and Kobo are whitelisted past Umbrel's login**, because e-reader
+software cannot answer it. Prefixes verified in the source rather than guessed
+— `cps/opds.py` registers its blueprint with no prefix but routes everything
+under `/opds...`, while `cps/kobo.py` and `cps/kobo_auth.py` use
+`url_prefix="/kobo/<auth_token>"` and `"/kobo_auth"`:
+
+```yaml
+PROXY_AUTH_WHITELIST: "/opds,/opds/*,/kobo/*,/kobo_auth/*"
+```
+
+Both keep their own auth, but the default `admin` / `admin123` has to be
+changed or the library is readable by anything on the LAN.
+
+**Pin the stable tag, never `latest`.** Upstream publishes a continuous stream
+of `dev-NNN` builds, and `latest` currently tracks those — months ahead of
+`v4.0.6`, the newest stable release. The tag case also changed at 4.0: `V3.1.4`
+with a capital V, `v4.0.6` with a lowercase one. Default `minor` policy is
+correct; no `POLICIES` entry needed.
+
+**First start is slow.** CWA installs Calibre's conversion binaries before
+serving. The image's own healthcheck has `--start-period=120s`; on a loaded
+box the UI can take several minutes. Not a failed install.
+
+`HARDCOVER_TOKEN`, `TRUSTED_PROXY_COUNT` and `NETWORK_SHARE_MODE` are kept out
+of `environment:` so secrets.env can set them.
 
 ## MiroTalk P2P Store Contract
 

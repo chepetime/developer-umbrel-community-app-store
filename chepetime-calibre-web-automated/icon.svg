@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"
+     role="img" aria-label="Calibre-Web Automated">
+  <!-- Store convention where upstream has no clean single-colour mark: a
+       gradient ground with a glyph. An open book, in Calibre's own palette. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e6f5c"/>
+      <stop offset="1" stop-color="#06281f"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
+  <g fill="none" stroke="#ffffff" stroke-width="26"
+     stroke-linecap="round" stroke-linejoin="round">
+    <!-- spine -->
+    <path d="M256 168v198"/>
+    <!-- two leaves -->
+    <path d="M256 168c-30-26-72-38-124-38-8 0-14 6-14 14v170c0 8 6 14 14 14 52 0 94 12 124 38"/>
+    <path d="M256 168c30-26 72-38 124-38 8 0 14 6 14 14v170c0 8-6 14-14 14-52 0-94 12-124 38"/>
+  </g>
+</svg>

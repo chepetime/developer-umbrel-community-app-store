@@ -1,0 +1,64 @@
+manifestVersion: 1
+id: chepetime-calibre-web-automated
+name: Calibre-Web Automated
+tagline: Drop an ebook in a folder and it files itself into your library
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-calibre-web-automated/icon.svg
+category: media
+version: "4.0.6"
+port: 46261
+description: >-
+  Calibre-Web Automated is Calibre-Web with the manual work removed. Put a
+  file in the ingest folder and it is converted to your preferred format,
+  matched against online metadata, given a cover, and filed into a proper
+  Calibre library — no desktop Calibre, no importing by hand.
+
+
+  The library it builds is a real Calibre library, so anything that already
+  speaks Calibre can read it.
+
+
+  Books are readable in the browser or sent to a Kindle in one click. There is
+  an OPDS feed for KOReader, Moon+ and the rest, and Kobo devices can sync
+  directly against the library as though it were Kobo's own store. Reading
+  progress syncs back.
+
+
+  Metadata comes from Google Books, Amazon, Goodreads, Douban, LitRes and
+  Hardcover, and covers and descriptions can be edited per book.
+
+
+  Two folders matter. Books go into the ingest folder, which is watched and
+  emptied — **files placed there are deleted once processed** — and the result
+  lands in the library folder, which is the one to back up. Both live in
+  Downloads, beside your other media.
+
+
+  The first start takes several minutes: it installs Calibre's conversion
+  binaries before the web interface answers.
+developer: crocodilestick
+website: https://github.com/crocodilestick/Calibre-Web-Automated
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/crocodilestick/Calibre-Web-Automated
+support: https://github.com/crocodilestick/Calibre-Web-Automated/issues
+gallery: []
+releaseNotes: >-
+  First packaging of Calibre-Web Automated 4.0.6 for this store.
+
+  Pinned to the stable tag rather than latest, which currently trails the dev
+  builds by months.
+
+  OPDS and Kobo sync are exempt from Umbrel's login, because e-readers cannot
+  answer it. Change the default admin password — those paths are reachable on
+  the LAN without it.
+
+  The ingest and library folders are new and empty by design. Your existing
+  Downloads/books folder is untouched: the ingester deletes what it processes,
+  so importing it is a copy you make deliberately.
+
+dependencies: []
+permissions:
+  - STORAGE_DOWNLOADS
+path: ""
+defaultUsername: "admin"
+defaultPassword: "admin123"

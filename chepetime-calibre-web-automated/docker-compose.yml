@@ -1,0 +1,84 @@
+version: "3.7"
+
+# Calibre-Web-Automated is Calibre-Web plus an ingest pipeline: drop a file in
+# the watched folder and it is converted, given metadata, and filed into a real
+# Calibre library. The library it manages is a Calibre library — `metadata.db`
+# and Calibre's own author/title directory layout — not a folder of loose
+# files.
+#
+# That distinction decides the mounts below, and getting it wrong destroys
+# data. **Files placed in the ingest folder are deleted after processing.**
+# Pointing /cwa-book-ingest at an existing collection means feeding that
+# collection to the ingester.
+#
+# This box already has ~/umbrel/home/Downloads/books: 38 loose files, 619 MB,
+# no metadata.db, and not all of them books (a .pptx, a .jpeg, 16 .cbz that
+# belong to Kapowarr). It is deliberately NOT mounted here. Both paths below
+# are fresh directories that CWA owns outright, and importing the old folder is
+# a copy the user makes by hand, once, having decided what should go.
+#
+# Note `${UMBREL_ROOT}/data/storage/downloads` does not resolve to
+# `.../data/storage/downloads` on umbreld 1.7.4 — it lands on
+# `~/umbrel/home/Downloads`, the directory Umbrel's Files app shows. Verified
+# against the running Kapowarr container's mounts. Both directories below are
+# therefore siblings of the existing `books`, on one filesystem, so CWA moves
+# rather than copies between ingest and library.
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-calibre-web-automated_server_1
+      APP_PORT: 8083
+      # OPDS and Kobo sync are called by e-reader software, not by a
+      # logged-in browser, so Umbrel's login turns both into a silent failure
+      # on the device. Same reasoning as Threadfin's tuner endpoints.
+      #
+      # Prefixes verified in the source: opds routes are all `/opds...`
+      # (cps/opds.py), and the Kobo blueprints are `/kobo/<auth_token>` and
+      # `/kobo_auth` (cps/kobo.py, cps/kobo_auth.py).
+      #
+      # The cost is that these paths are unauthenticated on the LAN. They are
+      # not anonymous — OPDS wants a Calibre-Web username and password, and
+      # Kobo sync is gated on a per-user token in the URL — but Umbrel's
+      # blanket login no longer covers them, so change the default admin
+      # password before this is worth anything.
+      PROXY_AUTH_WHITELIST: "/opds,/opds/*,/kobo/*,/kobo_auth/*"
+
+  server:
+    # Multi-arch index digest (amd64, arm64).
+    #
+    # Upstream tags releases `vX.Y.Z` on 4.x but used `VX.Y.Z` up to 3.1.4, and
+    # publishes a stream of `dev-NNN` tags in between — `latest` currently
+    # trails the dev builds by months. Pin the stable tag, not `latest`.
+    image: crocodilestick/calibre-web-automated:v4.0.6@sha256:c31a738b6d5ec6982c050063dd3f063b6943eb1051fc81144789f840d9093a8d
+    environment:
+      # LinuxServer baseimage. Umbrel creates app data as 1000:1000 and the
+      # shared storage is owned the same way, so books land consistent with
+      # what the *arr apps write.
+      PUID: 1000
+      PGID: 1000
+      # Deliberately NOT set here, so ${APP_DATA_DIR}/secrets.env can supply
+      # them — a name declared under `environment:` beats env_file silently:
+      #
+      #   HARDCOVER_TOKEN       enables Hardcover as a metadata provider
+      #   TRUSTED_PROXY_COUNT   only if a second proxy is ever chained in
+      #                         front; one proxy, the default, is correct
+      #                         whether traffic arrives via app_proxy or via
+      #                         cloudflared straight to this container
+      #   NETWORK_SHARE_MODE    only for an NFS/SMB library, which this is not
+    volumes:
+      # Calibre-Web's settings, users, and the Calibre binaries CWA installs on
+      # first boot. Keep this on app-data: it is the only stateful piece that
+      # is not the library itself.
+      - ${APP_DATA_DIR}/config:/config
+      # The managed Calibre library. CWA creates it on first start if empty.
+      - ${UMBREL_ROOT}/data/storage/downloads/calibre-library:/calibre-library
+      # Watched drop folder. ANYTHING PUT HERE IS DELETED AFTER PROCESSING.
+      - ${UMBREL_ROOT}/data/storage/downloads/books-ingest:/cwa-book-ingest
+      - /etc/localtime:/etc/localtime:ro
+    # Optional, user-managed, never in this repo. Untouched by both installs
+    # and updates — see AGENTS.md, "Installs Copy Everything, Updates Copy A
+    # Whitelist".
+    env_file:
+      - path: ${APP_DATA_DIR}/secrets.env
+        required: false
+    restart: on-failure
