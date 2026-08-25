@@ -102,10 +102,27 @@ Peer to peer usually connects straight through a home NAT with STUN alone. It
 fails behind symmetric NAT and carrier-grade NAT, which is common on mobile
 networks, and that person sees everyone else while nobody sees them.
 
-The fix is a TURN relay. The image's baked default points at Metered's shared
-openrelay credentials — published in upstream's template, so shared with the
-whole internet and rate-limited accordingly. Fine as a fallback, not something
-to rely on. Replace it with your own:
+The fix is a TURN relay, and **the one baked into the image does not work.**
+It points at `turn:a.relay.metered.ca:443` with the shared credentials
+published in upstream's `.env.template`, which the whole internet has. Measured
+by ICE gathering in a real browser, 2026-08-25:
+
+```text
+STUN only                 ->  host + srflx    (public IP discovered)
+TURN only (baked default) ->  NO candidates   (no relay offered at all)
+both, as shipped          ->  host only, gathering stalls
+```
+
+Note the third line: the dead entry does not merely fail to help, it drags
+down the STUN path with it. **Turning it off is strictly better than leaving
+it.** First thing to put in `secrets.env`:
+
+```ini
+TURN_SERVER_ENABLED=false
+```
+
+That alone connects two ordinary home networks. To also cover symmetric NAT
+and CGNAT, replace it rather than disabling it:
 
 ```ini
 TURN_SERVER_ENABLED=true

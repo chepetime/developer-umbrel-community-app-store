@@ -467,6 +467,22 @@ process-wide `hostCfg.authenticated` flag, not per session.
 **Stateless.** No volumes beyond `/etc/localtime`, no database, nothing to back
 up. Reinstalling costs only `secrets.env`.
 
+**The TURN relay baked into the image is dead**, and it is the first thing to
+check when someone reports "we cannot see each other". `.env.template` ships
+`turn:a.relay.metered.ca:443` with shared credentials that are public to the
+whole internet. Browser ICE gathering against the live instance, 2026-08-25:
+STUN alone yields `host + srflx`; TURN alone yields **no candidates**; both
+together yield `host` only and stall. The broken entry degrades the STUN path,
+so `TURN_SERVER_ENABLED=false` in secrets.env is strictly better than the
+shipped default, and real credentials are better still.
+
+Signalling is not the suspect. A WebSocket upgrade through the Cloudflare
+Tunnel returns `101 Switching Protocols`; `transports: ['websocket']` in
+`server.js` means a polling probe answers `{"code":0,"message":"Transport
+unknown"}`, which is correct behaviour and not a fault. ICE servers reach the
+client over that socket (`server.js:2400`), not over the REST API, so
+`API_DISABLED` cannot break a call.
+
 ## Keeping Image Pins Current
 
 `scripts/check-image-updates.ts` checks every `image:` line in the store
