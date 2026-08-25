@@ -1,0 +1,121 @@
+version: "3.7"
+
+# MiroTalk P2P is a mesh: the browser sends its stream directly to every other
+# browser in the room. This container only serves the page and relays the
+# socket.io signalling handshake — no audio or video passes through it.
+#
+# That is the whole reason this app is here rather than Jitsi. Media never
+# needs to reach the server, so nothing needs a forwarded UDP port and the app
+# works fronted by a Cloudflare Tunnel, which carries HTTP and WebSocket only.
+# An SFU (Jitsi's JVB, mediasoup, LiveKit) cannot: the room loads and nobody
+# hears anyone, because the media leg has no path in.
+#
+# It is also stateless. There are no volumes and nothing to back up; rooms
+# exist only while someone is in them.
+#
+# Two consequences of the mesh worth knowing before blaming the app:
+#   - Every extra participant costs each browser another upload. Four is
+#     comfortable, six is the practical ceiling on home upstream.
+#   - getUserMedia needs a secure context. Over plain http://umbrel.local the
+#     browser refuses camera and microphone access and the room looks broken.
+#     Use it through the tunnel, over https. See README.
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-mirotalk_server_1
+      APP_PORT: 3000
+
+  server:
+    # Upstream publishes exactly one tag — `latest`, no versions, and the git
+    # repository carries no tags either (`hub.docker.com/v2/.../tags` returns
+    # count: 1). The digest is therefore the only real pin, same situation as
+    # Tinyauth's rolling `v5`. Multi-arch index (amd64, arm64).
+    #
+    # The store version tracks package.json (1.9.15 at the time of pinning);
+    # when the digest moves under `latest`, check-image-updates adds a `-N`
+    # store revision because there is no tag to read a version from.
+    image: mirotalk/p2p:latest@sha256:2eff55fd75cc7b37738de6efb97a14f545941feb9d6b3098e1bb1296e6a658da
+    environment:
+      # --- How configuration resolves here -----------------------------------
+      #
+      # The image bakes upstream's own `.env.template` in as `/src/.env`
+      # (Dockerfile: `COPY .env.template ./.env`), and `app/src/config.js` runs
+      # `require('dotenv').config()`, which does NOT overwrite variables that
+      # are already set. So the precedence is:
+      #
+      #   environment: here  >  ${APP_DATA_DIR}/secrets.env  >  baked .env
+      #
+      # Anything set below is a packaging decision and cannot be changed on the
+      # host. Anything deliberately left out falls through to upstream's
+      # default and stays overridable from secrets.env — which is why the
+      # TURN, HOST_* and secret-key variables are absent even though this file
+      # has opinions about them. See the README.
+      NODE_ENV: production
+      PORT: 3000
+
+      # Both app_proxy and cloudflared sit in front and set X-Forwarded-For.
+      # Without this Express attributes every client to the proxy's address.
+      TRUST_PROXY: "true"
+
+      # --- Nothing phones home -----------------------------------------------
+      #
+      # Upstream's defaults are all "on" and all point at mirotalk.com. On a
+      # self-hosted instance whose selling point is that the call stays between
+      # the participants, that is the wrong shape.
+      #
+      # STATS_ENABLED loads a script from stats.mirotalk.com into every
+      # visitor's page. Note the config reads it as
+      # `process.env.STATS_ENABLED ? getEnvBoolean(...) : true` — absent means
+      # enabled, so it has to be set explicitly.
+      STATS_ENABLED: "false"
+      # Otherwise every guest is redirected to a QuestionPro survey on hang up.
+      SURVEY_ENABLED: "false"
+      # Leaving the room lands on MiroTalk's own /newcall page, not p2p.mirotalk.com.
+      REDIRECT_ENABLED: "false"
+      SENTRY_ENABLED: "false"
+      # Would resolve each peer's IP against geojs.io on join.
+      IP_LOOKUP_ENABLED: "false"
+
+      # --- Exposure ----------------------------------------------------------
+      #
+      # Every REST endpoint off. server.js gates six of them on this list:
+      # stats, token, meetings, meeting, join, slack. Upstream's default
+      # disables only token and meetings, leaving the rest reachable with
+      # API_KEY_SECRET — whose default value is published in .env.template and
+      # therefore known to everyone. Nothing in a personal install calls these,
+      # and this app is meant to be tunnelled to the open internet.
+      API_DISABLED: '["stats", "token", "meetings", "meeting", "join", "slack"]'
+      # Blocks third-party framing (clickjacking) while leaving upstream's own
+      # widget working same-origin. Empty, upstream's default, sets no header
+      # at all and allows embedding anywhere.
+      ALLOWED_EMBED_ORIGINS: self
+      # Off by default upstream, restated because turning it on lists live room
+      # names to anyone who loads the landing page.
+      SHOW_ACTIVE_ROOMS: "false"
+
+      # Upstream ships 1000, which is an SFU number. In a mesh the Nth joiner
+      # adds an upload stream to every browser already in the room.
+      ROOM_MAX_PARTICIPANTS: 8
+
+      LOGS_DEBUG: "false"
+      LOGS_COLORS: "false"
+
+    # Optional, user-managed, never in this repo. Neither an install nor an
+    # update touches a file that is not in the app template — see AGENTS.md,
+    # "Installs Copy Everything, Updates Copy A Whitelist" — so this is the
+    # only place per-host settings survive both.
+    #
+    # Use it for TURN credentials and host protection:
+    #
+    #   ssh umbrel
+    #   umask 077
+    #   nano ~/umbrel/app-data/chepetime-mirotalk/secrets.env
+    #
+    # Remember that anything named under `environment:` above beats this file
+    # silently, which is why none of those variables appear there.
+    env_file:
+      - path: ${APP_DATA_DIR}/secrets.env
+        required: false
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    restart: on-failure

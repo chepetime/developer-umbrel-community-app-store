@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="MiroTalk P2P">
+  <!-- Upstream's brand mark (public/images/logo.svg): two overlapping teardrops
+       under mirrored radial gradients. Upstream draws it edge to edge on a
+       transparent 32x32 canvas, which Umbrel's rounded-square icon frame would
+       clip; it is scaled to ~0.62 and centred here, over the dark ground the
+       MiroTalk UI itself uses, since the mark's own colours are light. -->
+  <defs>
+    <radialGradient cx="44.286%" cy="100%" fx="44.286%" fy="100%" r="120.709%"
+                    gradientTransform="matrix(0 -.82759 1 0 -.557 1.367)" id="a">
+      <stop stop-color="#376DF9" offset="0%"/>
+      <stop stop-color="#D262B4" offset="46.208%"/>
+      <stop stop-color="#FF8D74" offset="77.058%"/>
+      <stop stop-color="#FFD4CA" offset="100%"/>
+    </radialGradient>
+    <radialGradient cx="44.286%" cy="0%" fx="44.286%" fy="0%" r="120.709%"
+                    gradientTransform="matrix(0 .82759 -1 0 .443 -.367)" id="c">
+      <stop stop-color="#376DF9" offset="0%"/>
+      <stop stop-color="#D262B4" offset="46.208%"/>
+      <stop stop-color="#FF8D74" offset="77.058%"/>
+      <stop stop-color="#FFD4CA" offset="100%"/>
+    </radialGradient>
+    <path d="M20 29c8-6.915 12-12.582 12-17 0-6.627-5.373-12-12-12S8 5.373 8 12c0 4.418 4 10.085 12 17z" id="b"/>
+    <path d="M12 32c8-6.915 12-12.582 12-17 0-6.627-5.373-12-12-12S0 8.373 0 15c0 4.418 4 10.085 12 17z" id="d"/>
+  </defs>
+  <rect width="512" height="512" rx="112" ry="112" fill="#0f1419"/>
+  <g transform="translate(97.5 97.5) scale(9.9)" fill="none" fill-rule="evenodd">
+    <use fill="url(#a)" opacity=".88" xlink:href="#b"/>
+    <use fill="url(#c)" opacity=".48" transform="matrix(1 0 0 -1 0 35)" xlink:href="#d"/>
+  </g>
+</svg>

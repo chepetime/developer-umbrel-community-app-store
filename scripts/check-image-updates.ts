@@ -53,6 +53,7 @@ const POLICIES: Array<[pattern: string, policy: Policy]> = [
   ["ghcr.io/multica-ai/*", "skip"], // released with the Multica source
   ["makeplane/*", "skip"], // released with Plane's own source, six images move in lockstep
   ["ghcr.io/tinyauthapp/tinyauth", "digest"], // rolling v5, no per-patch tags
+  ["mirotalk/p2p", "digest"], // only `latest` is published, and the repo has no tags
   ["postgres", "digest"], // a major is a data-directory migration
   ["pgvector/pgvector", "digest"], // same, and it carries the extension
   ["redis", "digest"],

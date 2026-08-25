@@ -1,0 +1,60 @@
+manifestVersion: 1
+id: chepetime-mirotalk
+name: MiroTalk P2P
+tagline: Anonymous video calls in the browser, peer to peer
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-mirotalk/icon.svg
+category: social
+version: "1.9.15"
+port: 46260
+description: >-
+  Share a link, and whoever opens it is in the call. No accounts, no
+  installs, no invitations — a room exists while someone is in it and is gone
+  afterwards.
+
+
+  Audio and video travel directly between the participants' browsers over
+  WebRTC. This server hands out the page and introduces the peers to each
+  other; the call itself never passes through it. That is what makes it
+  practical to self-host: there is no media server to size, no UDP port to
+  forward, and nothing recorded on the way past.
+
+
+  Screen sharing, chat, file transfer, recording, virtual backgrounds and
+  push-to-talk are all in the room UI.
+
+
+  Because every browser sends its stream to every other one, this is a tool
+  for a handful of people rather than a webinar. Four is comfortable; past six
+  or so the upload side starts to hurt on home broadband.
+
+
+  Cameras and microphones need an https page — browsers refuse to hand them
+  over otherwise. Reached at this app's LAN address over plain http the room
+  will load and then fail to find any devices, so put a tunnel or Tailscale
+  Serve in front before using it in anger.
+developer: Miroslav Pejic
+website: https://mirotalk.com
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/miroslavpejic85/mirotalk
+support: https://github.com/miroslavpejic85/mirotalk/issues
+gallery: []
+releaseNotes: >-
+  First packaging of MiroTalk P2P 1.9.15 for this store.
+
+  Chosen over Jitsi because peer-to-peer media needs no forwarded UDP port and
+  so survives being fronted by a Cloudflare Tunnel.
+
+  Upstream's phone-home defaults are off: no usage analytics, no exit survey,
+  no IP geolocation. The REST API is disabled, because its default key is
+  published in upstream's env template.
+
+  Rooms are open to anyone with the link. Read the README before exposing this
+  outside the LAN — host protection and TURN both go in secrets.env.
+
+  Stateless — there is nothing to back up.
+
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

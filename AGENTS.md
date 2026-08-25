@@ -75,6 +75,7 @@ Repackaged third-party apps, all behind `app_proxy` on allocated host ports:
 | PairDrop      | `chepetime-pairdrop`   | `46257` |
 | Multica       | `chepetime-multica`    | `46258` |
 | Plane         | `chepetime-plane`      | `46259` |
+| MiroTalk P2P  | `chepetime-mirotalk`   | `46260` |
 
 Allocate the next free `462xx` for anything new, and check it is actually free
 on the host (`ss -lntu`) before publishing — a taken port leaves
@@ -346,6 +347,65 @@ Two version-pin traps found while packaging:
 gone (404) and there is a public reproducible unauthenticated auth-bypass in
 v9.4.2 that returns the API keys of every *arr app it manages. Do not package
 it.
+
+## MiroTalk P2P Store Contract
+
+Not our app: it repackages upstream's `mirotalk/p2p`. Added 2026-08-24.
+
+**It was chosen for the tunnel, not for its feature list.** MiroTalk P2P is a
+mesh — every browser sends its stream directly to every other browser, and the
+container only serves the page and relays socket.io signalling. Cloudflare
+Tunnel carries HTTP and WebSocket only, so anything with an SFU (Jitsi's JVB on
+UDP 10000, mediasoup, LiveKit, and therefore plugNmeet) loads a room in which
+nobody can hear anyone. This has no media leg to deliver. Do not "upgrade" it
+to MiroTalk SFU without also solving the UDP path.
+
+The mesh is the trade: `ROOM_MAX_PARTICIPANTS` is set to 8, against upstream's
+1000, because the Nth joiner adds an upload stream to every browser already in
+the room.
+
+**The digest is the only pin.** Docker Hub serves exactly one tag for this
+image — `latest`, `count: 1` from the tags API — and the GitHub repository
+carries no tags or releases either. Same shape as Tinyauth's rolling `v5`, and
+`POLICIES` holds it at `digest`. The manifest `version:` is `package.json`'s
+value at pinning time and drifts silently; correct it by hand when the digest
+moves.
+
+**Configuration resolves through the image's own `.env`.** The Dockerfile does
+`COPY .env.template ./.env`, and `config.js` calls `require('dotenv').config()`,
+which does not overwrite variables that are already set. Precedence is
+therefore `environment:` > `${APP_DATA_DIR}/secrets.env` > the baked template.
+Variables meant to stay host-configurable — every `TURN_SERVER_*`, `HOST_*`,
+`JWT_KEY`, `API_KEY_SECRET` — are deliberately **absent** from `environment:`,
+because a name declared there beats env_file silently. Adding one of them to
+the compose file to "document the default" would break secrets.env for it.
+
+**Upstream's defaults assume upstream runs the instance.** Turned off in the
+package: `STATS_ENABLED` (loads a script from stats.mirotalk.com into every
+visitor's page, and note the config treats *absent* as enabled, so it must be
+set explicitly), `SURVEY_ENABLED` (redirects guests to QuestionPro on hang up),
+`REDIRECT_ENABLED`, `IP_LOOKUP_ENABLED` (geojs.io lookup per peer). Also
+`API_DISABLED` covers all six endpoints `server.js` gates — upstream disables
+two and leaves the rest behind an `API_KEY_SECRET` whose default is published
+in the template.
+
+**It cannot work over http.** `getUserMedia` needs a secure context, so on
+`http://umbrel.local:46260` the room opens and finds no camera or microphone.
+Same class of problem as Pocket ID's passkeys. The LAN port is only good for
+confirming the app started; real use goes through the tunnel, pointed at
+`chepetime-mirotalk_server_1:3000` rather than the published port.
+
+**Rooms are open by design.** Reaching the container directly skips Umbrel's
+login, and the app ships no auth, which is the anonymity the app was asked for.
+`HOST_PROTECTED=true` with `HOST_USER_AUTH=false` in secrets.env is the useful
+middle — `server.js` computes
+`authRequired = user_auth || peer_token || (protected && isRoomNew)`, so a
+password is needed only to open a room that does not exist yet, and guests
+joining it stay anonymous. It is coarse: upstream tracks it in one
+process-wide `hostCfg.authenticated` flag, not per session.
+
+**Stateless.** No volumes beyond `/etc/localtime`, no database, nothing to back
+up. Reinstalling costs only `secrets.env`.
 
 ## Keeping Image Pins Current
 
