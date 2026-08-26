@@ -4,7 +4,7 @@ name: MiroTalk P2P
 tagline: Anonymous video calls in the browser, peer to peer
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-mirotalk/icon.svg
 category: social
-version: "1.9.15"
+version: "1.9.15-1"
 port: 46260
 description: >-
   Share a link, and whoever opens it is in the call. No accounts, no
@@ -40,19 +40,8 @@ repo: https://github.com/miroslavpejic85/mirotalk
 support: https://github.com/miroslavpejic85/mirotalk/issues
 gallery: []
 releaseNotes: >-
-  First packaging of MiroTalk P2P 1.9.15 for this store.
-
-  Chosen over Jitsi because peer-to-peer media needs no forwarded UDP port and
-  so survives being fronted by a Cloudflare Tunnel.
-
-  Upstream's phone-home defaults are off: no usage analytics, no exit survey,
-  no IP geolocation. The REST API is disabled, because its default key is
-  published in upstream's env template.
-
-  Rooms are open to anyone with the link. Read the README before exposing this
-  outside the LAN — host protection and TURN both go in secrets.env.
-
-  Stateless — there is nothing to back up.
+  Refreshed the pinned digest for mirotalk/p2p:latest; upstream re-published
+  the same tag, so nothing else changed.
 
 dependencies: []
 path: ""
