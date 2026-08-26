@@ -8,7 +8,7 @@ services:
 
   server:
     # Multi-arch index digest (amd64, arm64).
-    image: linuxserver/smokeping:2.9.0@sha256:a0d1e57744a2217a0fe83b7828cffe2cbce16f44e59c858bead8ff41e7b63581
+    image: linuxserver/smokeping:2.9.0@sha256:3b0e0d469d711ba694ba102c145b4168361346844453057bb1afa574ab8d4e94
     environment:
       PUID: 1000
       PGID: 1000

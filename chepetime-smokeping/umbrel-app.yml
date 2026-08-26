@@ -4,7 +4,7 @@ name: SmokePing
 tagline: Long-term latency and packet loss graphs for the hosts you care about
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-smokeping/icon.svg
 category: networking
-version: "2.9.0-1"
+version: "2.9.0-2"
 port: 46255
 description: >-
   SmokePing measures latency to a list of hosts continuously and draws the
@@ -40,14 +40,6 @@ gallery: []
 releaseNotes: >-
   Refreshed the pinned digest for linuxserver/smokeping:2.9.0; upstream
   re-published the same tag, so nothing else changed.
-
-  ---
-
-  First packaging of SmokePing 2.9.0 for this store, using the LinuxServer.io
-  image.
-
-  Config and the RRD measurement history are separate volumes under app data,
-  so a config mistake never costs you the graph history.
 
 dependencies: []
 path: ""
