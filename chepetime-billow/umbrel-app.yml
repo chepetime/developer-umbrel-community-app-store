@@ -4,7 +4,7 @@ name: Billow
 tagline: Write invoices, and know what happened to each one
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
-version: "0.1.4"
+version: "0.1.5"
 port: 46247
 description: >-
   Billow writes invoices, prints them to PDF, and then keeps track of what
@@ -39,21 +39,35 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Adds a safe administrator workspace reset for replacing existing invoice
-  data with a complete backup. The reset removes invoices, sender profiles,
-  bank accounts, clients, monthly tax periods, and uploaded file contents so
-  the next restore starts from a genuinely empty workspace.
+  Billow now has a REST API for the whole workspace. Invoices, clients and
+  monthly tax periods can be read and written from a script or another
+  service, and a new income endpoint reports a full year at once - what was
+  invoiced and what was paid, month by month, with each month's CFDI count and
+  the state of its tax filing.
 
 
-  The Billow account, password, sessions, recovery-key setup, API keys, and
-  installation ownership are preserved, so the administrator stays signed in
-  and can restore immediately afterward.
+  Those figures are grouped by currency and never added together across
+  currencies. An invoice billed in dollars is not worth its face value in
+  pesos, and Billow stores no exchange rate to convert it, so anything that
+  needs a single number has to supply its own rate.
 
 
-  The operation requires an explicit destructive confirmation, is restricted
-  to administrators, and scopes every database and file deletion to the
-  signed-in user.
+  API keys now carry a scope, and new keys are read-only by default. A key left
+  running in a script can summarise the workspace without being able to delete
+  an invoice; read and write is a deliberate choice made when the key is
+  created. Keys created before this update keep the access they already had.
 
+
+  Rate limiting is fixed. A throttled request used to answer 401, which told
+  callers their key was invalid and sent them off to replace a key that was
+  working fine. It now answers 429 with a Retry-After header saying how long to
+  wait. The allowance was also far too small at ten requests a day, and is now
+  120 a minute.
+
+
+  The files list can finally show the documents attached to invoices and tax
+  filings. They always counted against the storage quota but appeared nowhere,
+  which made the quota look wrong.
 
 dependencies: []
 path: ""
