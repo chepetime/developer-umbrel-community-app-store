@@ -4,7 +4,7 @@ name: Billow
 tagline: Write invoices, and know what happened to each one
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
-version: "0.1.7"
+version: "0.1.8"
 port: 46247
 description: >-
   Billow writes invoices, prints them to PDF, and then keeps track of what
@@ -39,25 +39,24 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Printing an invoice now offers a real filename. Every browser seeds the
-  print-to-PDF name from the page title, and the invoice page had none worth
-  using, so each saved invoice arrived as some variation of the app name and
-  had to be renamed by hand. It now prints as
-  Invoice-12-Your_Legal_Name-2026-08-31, with accents folded and the date
-  taken from the invoice's own day rather than a timezone-shifted one.
+  Fixes a bug that made it impossible to add anyone else to an installation.
+  Creating a second account failed with "Unable to create the account" and
+  always had - only the very first account, the one that owns the install,
+  could ever be created. If you tried to add someone and gave up, it was
+  this, and it was not anything you did.
 
 
-  Every other page names itself too, so browser tabs, history and bookmarks
-  say which invoice, client or bank account is open instead of all reading
-  "Billow".
+  The cause was a safeguard that decides which of several simultaneous
+  sign-ups becomes the owner. It recognised the losing sign-up by an identity
+  check that quietly stops working once the app is compiled for production,
+  so instead of stepping aside, the second account errored out. It went
+  unseen because the check behaves correctly everywhere except in the built
+  image.
 
 
-  An invoice scheduled to go out later is no longer described as sent.
-  Recording a future send date is how an invoice gets queued here, but the
-  status was derived from whether that date existed rather than whether it had
-  arrived, so a future invoice showed as Sent and the dashboard asked for
-  client approval that could not have happened yet. It now reads Scheduled,
-  and stays out of the attention list until its date comes around.
+  Also in this release: the end-to-end test suite that should have caught it
+  now runs clean, including the file-upload tests, which had been failing for
+  a permissions reason of their own.
 
 dependencies: []
 path: ""
