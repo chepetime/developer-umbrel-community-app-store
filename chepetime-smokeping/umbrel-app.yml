@@ -4,7 +4,7 @@ name: SmokePing
 tagline: Long-term latency and packet loss graphs for the hosts you care about
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-smokeping/icon.svg
 category: networking
-version: "2.9.0-2"
+version: "2.9.0-3"
 port: 46255
 description: >-
   SmokePing measures latency to a list of hosts continuously and draws the
