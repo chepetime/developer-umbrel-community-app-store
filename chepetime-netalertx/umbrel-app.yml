@@ -4,7 +4,7 @@ name: NetAlertX
 tagline: Know every device on your network, and get told when a new one joins
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-netalertx/icon.svg
 category: networking
-version: "26.8.5"
+version: "26.9.0"
 port: 20211
 description: >-
   NetAlertX scans your network continuously and keeps a record of every device
@@ -46,17 +46,7 @@ support: https://github.com/jokob-sk/NetAlertX/issues
 # with our own captures of a running instance.
 gallery: []
 releaseNotes: >-
-  First packaging of NetAlertX 26.8.5 for this store.
-
-  Runs with host networking and upstream's capability set (drop ALL, add
-  NET_ADMIN, NET_RAW, NET_BIND_SERVICE, CHOWN, SETUID, SETGID), which the
-  arp-scan, nmap and nbtscan scanners need to see the real LAN.
-
-  Config and the device database live in ${APP_DATA_DIR}/data, so history and
-  settings survive updates.
-
-  Upstream's sysctl settings are intentionally left out: Docker refuses net.*
-  sysctls on a host-network container and would fail to start the app.
+  NetAlertX updated from 26.8.5 to 26.9.0.
 
 dependencies: []
 path: ""

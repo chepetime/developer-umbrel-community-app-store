@@ -238,7 +238,7 @@ is no source repo of ours and no release to publish — only the pin moves.
 ```yaml
 id: chepetime-netalertx
 port: 20211
-image: jokobsk/netalertx:26.8.5@sha256:e8d800176d35a2fcc856ddc68c354a6b472e535c6ed42c52d040b715ca9bb127
+image: jokobsk/netalertx:26.9.0@sha256:0ee5cdcaa8a84bfd2f31354b4b30e603804d124821055b9942dcffb52d2ce4bc
 ```
 
 Four things differ from the Billow/Goose shape. Each looks like a bug to
