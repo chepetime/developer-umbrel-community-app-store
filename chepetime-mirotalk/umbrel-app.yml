@@ -4,7 +4,7 @@ name: MiroTalk P2P
 tagline: Anonymous video calls in the browser, peer to peer
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-mirotalk/icon.svg
 category: social
-version: "1.9.15-7"
+version: "1.9.15-8"
 port: 46260
 description: >-
   Share a link, and whoever opens it is in the call. No accounts, no
