@@ -4,7 +4,7 @@ name: Multica
 tagline: Assign issues to coding agents like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
 category: developer
-version: "0.4.32-1"
+version: "0.4.32-2"
 port: 46258
 description: >-
   Multica is an issue tracker whose assignees can be AI coding agents. You
@@ -47,39 +47,8 @@ repo: https://github.com/multica-ai/multica
 support: https://github.com/multica-ai/multica/issues
 gallery: []
 releaseNotes: >-
-  Fixes the pg18 postgres container refusing to start at all, on a fresh
-  install as well as an existing one: 18+'s official postgres image (which
-  pgvector/pgvector:pg18 builds on) changed what it expects mounted where —
-  a volume landing directly on /var/lib/postgresql/data is now treated as
-  leftover pre-18 state and rejected on sight
-  ("these Docker images are configured to store database data in a format
-  which is compatible with pg_ctlcluster"), even against an empty volume.
-  18+ wants a single mount at the parent /var/lib/postgresql instead. Fixed
-  and confirmed: the container now starts and stays up.
-
-  ---
-
-  BREAKING: Postgres moves from pg17 to pg18 (pgvector/pgvector:pg18). A pg18
-  binary cannot read a pg17 data directory — it will fail to start, not
-  silently corrupt anything, but an in-place update will not work. If you
-  have an existing install with real data, back it up first (`pg_dump`) and
-  do not update in place; a fresh install is the supported path for this
-  release. New installs are unaffected.
-
-  ---
-
-  Updated from v0.4.22 to v0.4.32 — ten upstream releases. Highlights:
-  workspace-level MCP configuration, per-workspace custom issue statuses,
-  actor/multi_actor custom properties, Telegram channel integration, the Dim
-  (DimCode) ACP runtime, a new `multica issue timeline` CLI command, and a
-  run of daemon reliability fixes (tasks now survive runtime network
-  partitions, in-flight Hermes tool calls stay visible, terminal delegated
-  tasks recover instead of hanging).
-
-  ---
-
-  Refreshed the pinned digest for redis:8-alpine; upstream re-published the
-  same tag, so nothing else changed.
+  Refreshed the pinned digest for nginx:1.31-alpine; upstream re-published
+  the same tag, so nothing else changed.
 
 dependencies: []
 path: ""
