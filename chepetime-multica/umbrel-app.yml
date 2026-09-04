@@ -4,7 +4,7 @@ name: Multica
 tagline: Assign issues to coding agents like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
 category: developer
-version: "0.4.32-2"
+version: "0.4.32-3"
 port: 46258
 description: >-
   Multica is an issue tracker whose assignees can be AI coding agents. You
