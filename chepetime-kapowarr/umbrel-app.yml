@@ -4,7 +4,7 @@ name: Kapowarr
 tagline: The *arr for comics — build, organise and complete your collection
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-kapowarr/icon.svg
 category: media
-version: "1.3.1"
+version: "1.3.2"
 port: 46253
 description: >-
   Kapowarr manages a comic book library the way Radarr and Sonarr manage film
@@ -35,14 +35,7 @@ repo: https://github.com/Casvt/Kapowarr
 support: https://github.com/Casvt/Kapowarr/issues
 gallery: []
 releaseNotes: >-
-  First packaging of Kapowarr 1.3.1 for this store.
-
-  Runs as uid 1000 rather than upstream's default root, so files it writes
-  match what the other media apps on this Umbrel produce.
-
-  The database lives in app data; the library and the in-progress download
-  folder are on Umbrel's shared storage, on the same filesystem, so completed
-  downloads move rather than copy.
+  Kapowarr updated from v1.3.1 to v1.3.2.
 
 dependencies: []
 permissions:
