@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# Moves state left by releases older than `storage.dataRoot` into data/.
+#
+# umbrelOS 2.0 can relocate an app's data root, but only mounts under
+# ${APP_DATA_DIR}/data move with it. Earlier releases mounted config/ beside
+# the manifest and the RRD history at data/ itself, which leaves no room for
+# config/ inside it. The new layout is data/config and data/rrd.
+#
+# A top-level config/ is what marks an install as the old layout. Everything
+# already in data/ is RRD history and goes to data/rrd, then config/ goes to
+# data/config. On every start after that there is no top-level config/ and
+# this does nothing.
+#
+# umbrelOS 2.0 creates empty bind sources (data/config, data/rrd) before this
+# runs, so a destination holding only empty directories is replaced. One that
+# holds any file is never touched: both copies are left for a human.
+
+set -u
+
+app_data_dir="${APP_DATA_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)}"
+data_root="${APP_DATA_ROOT:-${app_data_dir}/data}"
+
+log() { echo "[pre-start] $*"; }
+
+holds_files() {
+  [[ -n "$(find "$1" ! -type d -print -quit 2>/dev/null)" ]]
+}
+
+old_config="${app_data_dir}/config"
+[[ -d "${old_config}" && ! -L "${old_config}" ]] || exit 0
+
+for dst in "${data_root}/config" "${data_root}/rrd"; do
+  if [[ -e "${dst}" ]] && holds_files "${dst}"; then
+    log "${old_config} still exists but ${dst} already holds data; leaving both alone"
+    exit 0
+  fi
+done
+rm -rf "${data_root}/config" "${data_root}/rrd"
+
+if [[ ! -d "${data_root}" ]]; then
+  mkdir -p "${data_root}"
+  chown --reference="${app_data_dir}" "${data_root}" 2>/dev/null || true
+fi
+
+mkdir "${data_root}/rrd"
+chown --reference="${data_root}" "${data_root}/rrd" 2>/dev/null || true
+find "${data_root}" -mindepth 1 -maxdepth 1 ! -name rrd -exec mv {} "${data_root}/rrd/" \;
+log "moved RRD history into ${data_root}/rrd"
+
+mv "${old_config}" "${data_root}/config" && log "moved ${old_config} -> ${data_root}/config"

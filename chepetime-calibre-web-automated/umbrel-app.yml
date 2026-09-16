@@ -1,10 +1,12 @@
 manifestVersion: 1
 id: chepetime-calibre-web-automated
+storage:
+  dataRoot: data
 name: Calibre-Web Automated
 tagline: Drop an ebook in a folder and it files itself into your library
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-calibre-web-automated/icon.svg
 category: media
-version: "4.0.6"
+version: "4.0.6-1"
 port: 46261
 description: >-
   Calibre-Web Automated is Calibre-Web with the manual work removed. Put a
@@ -43,18 +45,11 @@ repo: https://github.com/crocodilestick/Calibre-Web-Automated
 support: https://github.com/crocodilestick/Calibre-Web-Automated/issues
 gallery: []
 releaseNotes: >-
-  First packaging of Calibre-Web Automated 4.0.6 for this store.
-
-  Pinned to the stable tag rather than latest, which currently trails the dev
-  builds by months.
-
-  OPDS and Kobo sync are exempt from Umbrel's login, because e-readers cannot
-  answer it. Change the default admin password — those paths are reachable on
-  the LAN without it.
-
-  The ingest and library folders are new and empty by design. Your existing
-  Downloads/books folder is untouched: the ingester deletes what it processes,
-  so importing it is a copy you make deliberately.
+  Moves this app's data into the data/ folder of its app directory, which is
+  the folder umbrelOS 2.0 storage management can relocate to another drive.
+  Existing installs are moved automatically the first time the app starts
+  after this update. Nothing is reset or re-downloaded, and on current
+  umbrelOS versions nothing else changes.
 
 dependencies: []
 permissions:

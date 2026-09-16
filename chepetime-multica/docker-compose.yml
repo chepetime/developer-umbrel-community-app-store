@@ -155,7 +155,7 @@ services:
     volumes:
       # Attachments and avatars. The container filesystem is replaced on every
       # update, so this has to be a mount to survive.
-      - ${APP_DATA_DIR}/uploads:/app/data/uploads
+      - ${APP_DATA_DIR}/data/uploads:/app/data/uploads
       - /etc/localtime:/etc/localtime:ro
     restart: on-failure
 
@@ -217,7 +217,7 @@ services:
       # later). Do not set PGDATA to route around this — that just trades
       # one hardcoded path for another that breaks the next major again;
       # mounting the parent is upstream's actual fix.
-      - ${APP_DATA_DIR}/postgres:/var/lib/postgresql
+      - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql
       - /etc/localtime:/etc/localtime:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U multica -d multica"]

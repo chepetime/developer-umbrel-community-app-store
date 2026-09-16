@@ -20,10 +20,11 @@ version: "3.7"
 #     compose sets. Not strictly required — `api`/`worker`/`beat-worker`
 #     already run `wait_for_db`/`wait_for_migrations` internally before
 #     doing anything — but avoids needless crash-loop noise on first boot.
-#   - Every volume is a bind mount under ${APP_DATA_DIR} (upstream uses
+#   - Every volume is a bind mount under ${APP_DATA_DIR}/data (upstream uses
 #     plain Docker-managed named volumes). Umbrel apps should keep all state
 #     under app-data; anything else survives an uninstall as an orphaned
-#     volume with no owner.
+#     volume with no owner. data/ specifically is what umbrelOS 2.0 storage
+#     management can relocate; see AGENTS.md.
 #   - `WEB_URL` / `CORS_ALLOWED_ORIGINS` are deliberately left out of
 #     `environment:` on every service and sourced from an optional
 #     secrets.env instead — see the `api` service below for why.
@@ -156,7 +157,7 @@ services:
     environment:
       <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
     volumes:
-      - ${APP_DATA_DIR}/logs/api:/code/plane/logs
+      - ${APP_DATA_DIR}/data/logs/api:/code/plane/logs
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       plane-db:
@@ -173,7 +174,7 @@ services:
     environment:
       <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
     volumes:
-      - ${APP_DATA_DIR}/logs/worker:/code/plane/logs
+      - ${APP_DATA_DIR}/data/logs/worker:/code/plane/logs
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       api:
@@ -192,7 +193,7 @@ services:
     environment:
       <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
     volumes:
-      - ${APP_DATA_DIR}/logs/beat-worker:/code/plane/logs
+      - ${APP_DATA_DIR}/data/logs/beat-worker:/code/plane/logs
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       api:
@@ -211,7 +212,7 @@ services:
     environment:
       <<: [*app-env, *db-env, *redis-env, *minio-env, *aws-s3-env]
     volumes:
-      - ${APP_DATA_DIR}/logs/migrator:/code/plane/logs
+      - ${APP_DATA_DIR}/data/logs/migrator:/code/plane/logs
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       plane-db:
@@ -227,7 +228,7 @@ services:
     environment:
       <<: *db-env
     volumes:
-      - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+      - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql/data
       - /etc/localtime:/etc/localtime:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U plane -d plane"]
@@ -239,7 +240,7 @@ services:
   plane-redis:
     image: valkey/valkey:7.2.11-alpine@sha256:10328d00120dc14fbc87b2ed61b7677ddbb0d011e705361b4788329a0ec69a93
     volumes:
-      - ${APP_DATA_DIR}/redis:/data
+      - ${APP_DATA_DIR}/data/redis:/data
       - /etc/localtime:/etc/localtime:ro
     healthcheck:
       test: ["CMD-SHELL", "valkey-cli ping | grep -q PONG"]
@@ -253,7 +254,7 @@ services:
     environment:
       <<: *mq-env
     volumes:
-      - ${APP_DATA_DIR}/rabbitmq:/var/lib/rabbitmq
+      - ${APP_DATA_DIR}/data/rabbitmq:/var/lib/rabbitmq
       - /etc/localtime:/etc/localtime:ro
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
@@ -279,7 +280,7 @@ services:
     environment:
       <<: *minio-env
     volumes:
-      - ${APP_DATA_DIR}/uploads:/export
+      - ${APP_DATA_DIR}/data/uploads:/export
       - /etc/localtime:/etc/localtime:ro
     # Umbrel's own container name for this service (chepetime-plane_plane-minio_1)
     # has underscores, which boto3 refuses as an endpoint hostname — see
@@ -316,8 +317,8 @@ services:
       # one Docker network. See hooks/Caddyfile for the fully-qualified
       # replacement and why it lives in hooks/ specifically.
       - ${APP_DATA_DIR}/hooks/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ${APP_DATA_DIR}/proxy/config:/config
-      - ${APP_DATA_DIR}/proxy/data:/data
+      - ${APP_DATA_DIR}/data/proxy/config:/config
+      - ${APP_DATA_DIR}/data/proxy/data:/data
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       - web

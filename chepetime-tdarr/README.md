@@ -10,7 +10,7 @@ Sonarr and Lidarr use. When you add a library in Tdarr, point it at
 `/downloads/movies`, `/downloads/tv` and so on — matching what the *arr apps
 report — or Tdarr will scan files the rest of your stack cannot find.
 
-The transcode cache is `/temp`, backed by `${APP_DATA_DIR}/transcode`. It gets
+The transcode cache is `/temp`, backed by `${APP_DATA_DIR}/data/transcode`. It gets
 large during a run and is deleted as jobs complete. It is deliberately not on
 the media volume.
 
@@ -51,10 +51,10 @@ authenticates the UI. Turn it back on if you ever publish port 8265 directly.
 ## Data
 
 ```text
-${APP_DATA_DIR}/server      database, statistics, plugin state
-${APP_DATA_DIR}/configs     configuration
-${APP_DATA_DIR}/logs        logs
-${APP_DATA_DIR}/transcode   scratch space, safe to delete when idle
+${APP_DATA_DIR}/data/server      database, statistics, plugin state
+${APP_DATA_DIR}/data/configs     configuration
+${APP_DATA_DIR}/data/logs        logs
+${APP_DATA_DIR}/data/transcode   scratch space, safe to delete when idle
 ```
 
 ## Updating

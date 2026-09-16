@@ -132,7 +132,7 @@ Keep the Postgres data path stable so image updates do not wipe user data:
 
 ```yaml
 volumes:
-  - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+  - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql/data
 ```
 
 The current Umbrel host port is:
@@ -180,7 +180,7 @@ The Postgres data path is the same and stays unchanged for the same reason:
 
 ```yaml
 volumes:
-  - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+  - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql/data
 ```
 
 Do not reuse port `46247`. It belongs to Billow, and both apps may be installed
@@ -586,7 +586,7 @@ Confirmed live on 2026-08-21: the crash loop this produced left the app
 stuck `Restarting` and every other service stuck `Created`, reported by
 Umbrel as the install simply failing back to `not-installed` with no useful
 error anywhere in the UI. `postgres:` volumes on this pin mount
-`${APP_DATA_DIR}/postgres:/var/lib/postgresql`, not `.../postgresql/data` —
+`${APP_DATA_DIR}/data/postgres:/var/lib/postgresql`, not `.../postgresql/data` —
 if a future edit "corrects" that back to the more common-looking `.../data`
 path, it will reintroduce this exact crash loop. Do not route around it by
 setting `PGDATA` either; mounting the parent is upstream's actual fix, not a
@@ -713,7 +713,7 @@ Deviations from upstream's literal compose, all deliberate:
   (with a warning) by plain `docker compose`, which is all Umbrel runs. Every
   service uses `restart: on-failure` instead, like everywhere else in this
   store.
-- **Every volume is a bind mount under `${APP_DATA_DIR}`.** Upstream uses
+- **Every volume is a bind mount under `${APP_DATA_DIR}/data`.** Upstream uses
   plain Docker-managed named volumes (`pgdata:`, `uploads:`, ...); those
   survive an uninstall as ownerless orphans since nothing under app-data
   references them. Converted all nine to explicit paths.
@@ -914,6 +914,68 @@ Version bumps are what make an update offer appear at all. The UI compares
 with string inequality (`version!==u.version` in the bundle), not semver, so a
 packaging-only revision can use a `-N` suffix: Multica ships `0.4.22-1` with
 unchanged `v0.4.22` images.
+
+## App State Lives Under `data/`
+
+Every app with state declares, right after `id:`:
+
+```yaml
+storage:
+  dataRoot: data
+```
+
+and mounts **all** of its state from `${APP_DATA_DIR}/data/...`. Nothing
+stateful is mounted from anywhere else under `${APP_DATA_DIR}`. This is the
+umbrelOS 2.0 storage-management convention Umbrel rolled out across the
+official store in `getumbrel/umbrel-apps@ef1400c`.
+
+What the key does, from `packages/umbreld/source/modules/apps/app.ts`
+(`patchComposeFile`): on 2.0, bind sources under `${APP_DATA_DIR}/data` are
+rewritten to `${APP_DATA_ROOT}`, a root the user can move to another drive, and
+marked `create_host_path: false`. Mounts from any other `${APP_DATA_DIR}/...`
+path are left where they are. So an app that opts in with state outside
+`data/` gets split across two disks the moment someone relocates it — a
+database on the external drive with its uploads left behind, or the reverse.
+The only accepted value is the literal `data`; anything else under
+`storage:` is "invalid manifest". umbreld 1.7.4 ignores the key entirely.
+
+Stateless apps (PairDrop, MiroTalk P2P) do not declare it, matching upstream,
+which never opts in an app with no data mounts.
+
+Two things deliberately stay outside `data/`:
+
+- **Files shipped in `hooks/`** (Multica's `nginx.conf`, Plane's `Caddyfile`).
+  They are package code, not state, and `hooks/` is the only directory an
+  update refreshes — see the next section.
+- **`secrets.env`.** It is an `env_file`, not a volume, so the 2.0 rewrite
+  would not follow it anyway, and it has to stay where the READMEs tell
+  people to edit it.
+
+**Existing installs were migrated by `hooks/pre-start`.** Apps that used to
+mount `postgres/`, `uploads/`, `config/` and so on beside the manifest ship a
+`pre-start` hook that moves each of those into `data/` once. `pre-start` is
+the right hook on both 1.7.4 and 2.0: it runs after an update has copied the
+new `docker-compose.yml` and `hooks/`, and before `compose up`. (`pre-update`
+is wrong — it runs the *old* hooks, before the copy.) Its rules:
+
+- The hook must be executable in git (`100755`); `execute_hook` skips it
+  otherwise, silently.
+- On 2.0, umbreld creates every bind source under the data root *before* the
+  hook runs, so a destination that holds only empty directories is replaced.
+  A destination holding any file is never touched and both copies are left
+  for a human.
+- It finds its paths from `APP_DATA_DIR`/`APP_DATA_ROOT` when exported and
+  from its own location otherwise.
+- SmokePing's is custom: its RRD history already sat at `data/` itself, so the
+  new layout is `data/config` + `data/rrd`, and a top-level `config/` is what
+  marks an old install.
+
+Keep the hooks as long as an install might still be on a pre-`data/` release.
+On a new app, start with everything under `data/` and no hook.
+
+Packaging-only releases like this one take a `-N` store revision. The pin
+checker treats `3.26.0-1` as still in step with tag `3.26.0`, and
+`scripts/bump-billow.sh` drops the revision on the next real bump.
 
 ## Umbrel Debugging
 

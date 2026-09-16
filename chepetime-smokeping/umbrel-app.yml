@@ -1,10 +1,12 @@
 manifestVersion: 1
 id: chepetime-smokeping
+storage:
+  dataRoot: data
 name: SmokePing
 tagline: Long-term latency and packet loss graphs for the hosts you care about
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-smokeping/icon.svg
 category: networking
-version: "2.9.0-5"
+version: "2.9.0-6"
 port: 46255
 description: >-
   SmokePing measures latency to a list of hosts continuously and draws the
@@ -28,7 +30,7 @@ description: >-
 
 
   Note: nothing useful is graphed until you edit the Targets file at
-  ${APP_DATA_DIR}/config/Targets and add hosts. The shipped default probes
+  ${APP_DATA_DIR}/data/config/Targets and add hosts. The shipped default probes
   localhost only.
 developer: LinuxServer.io
 website: https://oss.oetiker.ch/smokeping
@@ -38,8 +40,11 @@ repo: https://github.com/linuxserver/docker-smokeping
 support: https://github.com/linuxserver/docker-smokeping/issues
 gallery: []
 releaseNotes: >-
-  Refreshed the pinned digest for linuxserver/smokeping:2.9.0; upstream
-  re-published the same tag, so nothing else changed.
+  Moves SmokePing's config and RRD history into data/config and data/rrd,
+  the folder umbrelOS 2.0 storage management can relocate to another drive.
+  Existing installs are moved automatically the first time the app starts
+  after this update, graphs and Targets included. On current umbrelOS
+  versions nothing else changes.
 
 dependencies: []
 path: ""

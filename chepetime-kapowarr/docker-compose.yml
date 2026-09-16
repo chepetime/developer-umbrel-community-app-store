@@ -17,7 +17,7 @@ services:
       PUID: 1000
       PGID: 1000
     volumes:
-      - ${APP_DATA_DIR}/db:/app/db
+      - ${APP_DATA_DIR}/data/db:/app/db
       # Comics library and the in-progress download folder, both on Umbrel's
       # shared storage so files land beside everything else and can be moved
       # without crossing a filesystem boundary.

@@ -496,7 +496,10 @@ function nextVersion(app: App, updates: Update[]): { version: string; tracksUpst
 
   for (const update of updates) {
     if (update.pin.service !== primary || !tagMoved(update)) continue;
-    if (current === update.pin.ref.tag.replace(/^v/, "")) {
+    // A `-N` store revision on top of the tag still counts as in step:
+    // packaging-only releases (a digest refresh, the storage.dataRoot move)
+    // must not stop the version from following upstream afterwards.
+    if (current.replace(/-\d+$/, "") === update.pin.ref.tag.replace(/^v/, "")) {
       return { version: update.newRef.tag.replace(/^v/, ""), tracksUpstream: true };
     }
     // Multica's primary service is its nginx gateway, whose tag has nothing to

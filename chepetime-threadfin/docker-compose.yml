@@ -19,9 +19,9 @@ services:
       PUID: 1000
       PGID: 1000
     volumes:
-      - ${APP_DATA_DIR}/conf:/home/threadfin/conf
+      - ${APP_DATA_DIR}/data/conf:/home/threadfin/conf
       # Buffer scratch space. Kept off the container filesystem because it is
       # written continuously while streams are running.
-      - ${APP_DATA_DIR}/temp:/tmp/threadfin
+      - ${APP_DATA_DIR}/data/temp:/tmp/threadfin
       - /etc/localtime:/etc/localtime:ro
     restart: on-failure

@@ -279,8 +279,8 @@ others out of login for a minute.
 ## Data
 
 ```text
-${APP_DATA_DIR}/postgres    everything: issues, runs, logs, tokens
-${APP_DATA_DIR}/uploads     attachments and avatars
+${APP_DATA_DIR}/data/postgres    everything: issues, runs, logs, tokens
+${APP_DATA_DIR}/data/uploads     attachments and avatars
 ```
 
 Redis holds only counters and short-lived caches, has persistence disabled,

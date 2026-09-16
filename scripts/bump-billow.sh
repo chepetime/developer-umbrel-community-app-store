@@ -95,8 +95,10 @@ for f in "${files[@]}"; do
   [ -f "$f" ] || die "missing $f"
 done
 
-current="$(sed -n 's/^version: *"\([0-9][0-9.]*\)".*/\1/p' "$manifest" | head -1)"
-[ -n "$current" ] || die "could not read version from $manifest"
+# A `-N` store revision (a packaging-only release) is dropped by the next bump.
+manifest_version="$(sed -n 's/^version: *"\([0-9][0-9.]*\(-[0-9][0-9]*\)\{0,1\}\)".*/\1/p' "$manifest" | head -1)"
+[ -n "$manifest_version" ] || die "could not read version from $manifest"
+current="${manifest_version%-*}"
 
 case "$bump" in
   major|minor|patch)
@@ -153,7 +155,7 @@ if [ "$dry_run" -eq 1 ]; then
   exit 0
 fi
 
-sed -i '' "s/^version: \"$current\"/version: \"$next\"/" "$manifest"
+sed -i '' "s/^version: \"$manifest_version\"/version: \"$next\"/" "$manifest"
 # Replace tag *and* digest together. Rewriting only the tag left the previous
 # release's digest attached to the new tag, which GHCR refuses to resolve — so
 # every bump produced a pin that could not be pulled.

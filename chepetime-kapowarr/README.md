@@ -15,7 +15,7 @@ useful without a key. It is free: register at
 | -------------------- | -------------------------------------------------- |
 | `/comics`            | `${UMBREL_ROOT}/data/storage/downloads/comics`      |
 | `/app/temp_downloads`| `${UMBREL_ROOT}/data/storage/downloads/kapowarr-incomplete` |
-| `/app/db`            | `${APP_DATA_DIR}/db`                                |
+| `/app/db`            | `${APP_DATA_DIR}/data/db`                           |
 
 Set `/comics` as the root folder in **Settings → Media Management**. Both
 media paths are on the same filesystem on purpose, so a finished download is
@@ -39,7 +39,7 @@ sudo chown -R 1000:1000 ~/umbrel/data/storage/downloads/comics
 ## Data
 
 ```text
-${APP_DATA_DIR}/db
+${APP_DATA_DIR}/data/db
 ```
 
 The database: your volume list, issue tracking and history. The comics

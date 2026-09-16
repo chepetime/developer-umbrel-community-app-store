@@ -1,10 +1,12 @@
 manifestVersion: 1
 id: chepetime-goose
+storage:
+  dataRoot: data
 name: Goose
 tagline: A self-hosted app with the boring parts already built
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-goose/icon.svg
 category: Development
-version: "0.1.0-3"
+version: "0.1.0-4"
 port: 46248
 description: >-
   A base setup for self-hosted apps. The parts every such app needs are already
@@ -42,10 +44,11 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-goose/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-goose/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Repinned the app image. The digest this app pinned was deleted from the
-  registry, so installing it failed with "manifest unknown". It now points at
-  the image v0.1.0 currently resolves to; the code is unchanged.
-
+  Moves this app's data into the data/ folder of its app directory, which is
+  the folder umbrelOS 2.0 storage management can relocate to another drive.
+  Existing installs are moved automatically the first time the app starts
+  after this update. Nothing is reset or re-downloaded, and on current
+  umbrelOS versions nothing else changes.
 
 dependencies: []
 path: ""

@@ -19,7 +19,7 @@ services:
     # Umbrel creates app data as 1000:1000 and the image's app user is uid 1000
     # to match, so the container can write its bind-mounted uploads directory
     # directly. Starting as this user rather than root means the entrypoint's
-    # privileged chown phase never runs — see the uploads/ directory committed
+    # privileged chown phase never runs — see the data/uploads/ directory committed
     # beside this file, which is what guarantees the host path already exists
     # with the right owner instead of being created root-owned by Docker.
     #
@@ -46,7 +46,7 @@ services:
     volumes:
       # The container filesystem is replaced on every update, so anything the
       # app writes must live on a mounted volume to survive.
-      - ${APP_DATA_DIR}/uploads:/data/uploads
+      - ${APP_DATA_DIR}/data/uploads:/data/uploads
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
       interval: 30s
@@ -66,7 +66,7 @@ services:
       # database. APP_SEED is unique per installation and never published.
       POSTGRES_PASSWORD: ${APP_SEED}
     volumes:
-      - ${APP_DATA_DIR}/postgres:/var/lib/postgresql/data
+      - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U billow -d billow"]
       interval: 30s

@@ -10,7 +10,7 @@ Umbrel host:
 
 ```bash
 ssh umbrel
-sudo nano ~/umbrel/app-data/chepetime-smokeping/config/Targets
+sudo nano ~/umbrel/app-data/chepetime-smokeping/data/config/Targets
 ```
 
 A useful starting set — one inside the house, one at the ISP, two beyond it:
@@ -51,12 +51,14 @@ carries outward means it is not.
 ## Data
 
 ```text
-${APP_DATA_DIR}/config    Targets and SmokePing configuration
-${APP_DATA_DIR}/data      RRD files: the entire measurement history
+${APP_DATA_DIR}/data/config    Targets and SmokePing configuration
+${APP_DATA_DIR}/data/rrd       RRD files: the entire measurement history
 ```
 
 These are separate volumes so a config mistake never costs you the history.
-Back up `data` — it cannot be reconstructed.
+Back up `rrd` — it cannot be reconstructed. Releases before 2.9.0-6 kept
+these at `config` and `data`; `hooks/pre-start` moves them on the first start
+after updating.
 
 ## Updating
 

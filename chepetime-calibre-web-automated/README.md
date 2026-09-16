@@ -9,7 +9,7 @@ This is the only thing worth understanding before using it.
 ```text
 ~/umbrel/home/Downloads/books-ingest       drop zone — EMPTIED AS IT WORKS
 ~/umbrel/home/Downloads/calibre-library    the managed library — back this up
-${APP_DATA_DIR}/config                     users, settings, Calibre binaries
+${APP_DATA_DIR}/data/config                users, settings, Calibre binaries
 ```
 
 Put a file in **books-ingest** and CWA converts it, fetches metadata and a

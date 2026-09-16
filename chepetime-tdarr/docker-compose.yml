@@ -29,15 +29,15 @@ services:
       openBrowser: "false"
       maxLogSizeMB: "10"
     volumes:
-      - ${APP_DATA_DIR}/server:/app/server
-      - ${APP_DATA_DIR}/configs:/app/configs
-      - ${APP_DATA_DIR}/logs:/app/logs
+      - ${APP_DATA_DIR}/data/server:/app/server
+      - ${APP_DATA_DIR}/data/configs:/app/configs
+      - ${APP_DATA_DIR}/data/logs:/app/logs
       # Same shared storage the *arr apps use, mounted at the same path they
       # use, so Tdarr's library scan and their file paths agree.
       - ${UMBREL_ROOT}/data/storage/downloads:/downloads
       # Transcode scratch space. This gets large and is rewritten constantly —
       # it lives in app data rather than on the media volume on purpose.
-      - ${APP_DATA_DIR}/transcode:/temp
+      - ${APP_DATA_DIR}/data/transcode:/temp
       - /etc/localtime:/etc/localtime:ro
     # Hardware transcoding needs the host's render device. Umbrel Home has
     # integrated graphics; a Raspberry Pi does not, and a missing device stops

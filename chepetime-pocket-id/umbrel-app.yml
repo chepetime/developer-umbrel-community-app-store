@@ -1,10 +1,12 @@
 manifestVersion: 1
 id: chepetime-pocket-id
+storage:
+  dataRoot: data
 name: Pocket ID
 tagline: Your own OIDC provider, with passkeys instead of passwords
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-pocket-id/icon.svg
 category: networking
-version: "2.14.0"
+version: "2.14.0-1"
 port: 46251
 description: >-
   Pocket ID is a small OpenID Connect provider for one household. You sign in
@@ -41,25 +43,10 @@ repo: https://github.com/pocket-id/pocket-id
 support: https://github.com/pocket-id/pocket-id/issues
 gallery: []
 releaseNotes: >-
-  Pocket ID updated from v2.13.0 to v2.14.0.
-
-  ---
-
-  Pocket ID updated from v2.12.0 to v2.13.0.
-
-  ---
-
-  First packaging of Pocket ID 2.12.0 for this store.
-
-  ENCRYPTION_KEY is wired to Umbrel's per-install APP_SEED, so the stored
-  private keys are encrypted with a secret unique to this machine rather than
-  anything committed to a public repository.
-
-  The OIDC discovery and authorize endpoints bypass Umbrel's login, which is
-  what lets other applications complete a sign-in flow against it.
-
-  APP_URL defaults to http://umbrel.local:46251 and must be changed to an
-  https address before passkeys will register.
+  Declares this app's data/ folder to umbrelOS 2.0 storage management, so
+  its data can be relocated to another drive. The data was already in that
+  folder, so nothing moves, and on current umbrelOS versions nothing
+  changes.
 
 dependencies: []
 path: ""

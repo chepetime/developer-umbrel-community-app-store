@@ -126,13 +126,13 @@ Then set `WEB_URL`/`CORS_ALLOWED_ORIGINS` as above and restart.
 ## Data
 
 ```text
-${APP_DATA_DIR}/postgres        issues, cycles, modules, everything relational
-${APP_DATA_DIR}/redis           Valkey — cache + realtime pub-sub, persisted
-${APP_DATA_DIR}/rabbitmq        Celery broker state
-${APP_DATA_DIR}/uploads         attachments and avatars (MinIO's /export)
-${APP_DATA_DIR}/proxy/config    Caddy's own runtime config
-${APP_DATA_DIR}/proxy/data      Caddy's on-disk state (autosave, certs if ever enabled)
-${APP_DATA_DIR}/logs/*          per-service Django/Celery logs
+${APP_DATA_DIR}/data/postgres        issues, cycles, modules, everything relational
+${APP_DATA_DIR}/data/redis           Valkey — cache + realtime pub-sub, persisted
+${APP_DATA_DIR}/data/rabbitmq        Celery broker state
+${APP_DATA_DIR}/data/uploads         attachments and avatars (MinIO's /export)
+${APP_DATA_DIR}/data/proxy/config    Caddy's own runtime config
+${APP_DATA_DIR}/data/proxy/data      Caddy's on-disk state (autosave, certs if ever enabled)
+${APP_DATA_DIR}/data/logs/*          per-service Django/Celery logs
 ```
 
 All bind mounts, all survive updates. `postgres` and `uploads` together are

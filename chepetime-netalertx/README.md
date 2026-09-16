@@ -50,7 +50,7 @@ subnet and report nothing useful.
   settings would also change the Umbrel host globally, not the container. If
   scan accuracy ever needs them, set them on the host.
 - **Named volume replaced by `${APP_DATA_DIR}/data`**, so the data sits with
-  every other Umbrel app's.
+  every other Umbrel app's, in the folder umbrelOS 2.0 can relocate.
 - **`restart: on-failure`** instead of `unless-stopped`, matching the other
   apps here — Umbrel manages the lifecycle.
 - Resource limits and log rotation dropped; Umbrel handles both.

@@ -69,7 +69,7 @@ services:
       # Calibre-Web's settings, users, and the Calibre binaries CWA installs on
       # first boot. Keep this on app-data: it is the only stateful piece that
       # is not the library itself.
-      - ${APP_DATA_DIR}/config:/config
+      - ${APP_DATA_DIR}/data/config:/config
       # The managed Calibre library. CWA creates it on first start if empty.
       - ${UMBREL_ROOT}/data/storage/downloads/calibre-library:/calibre-library
       # Watched drop folder. ANYTHING PUT HERE IS DELETED AFTER PROCESSING.

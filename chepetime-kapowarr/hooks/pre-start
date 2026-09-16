@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+#
+# Moves state left by releases older than `storage.dataRoot` into data/.
+#
+# umbrelOS 2.0 can relocate an app's data root, but only mounts under
+# ${APP_DATA_DIR}/data move with it. Earlier releases of this app mounted
+# directories beside the manifest instead, so an existing install still has
+# them there. This runs before every start (after an update has copied the new
+# docker-compose.yml, and before its containers come up), moves each one into
+# place once, and does nothing on every start after that.
+#
+# umbrelOS 2.0 creates empty bind sources under the data root before this
+# runs, so a destination holding only empty directories is replaced. One that
+# holds any file is never touched: both copies are left for a human.
+
+set -u
+
+MOVES=(
+  db
+)
+
+app_data_dir="${APP_DATA_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)}"
+data_root="${APP_DATA_ROOT:-${app_data_dir}/data}"
+
+log() { echo "[pre-start] $*"; }
+
+holds_files() {
+  [[ -n "$(find "$1" ! -type d -print -quit 2>/dev/null)" ]]
+}
+
+if [[ ! -d "${data_root}" ]]; then
+  mkdir -p "${data_root}"
+  chown --reference="${app_data_dir}" "${data_root}" 2>/dev/null || true
+fi
+
+for name in "${MOVES[@]}"; do
+  src="${app_data_dir}/${name}"
+  dst="${data_root}/${name}"
+  [[ -d "${src}" && ! -L "${src}" ]] || continue
+
+  if [[ -e "${dst}" ]]; then
+    if holds_files "${dst}"; then
+      log "both ${src} and ${dst} hold data; leaving both alone"
+      continue
+    fi
+    rm -r "${dst}"
+  fi
+
+  mv "${src}" "${dst}" && log "moved ${src} -> ${dst}"
+done

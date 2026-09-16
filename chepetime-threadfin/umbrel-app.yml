@@ -1,10 +1,12 @@
 manifestVersion: 1
 id: chepetime-threadfin
+storage:
+  dataRoot: data
 name: Threadfin
 tagline: Turn IPTV playlists into a tuner Plex, Jellyfin and Emby understand
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-threadfin/icon.svg
 category: media
-version: "1.2.37"
+version: "1.2.37-1"
 port: 46254
 description: >-
   Threadfin sits between an M3U playlist and your media server and pretends to
@@ -38,13 +40,11 @@ repo: https://github.com/Threadfin/Threadfin
 support: https://github.com/Threadfin/Threadfin/issues
 gallery: []
 releaseNotes: >-
-  First packaging of Threadfin 1.2.37 for this store.
-
-  Pinned to a version tag rather than `latest`, because upstream's `latest` is
-  currently amd64-only while the version tags are multi-arch.
-
-  The M3U, XMLTV and HDHomeRun discovery endpoints bypass Umbrel's app proxy
-  auth, which is what lets Plex and Jellyfin read the tuner at all.
+  Moves this app's data into the data/ folder of its app directory, which is
+  the folder umbrelOS 2.0 storage management can relocate to another drive.
+  Existing installs are moved automatically the first time the app starts
+  after this update. Nothing is reset or re-downloaded, and on current
+  umbrelOS versions nothing else changes.
 
 dependencies: []
 path: ""

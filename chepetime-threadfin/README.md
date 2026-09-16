@@ -36,8 +36,8 @@ multi-arch (amd64, arm, arm64). Following `latest` would break an arm install.
 ## Data
 
 ```text
-${APP_DATA_DIR}/conf    settings, filters, channel mapping
-${APP_DATA_DIR}/temp    stream buffer, safe to delete when nothing is playing
+${APP_DATA_DIR}/data/conf    settings, filters, channel mapping
+${APP_DATA_DIR}/data/temp    stream buffer, safe to delete when nothing is playing
 ```
 
 ## Updating

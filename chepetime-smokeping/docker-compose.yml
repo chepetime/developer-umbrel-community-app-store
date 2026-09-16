@@ -15,9 +15,9 @@ services:
     volumes:
       # Edit Targets here to choose what gets pinged. The default file only
       # probes localhost, so the graphs stay empty until you add hosts.
-      - ${APP_DATA_DIR}/config:/config
+      - ${APP_DATA_DIR}/data/config:/config
       # RRD files: the entire measurement history. Losing this loses every
       # graph, and the point of SmokePing is the long baseline.
-      - ${APP_DATA_DIR}/data:/data
+      - ${APP_DATA_DIR}/data/rrd:/data
       - /etc/localtime:/etc/localtime:ro
     restart: on-failure
