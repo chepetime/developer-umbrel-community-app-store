@@ -6,7 +6,7 @@ name: Maintainerr
 tagline: Rules that decide what leaves your media library, and when
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-maintainerr/icon.svg
 category: media
-version: "3.28.0-1"
+version: "3.29.0"
 port: 46256
 description: >-
   Maintainerr decides what should leave your library so you do not have to.
@@ -36,10 +36,7 @@ repo: https://github.com/jorenn92/Maintainerr
 support: https://github.com/jorenn92/Maintainerr/issues
 gallery: []
 releaseNotes: >-
-  Declares this app's data/ folder to umbrelOS 2.0 storage management, so
-  its data can be relocated to another drive. The data was already in that
-  folder, so nothing moves, and on current umbrelOS versions nothing
-  changes.
+  Maintainerr updated from 3.28.0 to 3.29.0.
 
 dependencies: []
 permissions:
