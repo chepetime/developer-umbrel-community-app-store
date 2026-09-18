@@ -6,7 +6,7 @@ name: Multica
 tagline: Assign issues to coding agents like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
 category: developer
-version: "0.4.32-5"
+version: "0.4.32-6"
 port: 46258
 description: >-
   Multica is an issue tracker whose assignees can be AI coding agents. You
@@ -49,11 +49,8 @@ repo: https://github.com/multica-ai/multica
 support: https://github.com/multica-ai/multica/issues
 gallery: []
 releaseNotes: >-
-  Moves this app's data into the data/ folder of its app directory, which is
-  the folder umbrelOS 2.0 storage management can relocate to another drive.
-  Existing installs are moved automatically the first time the app starts
-  after this update. Nothing is reset or re-downloaded, and on current
-  umbrelOS versions nothing else changes.
+  Refreshed the pinned digest for nginx:1.31-alpine, redis:8-alpine;
+  upstream re-published the same tag, so nothing else changed.
 
 dependencies: []
 path: ""

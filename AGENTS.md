@@ -571,7 +571,7 @@ port: 46258
 image: ghcr.io/multica-ai/multica-backend:v0.4.32@sha256:508de17e1ddb335a5a3907a2a7702f2a20e7cf4a9321f63ee7a2bcdfef57ee35
 image: ghcr.io/multica-ai/multica-web:v0.4.32@sha256:c6976fbee1b1c566543067cde544d3168d3f9b71c60e6a5ccb7f2851392e8234
 image: pgvector/pgvector:pg18@sha256:2ba9ca5f2e7daa0f0e7723cba1ee9167bab54efd3640516a44ac1a928dd67e7a
-image: nginx:1.31-alpine@sha256:c8497b180665e631ec92a5091125bec5b214f0e2b99409e30653a125b37557da
+image: nginx:1.31-alpine@sha256:62ff2089abf5a9ed33bd232895bef5e22f7bb4b200675cec49a5ebc48e3d4ac8
 ```
 
 **Postgres 18 changed what it expects mounted where, and it broke this app
