@@ -6,7 +6,7 @@ name: Pocket ID
 tagline: Your own OIDC provider, with passkeys instead of passwords
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-pocket-id/icon.svg
 category: networking
-version: "2.15.0"
+version: "2.16.0"
 port: 46251
 description: >-
   Pocket ID is a small OpenID Connect provider for one household. You sign in
@@ -43,7 +43,7 @@ repo: https://github.com/pocket-id/pocket-id
 support: https://github.com/pocket-id/pocket-id/issues
 gallery: []
 releaseNotes: >-
-  Pocket ID updated from v2.14.0 to v2.15.0.
+  Pocket ID updated from v2.15.0 to v2.16.0.
 
 dependencies: []
 path: ""
