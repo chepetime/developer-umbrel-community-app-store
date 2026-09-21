@@ -161,7 +161,7 @@ services:
 
   redis:
     # Multi-arch index digest (amd64, arm64, armv6, armv7).
-    image: redis:8-alpine@sha256:bd999b5cfee25fb24b8320a31fddbd69f462df44c8138c66e369582937beebc0
+    image: redis:8-alpine@sha256:ef216d85ec44f4fdf7c0e6df2d1757a4734ed32fbb278cabd3181b5a27353b79
     # Password-protected because every Umbrel app shares one Docker network,
     # so an open Redis here is readable and writable by any other installed
     # app. APP_PASSWORD is derived per install and is hex, so it needs no
