@@ -6,7 +6,7 @@ name: Billow
 tagline: Write invoices, and know what happened to each one
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
-version: "0.1.8-2"
+version: "0.1.8-3"
 port: 46247
 description: >-
   Billow writes invoices, prints them to PDF, and then keeps track of what
