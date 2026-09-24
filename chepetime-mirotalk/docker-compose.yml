@@ -34,7 +34,7 @@ services:
     # The store version tracks package.json (1.9.15 at the time of pinning);
     # when the digest moves under `latest`, check-image-updates adds a `-N`
     # store revision because there is no tag to read a version from.
-    image: mirotalk/p2p:latest@sha256:6cee2d6456c58bfe4708e2eb3d2382a3c9bef97b41525dc2533fdf974ede0445
+    image: mirotalk/p2p:latest@sha256:aa73cc9fc79098f85ea086d0ca8dcef193ef20761e2ea3f3702b25b2d586d444
     environment:
       # --- How configuration resolves here -----------------------------------
       #
