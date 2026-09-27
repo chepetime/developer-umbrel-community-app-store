@@ -4,7 +4,7 @@ name: PairDrop
 tagline: Send files between any two devices on your network, from the browser
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-pairdrop/icon.svg
 category: files
-version: "1.11.2-1"
+version: "1.11.2-2"
 port: 46257
 description: >-
   PairDrop moves files between devices that have nothing else in common.
