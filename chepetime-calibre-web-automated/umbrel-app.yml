@@ -6,7 +6,7 @@ name: Calibre-Web Automated
 tagline: Drop an ebook in a folder and it files itself into your library
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-calibre-web-automated/icon.svg
 category: media
-version: "4.0.6-1"
+version: "4.0.7"
 port: 46261
 description: >-
   Calibre-Web Automated is Calibre-Web with the manual work removed. Put a
@@ -45,11 +45,7 @@ repo: https://github.com/crocodilestick/Calibre-Web-Automated
 support: https://github.com/crocodilestick/Calibre-Web-Automated/issues
 gallery: []
 releaseNotes: >-
-  Moves this app's data into the data/ folder of its app directory, which is
-  the folder umbrelOS 2.0 storage management can relocate to another drive.
-  Existing installs are moved automatically the first time the app starts
-  after this update. Nothing is reset or re-downloaded, and on current
-  umbrelOS versions nothing else changes.
+  Calibre-Web Automated updated from v4.0.6 to v4.0.7.
 
 dependencies: []
 permissions:
