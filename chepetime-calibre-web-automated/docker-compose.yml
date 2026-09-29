@@ -49,7 +49,7 @@ services:
     # Upstream tags releases `vX.Y.Z` on 4.x but used `VX.Y.Z` up to 3.1.4, and
     # publishes a stream of `dev-NNN` tags in between — `latest` currently
     # trails the dev builds by months. Pin the stable tag, not `latest`.
-    image: crocodilestick/calibre-web-automated:v4.0.7@sha256:6900d554dcfc164250a4c90208e4277a2385f5c2dbc1bb881c5ccae2b3723d29
+    image: crocodilestick/calibre-web-automated:v4.0.8@sha256:5e00373854247750cc3e4479b492ae09293ff5e06ed10177f226634d97888679
     environment:
       # LinuxServer baseimage. Umbrel creates app data as 1000:1000 and the
       # shared storage is owned the same way, so books land consistent with
