@@ -270,16 +270,18 @@ volumes:
 Drip started with everything under `data/`, so unlike Billow and Goose it
 ships no `hooks/pre-start`: there is no older layout to migrate from.
 
-**The image is private, and umbreld 2.0 cannot pull a private image.**
-2.0 installs and updates pull through the Docker Engine API with dockerode
+**The image is public; the source repository is private.** umbreld 2.0
+installs and updates pull through the Docker Engine API with dockerode
 (`modules/utilities/docker-pull.ts`: `docker.pull(image)`, no `authconfig`),
-so every pull is anonymous. A `docker login` on the host only configures the
-`docker` CLI and does nothing for umbreld; the `compose pull` in
-`legacy-compat/app-script` is not on 2.0's install path. The first install
-attempt failed with `(HTTP code 401) ... unauthorized` on the manifest
-request despite a working root login. Until this is resolved, Drip installs
-only if its package is public or the compose file points at a registry the
-host can reach without credentials.
+so every pull is anonymous and a private GHCR package cannot be installed —
+a `docker login` on the host only configures the `docker` CLI and does
+nothing for umbreld. The first attempt failed with `(HTTP code 401) ...
+unauthorized` on the manifest despite a working root login.
+
+`umbrel-drip` is private and a GHCR package inherits its repository's
+visibility when the first publish creates it, so `ghcr.io/chepetime/drip`
+was switched to public by hand in its package settings (2026-10-07), the same
+state Goose's image is in. That is a one-time setting; later releases keep it.
 
 ## Updating Drip
 
