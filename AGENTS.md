@@ -270,20 +270,16 @@ volumes:
 Drip started with everything under `data/`, so unlike Billow and Goose it
 ships no `hooks/pre-start`: there is no older layout to migrate from.
 
-**The image is private, and the Umbrel host is logged in to pull it.**
-`umbrel-drip` is a private repository and `ghcr.io/chepetime/drip` inherited
-that, so an anonymous pull gets 403. Instead of making it public, the host
-was logged in as root with a classic GitHub token scoped to `read:packages`
-only (`sudo docker login ghcr.io -u chepetime`). umbreld runs as root and its
-`app-script` install and update paths both run `compose pull`, so they use
-root's credentials in `/root/.docker/config.json`.
-
-That login is expected to need repeating after an umbrelOS update: `/root`
-sits on the system overlay, and rugix declares only `/data` as persistent.
-Images in `/var/lib/docker` live on the data partition and survive, so an
-installed Drip keeps running; only the next install or update of Drip fails,
-as an ordinary pull error, until the login is redone. Anyone else installing
-from this public store cannot pull the image at all.
+**The image is private, and umbreld 2.0 cannot pull a private image.**
+2.0 installs and updates pull through the Docker Engine API with dockerode
+(`modules/utilities/docker-pull.ts`: `docker.pull(image)`, no `authconfig`),
+so every pull is anonymous. A `docker login` on the host only configures the
+`docker` CLI and does nothing for umbreld; the `compose pull` in
+`legacy-compat/app-script` is not on 2.0's install path. The first install
+attempt failed with `(HTTP code 401) ... unauthorized` on the manifest
+request despite a working root login. Until this is resolved, Drip installs
+only if its package is public or the compose file points at a registry the
+host can reach without credentials.
 
 ## Updating Drip
 
