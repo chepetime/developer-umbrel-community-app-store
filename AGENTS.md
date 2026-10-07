@@ -253,10 +253,20 @@ volumes:
 Drip started with everything under `data/`, so unlike Billow and Goose it
 ships no `hooks/pre-start`: there is no older layout to migrate from.
 
-`umbrel-drip` is a private repository, and a GHCR package inherits its
-repository's visibility when the first publish creates it. Umbrel pulls
-anonymously, so the package must be switched to public once in its GitHub
-settings, or every install fails as an ordinary pull error.
+**The image is private, and the Umbrel host is logged in to pull it.**
+`umbrel-drip` is a private repository and `ghcr.io/chepetime/drip` inherited
+that, so an anonymous pull gets 403. Instead of making it public, the host
+was logged in as root with a classic GitHub token scoped to `read:packages`
+only (`sudo docker login ghcr.io -u chepetime`). umbreld runs as root and its
+`app-script` install and update paths both run `compose pull`, so they use
+root's credentials in `/root/.docker/config.json`.
+
+That login is expected to need repeating after an umbrelOS update: `/root`
+sits on the system overlay, and rugix declares only `/data` as persistent.
+Images in `/var/lib/docker` live on the data partition and survive, so an
+installed Drip keeps running; only the next install or update of Drip fails,
+as an ordinary pull error, until the login is redone. Anyone else installing
+from this public store cannot pull the image at all.
 
 ## Updating Drip
 
