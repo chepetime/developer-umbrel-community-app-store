@@ -58,6 +58,8 @@ installation:
 - `chepetime-billow`: Billow, a personal invoices app. Host port `46247`.
 - `chepetime-goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
   `46248`.
+- `chepetime-drip`: Drip, a subscription tracker built on Goose. Host port
+  `46249`.
 - `chepetime-netalertx`: NetAlertX, third-party LAN scanner. Host ports `20211`
   and `20212`, upstream's own, outside this store's `462xx` allocations.
 
@@ -229,6 +231,47 @@ in the UI.
 
 If an app is missing from the store, check the manifest against that schema
 before assuming a caching problem.
+
+## Drip Store Contract
+
+Drip is built on Goose, so its package has Goose's shape with its own values.
+Source: `/Users/jose/Projects/personal/drip`, `github.com/chepetime/umbrel-drip`.
+
+```yaml
+id: chepetime-drip
+port: 46249
+image: ghcr.io/chepetime/drip:v0.1.1@sha256:951752fd947365cf93cbdcfdb70110cb8e71c8bb5213e3f2230029fd75434291
+```
+
+The Postgres data path is the same and stays unchanged:
+
+```yaml
+volumes:
+  - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql/data
+```
+
+Drip started with everything under `data/`, so unlike Billow and Goose it
+ships no `hooks/pre-start`: there is no older layout to migrate from.
+
+`umbrel-drip` is a private repository, and a GHCR package inherits its
+repository's visibility when the first publish creates it. Umbrel pulls
+anonymously, so the package must be switched to public once in its GitHub
+settings, or every install fails as an ordinary pull error.
+
+## Updating Drip
+
+1. Make app changes in `/Users/jose/Projects/personal/drip`.
+2. Publish from that repo: `gh workflow run release.yml -f version=X.Y.Z`.
+3. Update `chepetime-drip/docker-compose.yml` with the new tag *and* its
+   multi-arch index digest:
+
+   ```bash
+   docker buildx imagetools inspect ghcr.io/chepetime/drip:vX.Y.Z \
+     --format '{{.Manifest.Digest}}'
+   ```
+
+4. Bump `version` and `releaseNotes` in `chepetime-drip/umbrel-app.yml`.
+5. Refresh the alt store in Umbrel.
 
 ## NetAlertX Store Contract
 
@@ -511,7 +554,7 @@ script. The default is `minor`, newest tag inside the current major:
   major is still reported, as `[held back: pg19]`, so it does not go unnoticed.
 - **Tinyauth is `digest`** for the reason above: `v5` is all upstream
   publishes.
-- **Billow, Goose and Multica's own images are `skip`.** Their store version
+- **Billow, Goose, Drip and Multica's own images are `skip`.** Their store version
   is released alongside their source, Billow's by `scripts/bump-billow.sh`.
 
 Two behaviours worth knowing before trusting it:

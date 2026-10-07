@@ -50,6 +50,7 @@ type Policy = "skip" | "digest" | "patch" | "minor" | "major";
 const POLICIES: Array<[pattern: string, policy: Policy]> = [
   ["ghcr.io/chepetime/billow", "skip"], // released by scripts/bump-billow.sh
   ["ghcr.io/chepetime/goose", "skip"], // released with the Goose source
+  ["ghcr.io/chepetime/drip", "skip"], // released with the Drip source
   ["ghcr.io/multica-ai/*", "skip"], // released with the Multica source
   ["makeplane/*", "skip"], // released with Plane's own source, six images move in lockstep
   ["ghcr.io/tinyauthapp/tinyauth", "digest"], // rolling v5, no per-patch tags

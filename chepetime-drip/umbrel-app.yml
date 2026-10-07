@@ -1,0 +1,54 @@
+manifestVersion: 1
+id: chepetime-drip
+storage:
+  dataRoot: data
+name: Drip
+tagline: Track every subscription you pay for
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/icon.svg
+category: finance
+version: "0.1.1"
+port: 46249
+description: >-
+  Drip keeps every subscription you pay for in one place, totals what they
+  really cost each month and each year, and shows what renews next, so nothing
+  charges you by surprise.
+
+
+  Add a subscription with its price and one charge date; Drip works out every
+  renewal from there, monthly, yearly or every few weeks, including trials and
+  month-end dates. The dashboard shows your totals per currency, the next 30
+  days of charges, trials about to end and spending by category. Each
+  subscription keeps its price history, so creeping increases show.
+
+
+  It never connects to a bank. Payment-method details are encrypted with your
+  password, and everything else stays in the app's own database on your
+  server. Import and export CSV, back up and restore, and script it through a
+  personal API.
+
+
+  Renewal reminders, a calendar feed, households with shared subscriptions and
+  a spending forecast are on the way.
+
+developer: ChepeTime
+website: https://github.com/chepetime/umbrel-drip
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/chepetime/umbrel-drip
+support: https://github.com/chepetime/umbrel-drip/issues
+# Required, not optional: umbreld's manifest schema declares
+# `gallery: z.array(z.string())` with no `.optional()`. Omitting it fails Zod
+# validation and umbreld drops the app from the store silently.
+gallery:
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/1-home.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/2-explore.jpg
+  - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/3-reminders.jpg
+releaseNotes: >-
+  First release. Track subscriptions with prices, billing cycles, trials and
+  price history; see monthly and yearly totals, upcoming renewals and spending
+  by category; import and export CSV; and use the personal API.
+
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
