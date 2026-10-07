@@ -59,7 +59,7 @@ installation:
 - `chepetime-goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
   `46248`.
 - `chepetime-drip`: Drip, a subscription tracker built on Goose. Host port
-  `46249`.
+  `36249` — outside 40000–49999, see below.
 - `chepetime-netalertx`: NetAlertX, third-party LAN scanner. Host ports `20211`
   and `20212`, upstream's own, outside this store's `462xx` allocations.
 
@@ -80,8 +80,25 @@ Repackaged third-party apps, all behind `app_proxy` on allocated host ports:
 | MiroTalk P2P  | `chepetime-mirotalk`   | `46260` |
 | Calibre-Web Automated | `chepetime-calibre-web-automated` | `46261` |
 
-Allocate the next free `462xx` for anything new, and check it is actually free
-on the host (`ss -lntu`) before publishing — a taken port leaves
+**umbreld 2.0 reserves ports 40000–49999 for virtual machines** and refuses
+to install any app whose `port:` falls in that range, before creating
+anything (`Machines.assertAppPortAvailable`, error
+`[app-port-reserved-for-machines]`; the UI says only "Failed to install
+app"). Apps already installed on a `462xx` port keep running, because the
+check runs only at install, but none of them can be freshly installed on 2.0.
+Drip was the first app to hit this, and moved to `36249`.
+
+Allocate new apps in `362xx` instead, mirroring the old numbers. Check the
+number against every store on the host and against what is listening:
+
+```bash
+cat ~/umbrel/app-stores/*/*/umbrel-app.yml | grep -E "^port:" | sort -u
+ss -lntu
+```
+
+`ss` alone is not enough on 2.0: a VM's port forward is a reservation in
+umbreld's machine settings, not a listening socket. Check it is actually free
+on the host before publishing — a taken port leaves
 `<app-id>_app_proxy_1` stuck in `Created` with no useful error.
 
 Goose is a full copy of the Billow tree, not a fork sharing history, and the two
@@ -239,7 +256,7 @@ Source: `/Users/jose/Projects/personal/drip`, `github.com/chepetime/umbrel-drip`
 
 ```yaml
 id: chepetime-drip
-port: 46249
+port: 36249
 image: ghcr.io/chepetime/drip:v0.1.1@sha256:951752fd947365cf93cbdcfdb70110cb8e71c8bb5213e3f2230029fd75434291
 ```
 

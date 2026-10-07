@@ -7,7 +7,7 @@ tagline: Track every subscription you pay for
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/icon.svg
 category: finance
 version: "0.1.1"
-port: 46249
+port: 36249
 description: >-
   Drip keeps every subscription you pay for in one place, totals what they
   really cost each month and each year, and shows what renews next, so nothing
