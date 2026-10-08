@@ -6,7 +6,7 @@ name: Drip
 tagline: Track every subscription you pay for
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/icon.svg
 category: finance
-version: "0.1.1"
+version: "0.1.2"
 port: 36249
 description: >-
   Drip keeps every subscription you pay for in one place, totals what they
@@ -27,8 +27,9 @@ description: >-
   personal API.
 
 
-  Renewal reminders, a calendar feed, households with shared subscriptions and
-  a spending forecast are on the way.
+  Reminders arrive a few days before a renewal or the end of a free trial, in
+  the app and by email, ntfy, Gotify or webhook. A calendar feed, households
+  with shared subscriptions and a spending forecast are on the way.
 
 developer: ChepeTime
 website: https://github.com/chepetime/umbrel-drip
@@ -44,9 +45,12 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/2-explore.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/3-reminders.jpg
 releaseNotes: >-
-  First release. Track subscriptions with prices, billing cycles, trials and
-  price history; see monthly and yearly totals, upcoming renewals and spending
-  by category; import and export CSV; and use the personal API.
+  Renewal and trial reminders. Drip now tells you a few days before a
+  subscription renews or a free trial turns into a charge: in the app (the new
+  bell at the top) and, if you add them in Settings → Notifications, by email,
+  ntfy, Gotify or a webhook. Choose how far ahead, and send a test to check
+  each channel works. For reminders to link back into Drip, set a public URL in
+  Settings → Administration → Email.
 
 dependencies: []
 path: ""

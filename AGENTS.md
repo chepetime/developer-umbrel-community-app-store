@@ -257,7 +257,7 @@ Source: `/Users/jose/Projects/personal/drip`, `github.com/chepetime/umbrel-drip`
 ```yaml
 id: chepetime-drip
 port: 36249
-image: ghcr.io/chepetime/drip:v0.1.1@sha256:951752fd947365cf93cbdcfdb70110cb8e71c8bb5213e3f2230029fd75434291
+image: ghcr.io/chepetime/drip:v0.1.2@sha256:8841078493659a9d83ab706473b5fe3017408c63e39011c83ddae84b008adb3b
 ```
 
 The Postgres data path is the same and stays unchanged:

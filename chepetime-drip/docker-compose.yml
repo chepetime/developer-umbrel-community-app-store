@@ -14,7 +14,7 @@ services:
     # This is the multi-arch index digest, covering both linux/amd64 and
     # linux/arm64 — a per-platform digest would pin every install to one
     # architecture. Update both halves together on every release.
-    image: ghcr.io/chepetime/drip:v0.1.1@sha256:951752fd947365cf93cbdcfdb70110cb8e71c8bb5213e3f2230029fd75434291
+    image: ghcr.io/chepetime/drip:v0.1.2@sha256:8841078493659a9d83ab706473b5fe3017408c63e39011c83ddae84b008adb3b
     init: true
     # Umbrel creates app data as 1000:1000 and the image's app user is uid 1000
     # to match, so the container can write its bind-mounted uploads directory
