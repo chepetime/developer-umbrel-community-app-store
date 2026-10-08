@@ -6,7 +6,7 @@ name: Drip
 tagline: Track every subscription you pay for
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/icon.svg
 category: finance
-version: "0.1.3"
+version: "0.1.4"
 port: 36249
 description: >-
   Drip keeps every subscription you pay for in one place, totals what they
@@ -28,8 +28,9 @@ description: >-
 
 
   Reminders arrive a few days before a renewal or the end of a free trial, in
-  the app and by email, ntfy, Gotify or webhook. A calendar feed, households
-  with shared subscriptions and a spending forecast are on the way.
+  the app and by email, ntfy, Gotify or webhook, and a private calendar feed
+  puts every renewal in your calendar app. Households with shared
+  subscriptions and a spending forecast are on the way.
 
 developer: ChepeTime
 website: https://github.com/chepetime/umbrel-drip
@@ -45,14 +46,14 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/2-explore.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/3-reminders.jpg
 releaseNotes: >-
-  A calendar, pesos and payment methods. Subscriptions now has a month
-  calendar of every renewal, and a private link to subscribe from Apple
-  Calendar, Google Calendar or Outlook. Set your home currency (MXN, USD, …)
-  in Settings → Subscriptions: new subscriptions start in it, the dashboard
-  leads with it, and other currencies keep their code. Subscriptions can name
-  the company that bills them, billing cycles have presets including every 2
-  months, payment methods can be edited, and a new view compares what each
-  card or account pays for.
+  The whole app through the API. With an API key you can now manage
+  everything: subscriptions with every field and their price history,
+  categories, payment methods, notification channels and preferences, the
+  inbox, your home currency and the calendar feed, plus the summary,
+  payment-method comparison and upcoming renewals. Keys created from now on
+  can also read and write payment-method names and last four digits, which
+  stay encrypted; create a new key to get that. Lists now answer as
+  { data, nextCursor } and errors carry a code.
 
 dependencies: []
 path: ""
