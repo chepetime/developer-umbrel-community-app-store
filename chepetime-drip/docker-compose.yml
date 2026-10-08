@@ -6,6 +6,11 @@ services:
       # The format here is: <app-id>_<docker-service-name>_1
       APP_HOST: chepetime-drip_server_1
       APP_PORT: 3000
+      # Calendar apps fetch the feed with no Umbrel session, so this path must
+      # skip the proxy's login. The token in the URL is the feed's own
+      # credential (24 random bytes, resettable); everything else in Drip
+      # stays behind Umbrel's login.
+      PROXY_AUTH_WHITELIST: "/api/calendar/*"
 
   server:
     # Pinned by digest as well as tag, which every app in the official
