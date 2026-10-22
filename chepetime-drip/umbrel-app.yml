@@ -6,7 +6,7 @@ name: Drip
 tagline: Track every subscription you pay for
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/icon.svg
 category: finance
-version: "0.1.4"
+version: "0.1.4-1"
 port: 36249
 description: >-
   Drip keeps every subscription you pay for in one place, totals what they
@@ -46,14 +46,8 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/2-explore.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/3-reminders.jpg
 releaseNotes: >-
-  The whole app through the API. With an API key you can now manage
-  everything: subscriptions with every field and their price history,
-  categories, payment methods, notification channels and preferences, the
-  inbox, your home currency and the calendar feed, plus the summary,
-  payment-method comparison and upcoming renewals. Keys created from now on
-  can also read and write payment-method names and last four digits, which
-  stay encrypted; create a new key to get that. Lists now answer as
-  { data, nextCursor } and errors carry a code.
+  Refreshed the pinned digest for postgres:16-alpine; upstream re-published
+  the same tag, so nothing else changed.
 
 dependencies: []
 path: ""
