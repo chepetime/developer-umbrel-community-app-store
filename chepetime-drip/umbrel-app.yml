@@ -6,7 +6,7 @@ name: Drip
 tagline: Track every subscription you pay for
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/icon.svg
 category: finance
-version: "0.1.4-2"
+version: "0.1.4-3"
 port: 36249
 description: >-
   Drip keeps every subscription you pay for in one place, totals what they
