@@ -306,7 +306,7 @@ is no source repo of ours and no release to publish — only the pin moves.
 ```yaml
 id: chepetime-netalertx
 port: 20211
-image: jokobsk/netalertx:26.10.24@sha256:df3fd09ac057c944d669b7fd819652ed87f0abae8e30e0cc24260ac34ebabb39
+image: jokobsk/netalertx:26.10.28@sha256:ebce55cdbccc0f71544e6997541fe81db803b8c8bec3079435b8cd0a40d49b7e
 ```
 
 Four things differ from the Billow/Goose shape. Each looks like a bug to

@@ -6,7 +6,7 @@ name: NetAlertX
 tagline: Know every device on your network, and get told when a new one joins
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-netalertx/icon.svg
 category: networking
-version: "26.10.24"
+version: "26.10.28"
 port: 20211
 description: >-
   NetAlertX scans your network continuously and keeps a record of every device
@@ -48,7 +48,7 @@ support: https://github.com/jokob-sk/NetAlertX/issues
 # with our own captures of a running instance.
 gallery: []
 releaseNotes: >-
-  NetAlertX updated from 26.10.0 to 26.10.24.
+  NetAlertX updated from 26.10.24 to 26.10.28.
 
 dependencies: []
 path: ""

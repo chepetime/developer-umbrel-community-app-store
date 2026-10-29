@@ -13,7 +13,7 @@ services:
   server:
     # Multi-arch index digest (amd64, arm64, arm), so one pin covers Umbrel
     # Home and Raspberry Pi. Update tag and digest together.
-    image: jokobsk/netalertx:26.10.24@sha256:df3fd09ac057c944d669b7fd819652ed87f0abae8e30e0cc24260ac34ebabb39
+    image: jokobsk/netalertx:26.10.28@sha256:ebce55cdbccc0f71544e6997541fe81db803b8c8bec3079435b8cd0a40d49b7e
     # Required. NetAlertX finds devices with arp-scan, nmap and nbtscan
     # against the real LAN; bridged, it would only see Docker's own subnet.
     network_mode: host
