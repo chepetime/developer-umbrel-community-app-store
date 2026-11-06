@@ -24,7 +24,7 @@ services:
       PROXY_AUTH_WHITELIST: "/api/*,/ws,/health"
 
   gateway:
-    image: nginx:1.31-alpine@sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606
+    image: nginx:1.31-alpine@sha256:713fc2ebfd92e8217db451477182ee91944b123d2b1ee9fd5a8c6e91ca6c3a11
     depends_on:
       - frontend
       - backend
@@ -161,7 +161,7 @@ services:
 
   redis:
     # Multi-arch index digest (amd64, arm64, armv6, armv7).
-    image: redis:8-alpine@sha256:21090af93f8324db2f0f0f4f38a7c60369d47d917e000c3423d89d2ae2883537
+    image: redis:8-alpine@sha256:71885d8cc6e42f2bc0aa2eb853bfc4be200b5108a46ac50e117ae1df0531fb80
     # Password-protected because every Umbrel app shares one Docker network,
     # so an open Redis here is readable and writable by any other installed
     # app. APP_PASSWORD is derived per install and is hex, so it needs no
