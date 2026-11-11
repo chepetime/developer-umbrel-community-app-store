@@ -24,6 +24,7 @@ Repackaged third-party apps (each has its own README):
 | Maintainerr | `chepetime-maintainerr` | `46256` | Point it at Plex and the *arr apps        |
 | PairDrop    | `chepetime-pairdrop`    | `46257` | Nothing to configure                      |
 | Multica     | `chepetime-multica`     | `46258` | Server only; the agent daemon runs on your machine |
+| draw.io     | `chepetime-drawio`      | `36262` | Diagrams are saved on your device, not the server |
 
 Goose and Billow are independent: separate repositories, separate images,
 separate databases. Installing one does not affect the other, and there is no

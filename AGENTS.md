@@ -62,6 +62,10 @@ installation:
   `36249` — outside 40000–49999, see below.
 - `chepetime-netalertx`: NetAlertX, third-party LAN scanner. Host ports `20211`
   and `20212`, upstream's own, outside this store's `462xx` allocations.
+- `chepetime-drawio`: draw.io, repackaged `jgraph/drawio`. Host port `36262`.
+  Stateless — diagrams live on the client — and configured only through an
+  optional `secrets.env`, so no `DRAWIO_*` variable may be declared under
+  `environment:`.
 
 Repackaged third-party apps, all behind `app_proxy` on allocated host ports:
 

@@ -1,0 +1,41 @@
+version: "3.7"
+
+# Stateless: draw.io saves diagrams on the client (a downloaded .drawio file
+# or the browser's own storage), never on the server. No volumes, no
+# `storage: dataRoot`, nothing to back up.
+#
+# Upstream's docker-compose.yml passes every DRAWIO_* variable through as
+# `${VAR:-}`. That is not copied here on purpose: a name declared under
+# `environment:` silently beats the same name from env_file, so declaring them
+# would make ${APP_DATA_DIR}/secrets.env useless. They are all left out, and
+# the entrypoint treats unset as off:
+#
+#   - no DRAWIO_GOOGLE_CLIENT_ID / DRAWIO_MSGRAPH_CLIENT_ID / DRAWIO_GITLAB_ID
+#     means Drive, OneDrive and GitLab are disabled (urlParams gapi/od/gl = 0);
+#     Dropbox, GitHub and Trello are disabled unconditionally.
+#   - no DRAWIO_SERVER_URL means the webapp stays at `/` and DRAWIO_BASE_URL
+#     falls back to http://localhost:8080, which only affects the URLs written
+#     into "Publish > Link" and embed snippets. Set it in secrets.env, with a
+#     trailing slash, when the app is reached through a tunnel.
+#
+# Only port 8080 is used. The entrypoint also generates a self-signed keystore
+# and an 8443 connector on every start; nothing points at it, and app_proxy
+# already sits in front.
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-drawio_web_1
+      APP_PORT: 8080
+
+  web:
+    # Multi-arch index digest (amd64, arm64).
+    image: jgraph/drawio:32.6.10@sha256:b2dfa027e7878a4a1124f38d8fc6d257526f8d77fccf6c423189fc27ae931737
+    # Optional. Example:
+    #   nano ~/umbrel/app-data/chepetime-drawio/secrets.env
+    #   DRAWIO_SERVER_URL=https://draw.example.com/
+    #   DRAWIO_LANG=es
+    #   DRAWIO_CONFIG={"defaultFonts":["Helvetica","Verdana"]}
+    env_file:
+      - path: ${APP_DATA_DIR}/secrets.env
+        required: false
+    restart: on-failure

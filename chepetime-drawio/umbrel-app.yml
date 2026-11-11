@@ -1,0 +1,39 @@
+manifestVersion: 1
+id: chepetime-drawio
+name: draw.io
+tagline: Diagramming in the browser, with nothing leaving your network
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drawio/icon.svg
+category: developer
+version: "32.6.10"
+port: 36262
+description: >-
+  draw.io is the diagram editor behind diagrams.net: flowcharts, network
+  maps, architecture and UML diagrams, org charts, wireframes and
+  whiteboards, with thousands of shapes and the full editor you already know.
+
+
+  This is a self-hosted copy. The page and the editor come from your Umbrel,
+  and the cloud integrations (Google Drive, OneDrive, Dropbox, GitHub,
+  GitLab, Trello) are switched off, so nothing is sent to anyone else.
+
+
+  The server stores nothing. Diagrams are saved as .drawio files on the
+  device you are editing from, or in that browser's own storage. Back them up
+  the way you back up any other document.
+
+
+  Export to PNG, JPEG and SVG happens in the browser. Export to PDF uses the
+  browser's print dialog, since upstream no longer ships an export server.
+developer: JGraph
+website: https://www.drawio.com
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/jgraph/docker-drawio
+support: https://github.com/jgraph/docker-drawio/issues
+gallery: []
+releaseNotes: >-
+  First release, packaging jgraph/drawio 32.6.10.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
