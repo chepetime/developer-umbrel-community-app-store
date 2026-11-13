@@ -6,7 +6,7 @@ name: Billow
 tagline: Write invoices, and know what happened to each one
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/icon.svg
 category: Development
-version: "0.1.8-7"
+version: "0.1.8-8"
 port: 46247
 description: >-
   Billow writes invoices, prints them to PDF, and then keeps track of what
@@ -41,8 +41,8 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/2-account.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-billow/gallery/3-api-keys.jpg
 releaseNotes: >-
-  Refreshed the pinned digest for postgres:16-alpine; upstream re-published
-  the same tag, so nothing else changed.
+  Picks up upstream's rebuild of postgres:16-alpine (12 Nov 2026), with no
+  version change; that is usually base-image and security updates.
 
 dependencies: []
 path: ""
