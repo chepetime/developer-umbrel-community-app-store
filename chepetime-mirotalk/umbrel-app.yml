@@ -4,7 +4,7 @@ name: MiroTalk P2P
 tagline: Anonymous video calls in the browser, peer to peer
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-mirotalk/icon.svg
 category: social
-version: "1.9.15-67"
+version: "1.9.15-68"
 port: 46260
 description: >-
   Share a link, and whoever opens it is in the call. No accounts, no
@@ -40,8 +40,10 @@ repo: https://github.com/miroslavpejic85/mirotalk
 support: https://github.com/miroslavpejic85/mirotalk/issues
 gallery: []
 releaseNotes: >-
-  Refreshed the pinned digest for mirotalk/p2p:latest; upstream re-published
-  the same tag, so nothing else changed.
+  Picks up 3 upstream changes to MiroTalk P2P (build of 13 Nov 2026): Add
+  FAQ on room participant limits (P2P vs SFU); Stop false Bluetooth warning
+  for wired/USB headsets (e.g. Jabra); Widen loading card so long translated
+  titles fit.
 
 dependencies: []
 path: ""
