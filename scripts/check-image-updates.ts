@@ -24,6 +24,11 @@
  * data-directory migration, not an update. Billow, Goose and Multica are
  * `skip`; their store version is released alongside their source.
  *
+ * Commit subjects and release notes say what changed, not just that a digest
+ * moved: the release page and commits between tags, a new build-number label,
+ * upstream commits between two builds, or a plain rebuild date — see
+ * `describe`. GITHUB_TOKEN, when set, lifts the GitHub API's anonymous limit.
+ *
  * A candidate tag is rejected unless it covers every platform the current pin
  * covers. Threadfin's `latest` is amd64-only while its version tags are
  * multi-arch, and an amd64-only pin bricks the app on a Raspberry Pi.
@@ -251,6 +256,137 @@ class Registry {
       path = next[1]!;
     }
     return collected;
+  }
+
+  /**
+   * Build date and labels of the image behind a tag or digest. For a
+   * multi-platform index this reads linux/amd64 (else the first runtime),
+   * which is enough: every platform of one push shares its labels and date.
+   */
+  async config(ref: Ref, reference: string): Promise<ImageConfig | null> {
+    const [host, repo] = ref.registry;
+    type Manifest = {
+      manifests?: Array<{ digest: string; platform?: { os?: string; architecture?: string } }>;
+      config?: { digest?: string };
+    };
+    const manifest = async (at: string): Promise<Manifest> => {
+      const path = `/v2/${repo}/manifests/${at}`;
+      const response = await this.#fetch(host, repo, path, "GET", MANIFEST_ACCEPT);
+      if (!response.ok) throw new RegistryError(`${ref.name}: HTTP ${response.status} on ${path}`);
+      return (await response.json()) as Manifest;
+    };
+
+    let body = await manifest(reference);
+    if (body.manifests) {
+      const runtimes = body.manifests.filter(
+        (entry) =>
+          entry.platform?.os && entry.platform.os !== "unknown" && entry.platform.architecture !== "unknown",
+      );
+      const chosen =
+        runtimes.find((entry) => entry.platform?.os === "linux" && entry.platform.architecture === "amd64") ??
+        runtimes[0];
+      if (!chosen) return null;
+      body = await manifest(chosen.digest);
+    }
+    const digest = body.config?.digest;
+    if (!digest) return null;
+
+    // Docker Hub and GHCR answer with a redirect to blob storage; fetch drops
+    // the Authorization header on that cross-origin hop, as the CDN requires.
+    const path = `/v2/${repo}/blobs/${digest}`;
+    const response = await this.#fetch(host, repo, path, "GET", "*/*");
+    if (!response.ok) throw new RegistryError(`${ref.name}: HTTP ${response.status} on ${path}`);
+    const blob = (await response.json()) as {
+      created?: string;
+      config?: { Labels?: Record<string, string> | null };
+    };
+    return { digest, created: blob.created ?? null, labels: blob.config?.Labels ?? {} };
+  }
+}
+
+type ImageConfig = { digest: string; created: string | null; labels: Record<string, string> };
+
+// ---------------------------------------------------------------------------
+// GitHub: what an image change contains
+// ---------------------------------------------------------------------------
+
+type Commit = { sha: string; subject: string };
+type CommitRange = { commits: Commit[]; total: number; url: string };
+
+/**
+ * Read-only GitHub REST access, used only to say what a new image contains.
+ * Anonymous is 60 requests an hour, enough for a local run; the workflow
+ * passes GITHUB_TOKEN for its 1000. Every lookup is optional: a failure
+ * degrades the message, never the release.
+ */
+class GitHub {
+  #token = process.env.GITHUB_TOKEN;
+
+  /** `owner/repo` from a github.com URL, or null. */
+  static repoOf(url: string | null | undefined): string | null {
+    const found = /github\.com[/:]([\w.-]+)\/([\w.-]+?)(?:\.git)?(?:[/#?].*)?$/.exec(url ?? "");
+    return found ? `${found[1]}/${found[2]}` : null;
+  }
+
+  async #get<T>(path: string): Promise<T | null> {
+    const response = await fetch(`https://api.github.com${path}`, {
+      headers: {
+        Accept: "application/vnd.github+json",
+        "User-Agent": USER_AGENT,
+        ...(this.#token ? { Authorization: `Bearer ${this.#token}` } : {}),
+      },
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (response.status === 404 || response.status === 422) return null;
+    if (!response.ok) throw new Error(`GitHub: HTTP ${response.status} on ${path}`);
+    return (await response.json()) as T;
+  }
+
+  static #commits(
+    raw: Array<{ sha: string; commit: { message: string }; parents?: unknown[] }>,
+  ): Commit[] {
+    return raw
+      .filter((entry) => (entry.parents?.length ?? 1) < 2) // merges repeat their branch
+      .map((entry) => ({ sha: entry.sha, subject: entry.commit.message.split("\n")[0]!.trim() }));
+  }
+
+  /** Commits between two revisions, oldest first. */
+  async compare(repo: string, base: string, head: string): Promise<CommitRange | null> {
+    const body = await this.#get<{
+      html_url: string;
+      total_commits: number;
+      commits: Array<{ sha: string; commit: { message: string }; parents?: unknown[] }>;
+    }>(`/repos/${repo}/compare/${base}...${head}`);
+    if (!body) return null;
+    const commits = GitHub.#commits(body.commits);
+    return { commits, total: Math.max(body.total_commits, commits.length), url: body.html_url };
+  }
+
+  /** Commits on the default branch in a time window, oldest first. */
+  async between(repo: string, since: string, until: string): Promise<CommitRange | null> {
+    const query = new URLSearchParams({ since, until, per_page: "100" });
+    const body = await this.#get<Array<{ sha: string; commit: { message: string }; parents?: unknown[] }>>(
+      `/repos/${repo}/commits?${query}`,
+    );
+    if (!body) return null;
+    const commits = GitHub.#commits(body).reverse();
+    return { commits, total: commits.length, url: `https://github.com/${repo}/commits` };
+  }
+
+  /**
+   * The release for an image tag, trying it with and without a `v` — image
+   * tags and git tags disagree on that often (Maintainerr: `3.32.0` on GHCR,
+   * `v3.32.0` on GitHub). Returns the git tag that matched.
+   */
+  async release(repo: string, tag: string): Promise<{ url: string; tag: string } | null> {
+    const bare = tag.replace(/^v/, "");
+    for (const candidate of [...new Set([tag, `v${bare}`, bare])]) {
+      const body = await this.#get<{ html_url: string; tag_name: string }>(
+        `/repos/${repo}/releases/tags/${encodeURIComponent(candidate)}`,
+      );
+      if (body) return { url: body.html_url, tag: body.tag_name };
+    }
+    return null;
   }
 }
 
@@ -521,25 +657,283 @@ function nextVersion(app: App, updates: Update[]): { version: string; tracksUpst
   };
 }
 
-function releaseNotes(app: App, updates: Update[], version: string, tracksUpstream: boolean): string {
-  const primary = app.primaryService();
-  const sentences: string[] = [];
+// ---------------------------------------------------------------------------
+// Describing a change
+// ---------------------------------------------------------------------------
 
-  for (const update of updates.filter(tagMoved)) {
-    const subject =
-      tracksUpstream && update.pin.service === primary ? app.title : update.pin.ref.name;
-    sentences.push(`${subject} updated from ${update.pin.ref.tag} to ${update.newRef.tag}.`);
+/**
+ * What one image move means, in three registers: a phrase for the commit
+ * subject, a sentence for the release notes Umbrel shows on the app page, and
+ * detail lines for the commit body.
+ *
+ * "The digest moved" is true and useless — MiroTalk's `latest` moves most
+ * nights, and the notes used to say the same sentence every time. So this
+ * asks the registry and GitHub what actually changed, best evidence first:
+ *
+ *   1. a new tag: link upstream's release page;
+ *   2. a new `org.opencontainers.image.version` label under the same tag
+ *      (linuxserver's `ls189` -> `ls190`): name the build;
+ *   3. upstream commits: between the two `image.revision` labels, or, for
+ *      the app's own image with no labels (MiroTalk), on the manifest's
+ *      `repo:` between the two build dates;
+ *   4. otherwise the build date, which for official images (redis,
+ *      postgres) is what a same-tag rebuild is: base-image and package
+ *      updates.
+ */
+type Change = {
+  /** Phrase for the commit subject. */
+  phrase: string;
+  /** Sentence for the release notes; null when it merges with others (see releaseNotes). */
+  note: string | null;
+  /** Set on a same-tag rebuild with nothing else known: "redis:8-alpine (5 Nov 2026)". */
+  rebuilt?: string;
+  /** Set when only the index moved; the image itself is byte-identical. */
+  republished?: string;
+  details: string[];
+};
+
+type Context = { app: App; registry: Registry; github: GitHub; tracksUpstream: boolean };
+
+/** Upstream bookkeeping: never a highlight, though still counted and listed in the commit body. */
+const NOISE =
+  /^(chore|ci|ci\/cd|build|docs|test|tests|style|release|revert|refactor|perf\(ci\))(\(.*?\))?!?:|^v?\d+(\.\d+)+$|^bump |^update dependenc|^\[?bot\]?|^merge |^bot /i;
+
+function day(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
+const short = (digest: string | null) => (digest ? digest.replace(/^sha256:/, "").slice(0, 12) : "none");
+const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
+
+/**
+ * Commit subjects worth showing a user: security fixes, then features, then
+ * fixes, newest first within each, with upstream's bookkeeping stripped —
+ * MiroTalk prefixes every subject with `[mirotalk] - `, and `feat(ui): `
+ * means nothing on an app page.
+ */
+function highlights(commits: Commit[], limit: number): string[] {
+  const rank = (subject: string) =>
+    /secur|cve|vulnerab/i.test(subject) ? 0 : /^feat/i.test(subject) ? 1 : /^fix/i.test(subject) ? 2 : 3;
+  const seen = new Set<string>();
+  return commits
+    .map((commit, order) => ({ subject: commit.subject.replace(/^\[[^\]]+\]\s*-?\s*/, ""), order }))
+    .filter((entry) => !NOISE.test(entry.subject))
+    .sort((a, b) => rank(a.subject) - rank(b.subject) || b.order - a.order)
+    .map(({ subject }) => {
+      const text = subject
+        .replace(/^[\w-]+(\([^)]*\))?!?:\s*/, "")
+        .replace(/(\s*\(#\d+\))+$/, "")
+        .replace(/\.$/, "")
+        .trim();
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    })
+    .filter((text) => text && !seen.has(text.toLowerCase()) && seen.add(text.toLowerCase()))
+    .slice(0, limit);
+}
+
+/** Cut at a word boundary, for the commit subject. */
+function clip(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 3);
+  return `${cut.slice(0, cut.lastIndexOf(" ") > 0 ? cut.lastIndexOf(" ") : cut.length)}...`;
+}
+
+async function describe(context: Context, group: Update[]): Promise<Change> {
+  const { app, registry, github } = context;
+  const [first] = group as [Update, ...Update[]];
+  const { pin, newRef } = first;
+  const services = [...new Set(group.map((update) => update.pin.service))].join(", ");
+  const isPrimary = group.some((update) => update.pin.service === app.primaryService());
+  // The app's own image is called by the app's name; a sidecar by its image,
+  // without the registry host.
+  const subject = isPrimary ? app.title : pin.ref.name.replace(/^[^/]*\.[^/]*\//, "");
+  const details = [
+    `${pin.ref.name}:${pin.ref.tag} (${services})`,
+    `  ${pin.ref.tag}@${short(pin.ref.digest)} -> ${newRef.tag}@${short(newRef.digest)}`,
+  ];
+
+  const lookup = async <T>(what: string, run: () => Promise<T>): Promise<T | null> => {
+    try {
+      return await run();
+    } catch (error) {
+      warn(`${app.name}/${services}: could not read ${what} (${error})`);
+      return null;
+    }
+  };
+
+  const [before, after] = await Promise.all([
+    pin.ref.digest ? lookup("the old image config", () => registry.config(pin.ref, pin.ref.digest!)) : null,
+    newRef.digest ? lookup("the new image config", () => registry.config(newRef, newRef.digest!)) : null,
+  ]);
+  const built = day(after?.created);
+  if (built) details.push(`  built ${day(before?.created) ?? "?"} -> ${built}`);
+
+  const source =
+    GitHub.repoOf(after?.labels["org.opencontainers.image.source"]) ??
+    (isPrimary ? GitHub.repoOf(readManifestField(app, "repo")) : null);
+
+  // 1. A new tag.
+  if (tagMoved(first)) {
+    const from = pin.ref.tag.replace(/^v/, "");
+    const to = newRef.tag.replace(/^v/, "");
+    const release = source ? await lookup("the release page", () => github.release(source, newRef.tag)) : null;
+    // The old tag spelled the way the new one matched on GitHub.
+    const oldGitTag = release ? release.tag.replace(/^(v?).*$/, `$1${from}`) : null;
+    const tagRange =
+      source && release && oldGitTag
+        ? await lookup("upstream commits", () => github.compare(source, oldGitTag, release.tag))
+        : null;
+    if (tagRange && tagRange.total > 0) {
+      for (const commit of tagRange.commits.slice(-15)) details.push(`  - ${commit.subject} (${commit.sha.slice(0, 7)})`);
+      if (tagRange.total > 15) details.push(`  - ...and ${tagRange.total - 15} earlier`);
+    }
+    if (release) details.push(`  ${release.url}`);
+
+    const name = isPrimary && context.tracksUpstream ? app.title : subject;
+    const total = tagRange?.total ?? 0;
+    const shown = tagRange ? highlights(tagRange.commits, 3) : [];
+    const commits = plural(total, "commit");
+
+    // The commit subject already starts with "<App> <version>", so the app's
+    // own upgrade says what is in it instead of repeating the number.
+    let phrase = `update ${name} to ${to}`;
+    if (isPrimary && context.tracksUpstream && total > 0) {
+      phrase = shown[0]
+        ? `${commits} since ${from}, incl. ${clip(shown[0].charAt(0).toLowerCase() + shown[0].slice(1), 60)}`
+        : `${total === 1 ? "1 maintenance commit" : `${total} maintenance commits`} since ${from}`;
+    }
+
+    let note = `${name} updated from ${from} to ${to}.`;
+    if (shown.length > 0) {
+      note = `${name} updated from ${from} to ${to} (${commits}), including: ${shown.join("; ")}.`;
+    } else if (total > 0) {
+      note =
+        `${name} updated from ${from} to ${to}, a maintenance release: its ${commits} ` +
+        `are dependency, translation and build changes.`;
+    }
+    if (release) note += ` Release notes: ${release.url}`;
+    return { phrase, note, details };
   }
 
-  const refreshed = updates.filter((update) => !tagMoved(update));
-  if (refreshed.length > 0) {
-    const names = refreshed.map((update) => `${update.pin.ref.name}:${update.pin.ref.tag}`).join(", ");
+  // Same image, new index: upstream re-pushed the tag (attestations, another
+  // platform) without changing what runs here. Still worth taking — the old
+  // digest can be garbage-collected — but nothing to tell a user about.
+  if (before && after && before.digest === after.digest) {
+    details.push("  image config unchanged; only the index was re-published");
+    return {
+      phrase: `refresh ${subject}`,
+      note: null,
+      republished: `${subject}:${pin.ref.tag}`,
+      details,
+    };
+  }
+
+  // 2. Same tag, new upstream build number.
+  const versionLabel = "org.opencontainers.image.version";
+  const oldVersion = before?.labels[versionLabel];
+  const newVersion = after?.labels[versionLabel];
+
+  // 3. Upstream commits.
+  const oldRevision = before?.labels["org.opencontainers.image.revision"];
+  const newRevision = after?.labels["org.opencontainers.image.revision"];
+  let range: CommitRange | null = null;
+  if (source && oldRevision && newRevision && oldRevision !== newRevision) {
+    range = await lookup("upstream commits", () => github.compare(source, oldRevision, newRevision));
+  } else if (source && isPrimary && !newRevision && before?.created && after?.created) {
+    range = await lookup("upstream commits", () => github.between(source, before.created!, after.created!));
+  }
+  if (range && range.total > 0) {
+    for (const commit of range.commits.slice(-15)) details.push(`  - ${commit.subject} (${commit.sha.slice(0, 7)})`);
+    if (range.total > 15) details.push(`  - ...and ${range.total - 15} earlier`);
+    details.push(`  ${range.url}`);
+  }
+
+  if (newVersion && oldVersion && newVersion !== oldVersion) {
+    return {
+      phrase: `rebuild ${isPrimary ? "" : `${subject} `}as ${newVersion}`,
+      note:
+        `${isPrimary ? `The ${app.title} image` : subject} was rebuilt upstream as ` +
+        `${newVersion} (was ${oldVersion})` +
+        (built ? `, published ${built}.` : "."),
+      details,
+    };
+  }
+
+  if (range && range.total > 0) {
+    const shown = highlights(range.commits, 3);
+    const rest = range.total - shown.length;
+    const changes = plural(range.total, "upstream change");
+    return {
+      phrase: isPrimary
+        ? `${changes}` + (shown[0] ? `, incl. ${clip(shown[0].charAt(0).toLowerCase() + shown[0].slice(1), 60)}` : "")
+        : `pick up ${changes} to ${subject}`,
+      note:
+        `Picks up ${changes} to ${subject}` +
+        (built ? ` (build of ${built})` : "") +
+        `: ${shown.join("; ")}` +
+        (rest > 0 ? `; and ${rest} more.` : "."),
+      details,
+    };
+  }
+
+  // 4. Nothing but a new build.
+  return {
+    phrase: `refresh ${subject}`,
+    note: null,
+    rebuilt: `${subject}:${pin.ref.tag}` + (built ? ` (${built})` : ""),
+    details,
+  };
+}
+
+/** One description per distinct image move: Plane pins plane-backend four times. */
+async function describeAll(context: Context, updates: Update[]): Promise<Change[]> {
+  const groups = new Map<string, Update[]>();
+  for (const update of updates.filter(isActionable)) {
+    const key = `${update.pin.ref} -> ${update.newRef}`;
+    groups.set(key, [...(groups.get(key) ?? []), update]);
+  }
+  // Tag moves first: they are the news.
+  const ordered = [...groups.values()].sort(
+    (a, b) => Number(tagMoved(b[0]!)) - Number(tagMoved(a[0]!)),
+  );
+  const changes = await Promise.all(ordered.map((group) => describe(context, group)));
+  // Anything with its own sentence before the plain refreshes, so the
+  // subject leads with the news and the refreshes merge at the end.
+  return changes.sort((a, b) => Number(b.note !== null) - Number(a.note !== null));
+}
+
+function readManifestField(app: App, field: string): string | null {
+  const found = new RegExp(`^${field}:\\s*(.+?)\\s*$`, "m").exec(readFileSync(app.manifest, "utf8"));
+  return found ? found[1]!.replace(/^["']|["']$/g, "") : null;
+}
+
+/**
+ * The notes Umbrel shows on the app page. Plain rebuilds share one sentence,
+ * so a night that refreshes three sidecars does not say the same thing three
+ * times.
+ */
+function releaseNotes(changes: Change[], version: string): string {
+  const sentences = changes.flatMap((change) => (change.note ? [change.note] : []));
+  const list = (items: string[]) =>
+    items.length <= 2 ? items.join(" and ") : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
+
+  const rebuilt = changes.flatMap((change) => (change.rebuilt ? [change.rebuilt] : []));
+  if (rebuilt.length > 0) {
     sentences.push(
-      `Refreshed the pinned digest for ${names}; upstream re-published the ` +
-        `same tag, so nothing else changed.`,
+      `Picks up upstream's rebuild of ${list(rebuilt)}, with no version change; ` +
+        `that is usually base-image and security updates.`,
     );
   }
-
+  const republished = changes.flatMap((change) => (change.republished ? [change.republished] : []));
+  if (republished.length > 0 && sentences.length === 0) {
+    sentences.push(
+      `Upstream re-published ${list(republished)} without changing the image, ` +
+        `so nothing in the app changes.`,
+    );
+  }
   return sentences.length > 0 ? sentences.join(" ") : `Store release ${version}.`;
 }
 
@@ -593,7 +987,7 @@ function rewriteNotes(text: string, notes: string): string {
   return [...lines.slice(0, start), "releaseNotes: >-", ...block, ...lines.slice(end)].join("\n");
 }
 
-function applyApp(app: App, updates: Update[], keepNotes: boolean): { version: string; touched: string[] } {
+function applyApp(app: App, updates: Update[], version: string, notes: string | null): string[] {
   const touched: string[] = [];
 
   const lines = readFileSync(app.compose, "utf8").split("\n");
@@ -606,12 +1000,9 @@ function applyApp(app: App, updates: Update[], keepNotes: boolean): { version: s
   writeFileSync(app.compose, lines.join("\n"));
   touched.push(app.compose);
 
-  const { version, tracksUpstream } = nextVersion(app, updates);
   let manifest = readFileSync(app.manifest, "utf8");
   manifest = manifest.replace(/^version:\s*"?[^"\n]+?"?\s*$/m, `version: "${version}"`);
-  if (!keepNotes) {
-    manifest = rewriteNotes(manifest, releaseNotes(app, updates, version, tracksUpstream));
-  }
+  if (notes !== null) manifest = rewriteNotes(manifest, notes);
   writeFileSync(app.manifest, manifest);
   touched.push(app.manifest);
 
@@ -627,23 +1018,35 @@ function applyApp(app: App, updates: Update[], keepNotes: boolean): { version: s
     }
   }
 
-  return { version, touched };
+  return touched;
 }
 
 function git(...args: string[]): string {
   return execFileSync("git", args, { cwd: REPO_ROOT, encoding: "utf8" }).trim();
 }
 
-function commitApp(app: App, updates: Update[], version: string, touched: string[]): void {
-  const moved = updates.filter(tagMoved);
-  const summary =
-    moved.length > 0
-      ? "update " + moved.map((u) => `${u.pin.ref.name} to ${u.newRef.tag}`).join(", ")
-      : "refresh the pinned digest for " +
-        [...new Set(updates.map((u) => u.pin.ref.name))].sort().join(", ");
+/**
+ * `<App> <version>: <what changed>`, then one block per image with the
+ * digests, build dates, upstream commits and a link. The subject is what
+ * `git log --oneline` and the GitHub commit list show, so it carries the
+ * substance; the body is for whoever has to check the claim.
+ */
+function commitApp(app: App, version: string, changes: Change[], touched: string[]): void {
+  // "refresh redis, refresh pgvector" reads as "refresh redis, pgvector".
+  const phrases: string[] = [];
+  for (const { phrase } of changes) {
+    const previous = phrases.at(-1);
+    if (previous?.startsWith("refresh ") && phrase.startsWith("refresh ")) {
+      phrases[phrases.length - 1] = `${previous}, ${phrase.slice("refresh ".length)}`;
+    } else {
+      phrases.push(phrase);
+    }
+  }
+  const subject = `${app.title} ${version}: ${phrases.join(", ")}`;
+  const body = changes.map((change) => change.details.join("\n")).join("\n\n");
 
   git("add", "--", ...touched.map((path) => relative(REPO_ROOT, path)));
-  git("commit", "-m", `${app.title} ${version}: ${summary}`);
+  git("commit", "-m", subject, ...(body ? ["-m", body] : []));
 }
 
 // ---------------------------------------------------------------------------
@@ -682,6 +1085,7 @@ async function main(): Promise<number> {
   if (commit && git("status", "--porcelain")) die("the working tree is dirty; commit or stash first");
 
   const registry = new Registry();
+  const github = new GitHub();
   const released: string[] = [];
   let stale = 0;
   let noted = 0;
@@ -695,12 +1099,19 @@ async function main(): Promise<number> {
     report(updates);
     stale += actionable.length;
     noted += updates.length - actionable.length;
-    if (!apply || actionable.length === 0) continue;
+    if (actionable.length === 0) continue;
 
-    const { version, touched } = applyApp(app, actionable, values["keep-notes"]);
-    console.log(`  -> ${app.name} ${app.version} -> ${version}`);
+    const { version, tracksUpstream } = nextVersion(app, actionable);
+    const changes = await describeAll({ app, registry, github, tracksUpstream }, actionable);
+    for (const change of changes) console.log(`  = ${change.phrase}`);
+    if (!apply) continue;
+
+    const notes = values["keep-notes"] ? null : releaseNotes(changes, version);
+    const previous = app.version;
+    const touched = applyApp(app, actionable, version, notes);
+    console.log(`  -> ${app.name} ${previous} -> ${version}`);
     if (commit) {
-      commitApp(app, actionable, version, touched);
+      commitApp(app, version, changes, touched);
       released.push(`${app.title} ${version}`);
     }
   }

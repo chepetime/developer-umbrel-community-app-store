@@ -52,6 +52,9 @@ jobs:
         shell: bash
         env:
           DRY_RUN: ${{ inputs.dry_run }}
+          # Read-only use: release pages and commit lists for the commit
+          # messages and release notes. Anonymous GitHub API is 60 an hour.
+          GITHUB_TOKEN: ${{ github.token }}
         # The report goes to the runner's temp, not the checkout: the checker
         # refuses to commit into a dirty tree, and an untracked report.txt
         # beside it counts as dirty.

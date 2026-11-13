@@ -686,6 +686,35 @@ length costs something. Packaging rationale belongs in the compose file's
 comments, and git keeps superseded entries. Pass `--keep-notes` to leave the
 block alone.
 
+**Commit subjects and notes say what changed, per app** (`describe` in the
+script). The old fixed "refresh the pinned digest for X" said the same thing
+every night. It now reads the image config from the registry and asks GitHub,
+best evidence first:
+
+- **New tag:** commits between the two git tags and the release page.
+  `Maintainerr 3.32.0: 75 commits since 3.31.0, incl. patch vulnerable
+  dependencies...`. A release with only chore/deps/translation commits is
+  called a maintenance release.
+- **Same tag, new `org.opencontainers.image.version` label:** the build
+  number. `SmokePing 2.9.0-12: rebuild as 2.9.0-r0-ls190`.
+- **Same tag, upstream commits:** between the two `image.revision` labels,
+  or, for the app's own image when it has no labels (MiroTalk), on the
+  manifest's `repo:` between the two build dates.
+  `MiroTalk P2P 1.9.15-64: 11 upstream changes, incl. redact passwords...`.
+- **Nothing else known:** a plain rebuild, merged into one sentence per app.
+  `Multica 0.4.32-21: refresh redis, pgvector/pgvector`.
+
+Highlights skip conventional-commit bookkeeping (`chore`, `ci`, `release`,
+version-only subjects), put security fixes and features first, and strip
+`feat(ui):` and `[mirotalk] -` prefixes. The full commit list, digests and
+build dates go in the commit body.
+
+Two things to know. An index can move while the image config stays the same
+(redis re-pushing attestations). That is still applied, but it adds no
+release-note sentence. Every lookup is optional: a GitHub or registry failure
+only downgrades the wording, never blocks a release. The workflow passes
+`GITHUB_TOKEN` because the anonymous API allows 60 requests an hour.
+
 ### The nightly run
 
 `.github/workflows/check-image-updates.yml` runs the same thing every night
