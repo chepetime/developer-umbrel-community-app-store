@@ -751,7 +751,7 @@ id: chepetime-multica
 port: 46258
 image: ghcr.io/multica-ai/multica-backend:v0.4.32@sha256:508de17e1ddb335a5a3907a2a7702f2a20e7cf4a9321f63ee7a2bcdfef57ee35
 image: ghcr.io/multica-ai/multica-web:v0.4.32@sha256:c6976fbee1b1c566543067cde544d3168d3f9b71c60e6a5ccb7f2851392e8234
-image: pgvector/pgvector:pg18@sha256:c29f30688a9ad961691bdf0ec1650717cc132a5814619d80f80463d6e4c42e47
+image: pgvector/pgvector:pg18@sha256:38681dc6eaf55308e2a4c6de392d131652dcfac70e1263e35cd9b5ea3fe39782
 image: nginx:1.31-alpine@sha256:713fc2ebfd92e8217db451477182ee91944b123d2b1ee9fd5a8c6e91ca6c3a11
 ```
 
