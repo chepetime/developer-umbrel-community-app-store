@@ -66,6 +66,8 @@ installation:
   Stateless — diagrams live on the client — and configured only through an
   optional `secrets.env`, so no `DRAWIO_*` variable may be declared under
   `environment:`.
+- `chepetime-itsaplan`: It's a Plan, repackaged `ghcr.io/croffasia/itsaplan-*`.
+  Host port `36263`. Needs https to keep a session; see its store contract.
 
 Repackaged third-party apps, all behind `app_proxy` on allocated host ports:
 
@@ -554,6 +556,84 @@ Tunnel returns `101 Switching Protocols`; `transports: ['websocket']` in
 unknown"}`, which is correct behaviour and not a fault. ICE servers reach the
 client over that socket (`server.js:2400`), not over the REST API, so
 `API_DISABLED` cannot break a call.
+
+## It's a Plan Store Contract
+
+Not our app: it repackages upstream's `docker-compose.yml`
+(`github.com/croffasia/itsaplan`, AGPL-3.0). Added 2026-11-12 at `1.10.0`.
+
+```yaml
+id: chepetime-itsaplan
+port: 36263
+image: ghcr.io/croffasia/itsaplan-{api,worker,bot,web}:1.10.0@sha256:...
+```
+
+**It does not work over http, and that is not a packaging bug.** Under
+`NODE_ENV=production` the better-auth session cookie is `Secure`
+(`packages/auth/src/index.ts`), so on `http://umbrel.local:36263` sign-in
+returns 200 and the browser throws the cookie away. Real use goes through
+the Cloudflare Tunnel to `chepetime-itsaplan_gateway_1:80`, with `APP_URL`
+and `API_URL` set in `secrets.env`. Same class as Pocket ID and MiroTalk.
+
+**One origin, through a `gateway` nginx.** Upstream offers the api on a
+subdomain or on a path of the web's host; app_proxy and a tunnel hostname are
+both one origin, so this uses the path: `/api/*` to the api with the prefix
+stripped, `/.well-known/{oauth-*,openid-configuration}*` to the api for MCP
+OAuth, everything else to web. `API_URL` must always be `APP_URL` + `/api`.
+
+**Every location in `hooks/nginx.conf` repeats its `proxy_set_header` list.**
+nginx inherits those from the server block only into a location that sets
+none of its own; the first cut set `Upgrade` in `/api/` and the api lost
+`X-Forwarded-For` and `Host` there, so every client shared one sign-in
+rate-limit bucket. Found in a local run, not on the host.
+
+**The address comes from two env files, not `environment:`.**
+`hooks/defaults.env` (refreshed by updates, since it is in `hooks/`) carries
+LAN defaults for `APP_URL`/`API_URL`, `TRUSTED_PROXIES=10.21.0.0/16` and
+`TELEMETRY_DISABLED=1`; `secrets.env` is listed after it and wins. This is
+how the app gets working defaults *and* stays overridable — the api refuses
+to start with `API_URL` unset, and a value under `environment:` would beat
+`secrets.env` silently. Do not move these four into `environment:`.
+
+Other deviations from upstream's compose:
+
+- **Secrets are derived.** `POSTGRES_PASSWORD` and the RustFS secret are
+  `APP_PASSWORD`; `BETTER_AUTH_SECRET` is `APP_SEED`; `APP_ENCRYPTION_KEY` is
+  `${APP_SEED}-encryption`. That suffix must never change: the key encrypts
+  provider credentials stored in the database.
+- **The object store is `rustfs`, reached as `chepetime-itsaplan-rustfs`**, a
+  hyphen-only network alias, for the boto3 reason under Plane. Upstream names
+  the service `minio` only for its own pre-RustFS installs.
+- **`SERVICE_URL_API` is the qualified api container.** Upstream's
+  `http://api:3000` would hit any app with an `api` service.
+- **Telemetry is off** (`telemetry.itsaplan.dev`); `TELEMETRY_DISABLED=0` in
+  secrets.env restores it.
+
+`migrate` dumps the database into `data/backups` before applying a release's
+migrations and fails the start if the dump fails — an upgrade that stops at
+`migrate` should be read there first.
+
+Verified locally on 2026-11-12 (compose `--compatibility`, so container
+names match the host's): every service healthy, sign-up through
+`/api/api/auth/sign-up/email` makes the first account `god`, an avatar upload
+lands in RustFS, and the session records the client address.
+
+## Updating It's a Plan
+
+No build step. The four `ghcr.io/croffasia/itsaplan-*` images share a release
+and `api` is pinned twice (`migrate` and `api`); move all five pins together:
+
+```bash
+for i in api worker bot web; do
+  docker buildx imagetools inspect ghcr.io/croffasia/itsaplan-$i:X.Y.Z \
+    --format '{{.Manifest.Digest}}'
+done
+```
+
+`POLICIES` holds them at `skip`, like Plane, so the nightly run cannot move one
+without the others. Tags carry no `v` prefix. RustFS is `digest`; upstream
+still pins `1.0.0`, so follow upstream's compose rather than the newest tag.
+Then bump `version` and `releaseNotes` in `chepetime-itsaplan/umbrel-app.yml`.
 
 ## Keeping Image Pins Current
 

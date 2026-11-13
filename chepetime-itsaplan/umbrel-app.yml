@@ -1,0 +1,48 @@
+manifestVersion: 1
+id: chepetime-itsaplan
+storage:
+  dataRoot: data
+name: It's a Plan
+tagline: Issue tracker where AI agents take issues like teammates
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-itsaplan/icon.svg
+category: developer
+version: "1.10.0"
+port: 36263
+description: >-
+  It's a Plan is an open-source issue tracker in the vein of Linear and Jira:
+  projects, issues, boards, cycles, documents and a REST API, with webhooks,
+  Git integration and an MCP server for your own tools.
+
+
+  What sets it apart is that AI agents are members of the team. You can
+  assign an issue to an agent the way you would to a person. Agents can run
+  on this server with your own model provider API key, or outside it, on your
+  own machine, through Claude Code, Codex and similar tools.
+
+
+  Read this before installing: it needs https. Sessions use Secure cookies,
+  and browsers refuse to keep those over plain http. On
+  http://umbrel.local:36263 sign-in appears to work and then leaves you
+  signed out. Put it behind a tunnel or reverse proxy with https, and set
+  that address in secrets.env as the README beside this app explains.
+
+
+  The first account registered becomes the instance admin. Mail, SSO, AI
+  providers and the Telegram bot are configured in the web UI afterwards.
+  Anonymous usage telemetry is switched off in this package.
+
+
+  Licensed under AGPL-3.0.
+developer: croffasia
+website: https://itsaplan.dev
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/croffasia/itsaplan
+support: https://github.com/croffasia/itsaplan/issues
+gallery: []
+releaseNotes: >-
+  First release, packaging It's a Plan 1.10.0.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

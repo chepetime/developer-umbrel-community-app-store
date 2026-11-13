@@ -53,6 +53,7 @@ const POLICIES: Array<[pattern: string, policy: Policy]> = [
   ["ghcr.io/chepetime/drip", "skip"], // released with the Drip source
   ["ghcr.io/multica-ai/*", "skip"], // released with the Multica source
   ["makeplane/*", "skip"], // released with Plane's own source, six images move in lockstep
+  ["ghcr.io/croffasia/itsaplan-*", "skip"], // four images share a release, and the api one runs the migrations
   ["ghcr.io/tinyauthapp/tinyauth", "digest"], // rolling v5, no per-patch tags
   ["mirotalk/p2p", "digest"], // only `latest` is published, and the repo has no tags
   ["postgres", "digest"], // a major is a data-directory migration
@@ -61,6 +62,7 @@ const POLICIES: Array<[pattern: string, policy: Policy]> = [
   ["valkey/valkey", "digest"], // same reasoning as redis
   ["rabbitmq", "digest"], // mnesia data dir, same reasoning as postgres
   ["minio/minio", "digest"], // date-based RELEASE tags, and object data to boot
+  ["rustfs/rustfs", "digest"], // object store holding attachments; move by hand
   ["nginx", "minor"], // stateless proxy, nothing to migrate across 1.x
 ];
 const DEFAULT_POLICY: Policy = "minor";
