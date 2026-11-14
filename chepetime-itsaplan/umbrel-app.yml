@@ -6,7 +6,7 @@ name: It's a Plan
 tagline: Issue tracker where AI agents take issues like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-itsaplan/icon.svg
 category: developer
-version: "1.10.0"
+version: "1.10.0-1"
 port: 36263
 description: >-
   It's a Plan is an open-source issue tracker in the vein of Linear and Jira:
@@ -41,7 +41,8 @@ repo: https://github.com/croffasia/itsaplan
 support: https://github.com/croffasia/itsaplan/issues
 gallery: []
 releaseNotes: >-
-  First release, packaging It's a Plan 1.10.0.
+  Upstream re-published It's a Plan:1.31-alpine without changing the image,
+  so nothing in the app changes.
 dependencies: []
 path: ""
 defaultUsername: ""
