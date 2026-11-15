@@ -4,7 +4,7 @@ name: PairDrop
 tagline: Send files between any two devices on your network, from the browser
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-pairdrop/icon.svg
 category: files
-version: "1.11.2-6"
+version: "1.11.2-7"
 port: 46257
 description: >-
   PairDrop moves files between devices that have nothing else in common.
@@ -32,8 +32,8 @@ repo: https://github.com/schlagmichdoch/PairDrop
 support: https://github.com/schlagmichdoch/PairDrop/issues
 gallery: []
 releaseNotes: >-
-  Refreshed the pinned digest for linuxserver/pairdrop:1.11.2; upstream
-  re-published the same tag, so nothing else changed.
+  The PairDrop image was rebuilt upstream as v1.11.2-ls150 (was
+  v1.11.2-ls149), published 14 Nov 2026.
 
 dependencies: []
 path: ""
