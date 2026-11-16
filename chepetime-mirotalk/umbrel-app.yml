@@ -4,7 +4,7 @@ name: MiroTalk P2P
 tagline: Anonymous video calls in the browser, peer to peer
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-mirotalk/icon.svg
 category: social
-version: "1.9.15-69"
+version: "1.9.15-70"
 port: 46260
 description: >-
   Share a link, and whoever opens it is in the call. No accounts, no
@@ -40,9 +40,10 @@ repo: https://github.com/miroslavpejic85/mirotalk
 support: https://github.com/miroslavpejic85/mirotalk/issues
 gallery: []
 releaseNotes: >-
-  Picks up 2 upstream changes to MiroTalk P2P (build of 15 Nov 2026): Stop
-  sending peers' auth tokens to the join webhook; Keep the browser recording
-  audio mix updated during the session.
+  Picks up 5 upstream changes to MiroTalk P2P (build of 15 Nov 2026): Show
+  server restart notice as a centered card with server icon; Fix(client)
+  typo; Play notification sounds instantly, add open sound and fade-in to
+  polls and breakout rooms; and 2 more.
 
 dependencies: []
 path: ""
