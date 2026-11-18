@@ -1,0 +1,48 @@
+manifestVersion: 1
+id: chepetime-crosspoint-sync
+storage:
+  dataRoot: data
+name: CrossPoint Sync
+tagline: Reading progress, stats and highlights for KOReader and CrossPoint
+icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-crosspoint-sync/icon.png
+category: media
+version: "0.2.1"
+port: 36264
+description: >-
+  CrossPoint Sync is a reading-progress server for e-readers. It speaks the
+  KOSync protocol, so stock KOReader and CrossPoint / CrossInk firmware use it
+  by changing only the sync server URL.
+
+
+  Progress is stored per device and the newest position wins, so two readers
+  no longer fight over where you are. On top of that it keeps bookmarks,
+  highlights and reading statistics, and the web app shows your library,
+  reading calendar, streaks and clippings.
+
+
+  Optional connectors push your reading to Hardcover, Readwise Reader,
+  Audiobookshelf, Jellyfin, Readest, Micro.blog and others. Most of them need
+  the app reached over https, through a tunnel.
+
+
+  The app has its own accounts and does not sit behind your Umbrel login,
+  because e-readers cannot answer it. Registration is open until you turn it
+  off: create your accounts, then set REGISTRATION_DISABLED=true in
+  secrets.env, as the README explains.
+
+
+  Book titles and authors are sent to metadata.dev for covers and page counts.
+  Set METADATA_API=false in secrets.env to stop that.
+developer: CrossPoint Reader
+website: https://sync.crosspointreader.com
+submitter: ChepeTime
+submission: https://github.com/chepetime/developer-umbrel-community-app-store
+repo: https://github.com/crosspoint-reader/crosspoint-sync
+support: https://github.com/crosspoint-reader/crosspoint-sync/issues
+gallery: []
+releaseNotes: >-
+  First release, packaging CrossPoint Sync 0.2.1.
+dependencies: []
+path: "/app/"
+defaultUsername: ""
+defaultPassword: ""

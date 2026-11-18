@@ -68,6 +68,9 @@ installation:
   `environment:`.
 - `chepetime-itsaplan`: It's a Plan, repackaged `ghcr.io/croffasia/itsaplan-*`.
   Host port `36263`. Needs https to keep a session; see its store contract.
+- `chepetime-crosspoint-sync`: CrossPoint Sync, repackaged
+  `ghcr.io/crosspoint-reader/crosspoint-sync`. Host port `36264`. No Umbrel
+  login in front; see its store contract.
 
 Repackaged third-party apps, all behind `app_proxy` on allocated host ports:
 
@@ -634,6 +637,60 @@ done
 without the others. Tags carry no `v` prefix. RustFS is `digest`; upstream
 still pins `1.0.0`, so follow upstream's compose rather than the newest tag.
 Then bump `version` and `releaseNotes` in `chepetime-itsaplan/umbrel-app.yml`.
+
+## CrossPoint Sync Store Contract
+
+Not our app: it repackages upstream's `docker-compose.yml`
+(`github.com/crosspoint-reader/crosspoint-sync`, MIT), a KOSync-compatible
+reading-progress server. One Node + SQLite container. Added 2026-11-18 at
+`0.2.1`.
+
+```yaml
+id: chepetime-crosspoint-sync
+port: 36264
+image: ghcr.io/crosspoint-reader/crosspoint-sync:0.2.1@sha256:16db504257b043cd31017a1af386d17536807860d182a875738e12a77bff72b8
+```
+
+**`PROXY_AUTH_ADD: "false"`, the first app here with no Umbrel login at
+all.** A whitelist would cover nearly everything anyway: e-reader firmware on
+`/users/*` and `/syncs/*`, the companion app and the KOReader plugin on
+`/api/v1/*`, and connector OAuth callbacks. The app's own accounts are the
+gate. Registration is open by default, so the README tells the user to set
+`REGISTRATION_DISABLED=true` in `secrets.env` once accounts exist.
+
+**`TOKEN_ENC_KEY` is `${APP_SEED}-token-enc`, and the suffix must never
+change.** It encrypts stored connector credentials. `crypto/secrets.ts` takes
+64 hex chars, then base64 that decodes to exactly 32 bytes, then SHA-256 of
+any passphrase of 32 or more chars. The suffix makes the value land on the
+passphrase path. Verified locally: the log says `connectors: enabled`.
+
+**`TRUST_PROXY: "true"`** so connector linking works through the tunnel.
+Without it the app reports "Connector credentials require HTTPS" even when the
+browser is on https. The container publishes no port, so the only clients are
+`app_proxy` and cloudflared.
+
+**`data/.gitkeep` is load-bearing.** The image runs as `node` (uid 1000). A
+bind source that Docker has to create is owned by root, and the app cannot
+write its database there. A directory shipped in the package is created by the
+install as 1000, the same as Billow's `data/uploads`.
+
+Two version quirks. GHCR tags carry no `v` (`0.2.1`), but GitHub releases do
+(`v0.2.1`). Releases tagged `koreader-v*` are the KOReader plugin, not the
+server. `/healthz` in the `0.2.1` image reports `"version":"0.2.0"`, because
+upstream did not bump that constant, so do not read it as a wrong pin. The
+default `minor` policy is correct.
+
+## Updating CrossPoint Sync
+
+No build step. Move the tag and its multi-arch index digest:
+
+```bash
+docker buildx imagetools inspect ghcr.io/crosspoint-reader/crosspoint-sync:X.Y.Z \
+  --format '{{.Manifest.Digest}}'
+```
+
+Then bump `version` and `releaseNotes` in
+`chepetime-crosspoint-sync/umbrel-app.yml`. The nightly checker does both.
 
 ## Keeping Image Pins Current
 

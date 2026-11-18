@@ -1,0 +1,49 @@
+version: "3.7"
+
+# Repackages upstream's docker-compose.yml (github.com/crosspoint-reader/
+# crosspoint-sync, MIT): one Node + SQLite container, all state in one file
+# under /data.
+#
+# What differs from upstream, and why:
+#
+#   - No Umbrel login (PROXY_AUTH_ADD: "false"). Almost every route is called
+#     by something that cannot answer it: KOReader and CrossPoint firmware on
+#     /users/* and /syncs/*, the companion app and the KOReader stats plugin on
+#     /api/v1/*, OAuth callbacks from connector providers. The app has its own
+#     accounts, and the web UI at /app/ signs in with them.
+#   - TOKEN_ENC_KEY is derived from APP_SEED, so service connectors (Hardcover,
+#     Readwise, ...) work from the first start. It encrypts stored connector
+#     credentials: the "-token-enc" suffix must never change, or every linked
+#     service has to be linked again. It is a passphrase as far as the app is
+#     concerned (not 64 hex, not 32-byte base64), so it is SHA-256'd to a key.
+#   - TRUST_PROXY is on. The container publishes no port; the only ways in are
+#     app_proxy and the Cloudflare Tunnel, and without it connector linking
+#     refuses with "Connector credentials require HTTPS" even over the tunnel.
+#
+# Everything else is left out of `environment:` on purpose so secrets.env can
+# set it — a name declared here silently beats the same name from env_file.
+# The useful ones: REGISTRATION_DISABLED, METADATA_API, HARDCOVER_API_KEY,
+# AUTH_RATE_LIMIT_PER_MINUTE.
+services:
+  app_proxy:
+    environment:
+      APP_HOST: chepetime-crosspoint-sync_server_1
+      APP_PORT: 8080
+      PROXY_AUTH_ADD: "false"
+
+  server:
+    # Multi-arch index digest (amd64, arm64). Upstream tags carry no `v`
+    # prefix, unlike its GitHub releases (v0.2.1).
+    image: ghcr.io/crosspoint-reader/crosspoint-sync:0.2.1@sha256:16db504257b043cd31017a1af386d17536807860d182a875738e12a77bff72b8
+    # The image runs as `node` (uid 1000). data/ ships with a .gitkeep so the
+    # install creates it owned by umbrel (1000) rather than letting Docker
+    # create it as root, which the app could not write to.
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+    environment:
+      TOKEN_ENC_KEY: ${APP_SEED}-token-enc
+      TRUST_PROXY: "true"
+    env_file:
+      - path: ${APP_DATA_DIR}/secrets.env
+        required: false
+    restart: on-failure
