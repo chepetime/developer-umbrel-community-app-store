@@ -1,44 +1,4 @@
-<!--
-  A generic network-watch mark in this store's house style. Deliberately not
-  upstream's logo, which is theirs and not ours to redistribute.
--->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="NetAlertX">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0f766e"/>
-      <stop offset="1" stop-color="#0b1f2a"/>
-    </linearGradient>
-    <clipPath id="rounded">
-      <rect width="512" height="512" rx="112" ry="112"/>
-    </clipPath>
-  </defs>
-
-  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
-
-  <g clip-path="url(#rounded)">
-    <!-- Links from the hub out to the known devices. -->
-    <g stroke="#ffffff" stroke-width="12" stroke-linecap="round" opacity="0.45">
-      <path d="M256 256 L136 168"/>
-      <path d="M256 256 L376 168"/>
-      <path d="M256 256 L136 356"/>
-    </g>
-
-    <!-- The one unknown device, drawn in the alert colour. -->
-    <path d="M256 256 L376 356" stroke="#fbbf24" stroke-width="14" stroke-linecap="round"/>
-
-    <!-- Hub. -->
-    <circle cx="256" cy="256" r="52" fill="#ffffff"/>
-    <circle cx="256" cy="256" r="22" fill="#0b1f2a"/>
-
-    <!-- Known devices. -->
-    <g fill="#ffffff">
-      <circle cx="136" cy="168" r="28"/>
-      <circle cx="376" cy="168" r="28"/>
-      <circle cx="136" cy="356" r="28"/>
-    </g>
-
-    <!-- New device: highlighted, with a ring to read as "just appeared". -->
-    <circle cx="376" cy="356" r="34" fill="#fbbf24"/>
-    <circle cx="376" cy="356" r="52" fill="none" stroke="#fbbf24" stroke-width="8" opacity="0.5"/>
-  </g>
+  <rect width="512" height="512" fill="#ffffff"/>
+  <image x="72" y="72" width="368" height="368" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbDpzcGFjZT0icHJlc2VydmUiIGlkPSJuZXRhbGVydHhfc3ZnX19zdmc1IiB4PSIwIiB5PSIwIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48c3R5bGU+Lm5ldGFsZXJ0eF9zdmdfX3N0MXtmaWxsOiNkNDAwMDB9PC9zdHlsZT48ZWxsaXBzZSBpZD0ibmV0YWxlcnR4X3N2Z19fcGF0aDMxIiBjeD0iMjU2IiBjeT0iMjU2LjkiIHJ4PSIyNTUuMyIgcnk9IjI1NC44Ii8+PHBhdGggZD0iTTI1My4zIDI1Ny43Yy0uMiAwLTQwLjMgNDEtODkuNCA5MC4zbC04OC42IDg4LjljMTIuNiAxMi42IDI2LjYgMjQgNDEuNyAzMy43IDEtLjggMy41LTMuMiA2LjEtNmw1LjktNi4zaDI0OS4ybDcuMSA2LjZjMi4xIDIuMSA0LjYgNS40IDYuMyA3LjkgMTUuNy05LjggMzAuMy0yMS40IDQzLjQtMzQuM2wtOTAuNy05MC4zYy00OS42LTQ5LjQtOTAuOC05MC41LTkxLTkwLjVtLjUgMTQyLjdoLTY2LjZsMzMuMy0zMy4zIDMzLjMtMzMuMyAzMy4zIDMzLjMgMzMuMyAzMy4zeiIgc3R5bGU9ImZpbGw6I2ZmZiIvPjxwYXRoIGlkPSJuZXRhbGVydHhfc3ZnX19wYXRoNTI0NjUiIGQ9Ik0yMjEuMyAyMjIuNyAxODggMTg5LjVjOS45LTguNSAyOC4xLTE3LjggNDQuMi0yMS44IDYtMS41IDEyLjUtMy4yIDIyLjUtMy4yIDExLjMgMCAyMS4yIDIuMiAzMy44IDYuNSAxMS43IDQgMjAgOC4yIDI5LjQgMTUuMWw0LjEgMy01LjkgNmMtMy4yIDMuMy0xOC40IDE4LjMtMzMuOCAzMy4zbC0yNy45IDI3LjRjLTEwLjktMTEuMS0zMC45LTMwLjktMzMuMS0zMy4xIiBjbGFzcz0ibmV0YWxlcnR4X3N2Z19fc3QxIi8+PHBhdGggaWQ9Im5ldGFsZXJ0eF9zdmdfX3BhdGg1MjUwNCIgZD0iTTM3MS4zIDEzMC40QzMzMS44IDk3LjEgMjc1IDgzIDIxOS41IDkyLjhjLTMxLjUgNS41LTU3LjIgMTguNC04NS40IDQyLjJsLTEuNCAxLjItNS43LTYuNGMtMi42LTIuOS0xNS42LTE2LTI4LjYtMjkuNEw3NS4yIDc3bDIuNi0yLjdjMTcuNy0xOC4xIDQ4LjMtMzkuNyA3MS4yLTUwLjJDMjAwIC44IDI1My45LTUuOSAzMDggNS4zYzQ1LjggOS41IDg1LjggMjkuNyAxMjEuNyA2NC45bDYuOCA2LjctNi40IDYuN2MtNC4yIDQuNC0xNy44IDE3LjgtMzAuMSAzMC4xbC0yMi40IDIyLjJ6IiBjbGFzcz0ibmV0YWxlcnR4X3N2Z19fc3QxIi8+PC9zdmc+"/>
 </svg>

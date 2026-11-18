@@ -1,12 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="pocket-id">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0284c7"/>
-      <stop offset="1" stop-color="#082f49"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
-  <text x="256" y="256" fill="#ffffff" font-family="Helvetica, Arial, sans-serif"
-        font-size="200" font-weight="700" text-anchor="middle" dominant-baseline="central"
-        letter-spacing="-8">ID</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Pocket ID">
+  <rect width="512" height="512" fill="#ffffff"/>
+  <image x="72" y="72" width="368" height="368" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbDpzcGFjZT0icHJlc2VydmUiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjI1NiIvPjxwYXRoIGQ9Ik0yNjguNiAxMDIuNGM2NC40IDAgMTE2LjggNTIuNCAxMTYuOCAxMTYuNyAwIDI1LjMtOCA0OS40LTIzIDY5LjYtMTQuOCAxOS45LTM1IDM0LjMtNTguNCA0MS43bC02LjUgMi0xNS41LTc2LjIgNC4zLTJjMTQtNi43IDIzLTIxLjEgMjMtMzYuNiAwLTIyLjQtMTguMi00MC42LTQwLjYtNDAuNlMyMjggMTk1LjIgMjI4IDIxNy42YzAgMTUuNSA5IDI5LjggMjMgMzYuNmw0LjIgMi0yNSAxNTMuNGgtNjkuNVYxMDIuNHoiIHN0eWxlPSJmaWxsOiNmZmYiLz48L3N2Zz4="/>
 </svg>

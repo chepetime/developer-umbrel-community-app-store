@@ -44,6 +44,30 @@ Two more constraints that follow from the same file:
 Umbrel's own template store demonstrates the convention: store `id: sparkles`,
 app directory `sparkles-hello-world`, `name: Hello World`.
 
+## App icons
+
+Use upstream's own logo, never a placeholder. Every icon is served from this
+repo (`icon:` points at `raw.githubusercontent.com/.../<app>/icon.svg` or
+`icon.png`). That way the listing does not depend on a third-party URL that
+could stay up or break. Sources, in order of preference:
+
+1. `https://getumbrel.github.io/umbrel-apps-gallery/<id>/icon.svg`, when
+   Umbrel's official store has the app (Calibre-Web Automated).
+2. `https://cdn.jsdelivr.net/gh/selfhst/icons/{svg,png}/<name>.{svg,png}`,
+   a large icon set for self-hosted apps (`draw-io`, not `drawio`).
+3. The upstream repository itself (MiroTalk, Plane, Multica, CrossPoint Sync).
+
+Umbrel shows icons in a rounded square with no inset, so a round or
+edge-to-edge logo loses its rim to the corners. Those are wrapped in a
+512×512 SVG: a background `rect` plus the original as a base64 `data:` URI
+`<image>` at 72/72/368/368. A linked `href` would not load, because Umbrel
+renders the icon through `<img>`. Logos that are already designed as squares
+are committed unchanged. Before committing, view each icon in a rounded
+96px frame.
+
+Changing an icon needs no version bump. The listing reads the URL, and it is
+not part of an app update.
+
 Umbrel reads this repository as a store. It does not build app source from here.
 Each app directory should contain only the Umbrel package files needed for
 installation:
