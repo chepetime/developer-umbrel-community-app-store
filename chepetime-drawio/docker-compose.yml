@@ -29,7 +29,7 @@ services:
 
   web:
     # Multi-arch index digest (amd64, arm64).
-    image: jgraph/drawio:32.6.10@sha256:44e9e4b43d92a0704ee67da3dcf0966272ce95543cd135025ff05515e1dfaa9c
+    image: jgraph/drawio:32.7.4@sha256:3e3281733f69416b2b632adad05c9c07d434ebb775e01070d55e9f3247cebe31
     # Optional. Example:
     #   nano ~/umbrel/app-data/chepetime-drawio/secrets.env
     #   DRAWIO_SERVER_URL=https://draw.example.com/

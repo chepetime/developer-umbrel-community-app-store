@@ -4,7 +4,7 @@ name: draw.io
 tagline: Diagramming in the browser, with nothing leaving your network
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drawio/icon.svg
 category: developer
-version: "32.6.10-1"
+version: "32.7.4"
 port: 36262
 description: >-
   draw.io is the diagram editor behind diagrams.net: flowcharts, network
@@ -32,8 +32,7 @@ repo: https://github.com/jgraph/docker-drawio
 support: https://github.com/jgraph/docker-drawio/issues
 gallery: []
 releaseNotes: >-
-  Picks up upstream's rebuild of draw.io:32.6.10 (16 Nov 2026), with no
-  version change; that is usually base-image and security updates.
+  draw.io updated from 32.6.10 to 32.7.4.
 dependencies: []
 path: ""
 defaultUsername: ""
