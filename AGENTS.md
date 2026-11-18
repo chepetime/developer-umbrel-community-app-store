@@ -1,5 +1,9 @@
 # Repository Notes
 
+To add an app or release an update, follow
+`.claude/skills/umbrel-app/SKILL.md`, which gives the order of work, and lint
+with its `check-app.sh`. This file holds the rules that skill points at.
+
 This repository is an Umbrel Community App Store named `José Lugo`, displayed
 in the Umbrel UI as "José Lugo App Store". The store `id` is `chepetime`.
 

@@ -8,6 +8,8 @@ Umbrel UI as "José Lugo App Store".
 - `chepetime-billow`: Billow, a personal invoices app. Host port `46247`.
 - `chepetime-goose`: Goose, a copy of Billow renamed and restarted at `0.1.0`. Host port
   `46248`.
+- `chepetime-drip`: Drip, a subscription tracker built on Goose. Host port
+  `36249`.
 - `chepetime-netalertx`: NetAlertX, third-party LAN scanner. Host ports `20211`
   and `20212`. Repackaged upstream image, no source repo of ours.
 
@@ -24,7 +26,11 @@ Repackaged third-party apps (each has its own README):
 | Maintainerr | `chepetime-maintainerr` | `46256` | Point it at Plex and the *arr apps        |
 | PairDrop    | `chepetime-pairdrop`    | `46257` | Nothing to configure                      |
 | Multica     | `chepetime-multica`     | `46258` | Server only; the agent daemon runs on your machine |
+| Plane       | `chepetime-plane`       | `46259` | Thirteen containers; set `WEB_URL` for a non-LAN address |
+| MiroTalk P2P | `chepetime-mirotalk`   | `46260` | Needs https for camera and microphone     |
+| Calibre-Web Automated | `chepetime-calibre-web-automated` | `46261` | The ingest folder deletes what it imports |
 | draw.io     | `chepetime-drawio`      | `36262` | Diagrams are saved on your device, not the server |
+| It's a Plan | `chepetime-itsaplan`    | `36263` | Needs https to keep a session             |
 | CrossPoint Sync | `chepetime-crosspoint-sync` | `36264` | No Umbrel login; close registration after setup |
 
 Goose and Billow are independent: separate repositories, separate images,
