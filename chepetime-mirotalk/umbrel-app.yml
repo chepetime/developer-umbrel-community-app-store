@@ -4,7 +4,7 @@ name: MiroTalk P2P
 tagline: Anonymous video calls in the browser, peer to peer
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-mirotalk/icon.svg
 category: social
-version: "1.9.15-71"
+version: "1.9.15-72"
 port: 46260
 description: >-
   Share a link, and whoever opens it is in the call. No accounts, no
@@ -40,10 +40,11 @@ repo: https://github.com/miroslavpejic85/mirotalk
 support: https://github.com/miroslavpejic85/mirotalk/issues
 gallery: []
 releaseNotes: >-
-  Picks up 3 upstream changes to MiroTalk P2P (build of 17 Nov 2026): Add
-  mute/hide all quick actions to audio/video dropdowns; Copy ready-to-paste
-  room invite with password, reuse clipboard helper; Fall back to browser
-  noise suppression when RNNoise is switched off, instant toggle.
+  Picks up 8 upstream changes to MiroTalk P2P (build of 18 Nov 2026):
+  Sanitize peer names to plain text server-side to prevent HTML injection in
+  toasts and dialogs; Sanitize peer avatar URL server-side on join and
+  profile update; Add .ics download, duration presets and readable time zone
+  to email invitation; and 5 more.
 
 dependencies: []
 path: ""
