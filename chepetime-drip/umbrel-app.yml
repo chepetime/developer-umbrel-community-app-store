@@ -6,7 +6,7 @@ name: Drip
 tagline: Track every subscription you pay for
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/icon.svg
 category: finance
-version: "0.1.4-6"
+version: "0.1.4-7"
 port: 36249
 description: >-
   Drip keeps every subscription you pay for in one place, totals what they
@@ -46,8 +46,8 @@ gallery:
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/2-explore.jpg
   - https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-drip/gallery/3-reminders.jpg
 releaseNotes: >-
-  Upstream re-published postgres:16-alpine without changing the image, so
-  nothing in the app changes.
+  Picks up upstream's rebuild of postgres:16-alpine (18 Nov 2026), with no
+  version change; that is usually base-image and security updates.
 
 dependencies: []
 path: ""
