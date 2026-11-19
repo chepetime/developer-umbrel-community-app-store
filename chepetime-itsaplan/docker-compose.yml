@@ -39,7 +39,7 @@ services:
       PROXY_AUTH_WHITELIST: "/api/*,/.well-known/*"
 
   gateway:
-    image: nginx:1.31-alpine@sha256:fed7e14be83cbd2661a75cdc5b872d936cf155d46c327084d30b8df19ae88d72
+    image: nginx:1.31-alpine@sha256:0563c36f94a6d3ec3584161b77859f740f7e20b4853f52c796a864ce6908e8ea
     depends_on:
       - web
       - api
@@ -52,7 +52,7 @@ services:
   postgres:
     # 17, as upstream ships. Pre-18, so the mount stays on .../data — do not
     # copy Multica's pg18 parent-directory mount here.
-    image: postgres:17-alpine@sha256:a77aa70e641402a21411b92b721c58d10f23b50ae5fdd2333efd22d166e1e5f7
+    image: postgres:17-alpine@sha256:526f86d93c6ea08fd3f1fe5605650cacc781b2c6013169a0ad8f42c7d3d84f32
     stop_grace_period: 1m
     environment:
       POSTGRES_USER: itsaplan

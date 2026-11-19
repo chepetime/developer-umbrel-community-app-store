@@ -6,7 +6,7 @@ name: It's a Plan
 tagline: Issue tracker where AI agents take issues like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-itsaplan/icon.svg
 category: developer
-version: "1.10.0-2"
+version: "1.10.0-3"
 port: 36263
 description: >-
   It's a Plan is an open-source issue tracker in the vein of Linear and Jira:
@@ -41,8 +41,12 @@ repo: https://github.com/croffasia/itsaplan
 support: https://github.com/croffasia/itsaplan/issues
 gallery: []
 releaseNotes: >-
-  Upstream re-published postgres:17-alpine without changing the image, so
-  nothing in the app changes.
+  Picks up 74 upstream changes to It's a Plan (build of 18 Nov 2026): Update
+  Next.js to 16.4.6 and patch vulnerable dependencies; Add an opt-in catalog
+  mode to the MCP endpoint; Run agents in the background from the API and
+  MCP and read the result with get_agent_run; and 71 more. Picks up
+  upstream's rebuild of postgres:17-alpine (18 Nov 2026), with no version
+  change; that is usually base-image and security updates.
 dependencies: []
 path: ""
 defaultUsername: ""
