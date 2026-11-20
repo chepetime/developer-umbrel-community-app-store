@@ -4,7 +4,7 @@ name: MiroTalk P2P
 tagline: Anonymous video calls in the browser, peer to peer
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-mirotalk/icon.svg
 category: social
-version: "1.9.15-73"
+version: "1.9.15-74"
 port: 46260
 description: >-
   Share a link, and whoever opens it is in the call. No accounts, no
@@ -40,11 +40,11 @@ repo: https://github.com/miroslavpejic85/mirotalk
 support: https://github.com/miroslavpejic85/mirotalk/issues
 gallery: []
 releaseNotes: >-
-  Picks up 6 upstream changes to MiroTalk P2P (build of 19 Nov 2026):
-  Enforce IP whitelist on static files and Socket.IO; Add live camera
-  preview above the video source select when settings is full screen on
-  mobile, including background effects; Add camera video backgrounds with 17
-  built-in animated loops; and 3 more.
+  Picks up 7 upstream changes to MiroTalk P2P (build of 20 Nov 2026): Show
+  avatar in the camera preview when the camera is off, click to turn it on;
+  Add a subtle backdrop panel behind the buttons bar; Show live camera
+  preview on desktop too, compact 16:9 size aligned with the video fields;
+  and 4 more.
 
 dependencies: []
 path: ""
