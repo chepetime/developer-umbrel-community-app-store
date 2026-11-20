@@ -6,7 +6,7 @@ name: Multica
 tagline: Assign issues to coding agents like teammates
 icon: https://raw.githubusercontent.com/chepetime/developer-umbrel-community-app-store/master/chepetime-multica/icon.svg
 category: developer
-version: "0.4.32-24"
+version: "0.4.32-25"
 port: 46258
 description: >-
   Multica is an issue tracker whose assignees can be AI coding agents. You
@@ -49,9 +49,8 @@ repo: https://github.com/multica-ai/multica
 support: https://github.com/multica-ai/multica/issues
 gallery: []
 releaseNotes: >-
-  Picks up 100 upstream changes to Multica (build of 18 Nov 2026): Add
-  shared help command (MUL-9553); Tell the caller why an issue write started
-  no run; Offer target-agent skills in comment slash menu; and 97 more.
+  Upstream re-published Multica:1.31-alpine without changing the image, so
+  nothing in the app changes.
 
 dependencies: []
 path: ""
